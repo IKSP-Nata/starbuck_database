@@ -28,14 +28,16 @@ $sb_nav_items = [
     <a class="skip-link" href="#main-content">Lewati ke konten</a>
 
     <!-- Sidebar kiri (desktop, >= 992px) -->
-    <aside class="sb-sidebar" aria-label="Navigasi utama">
+    <aside class="sb-sidebar sidebar" aria-label="Navigasi utama">
         <a class="sb-brand" href="/starbuck/pages/dashboard.php">Starbuck</a>
-        <ul class="sb-nav">
-            <?php foreach ($sb_nav_items as $sb_item): ?>
+        <ul class="sb-nav sidebar-nav">
+            <div class="nav-curve-indicator" aria-hidden="true"></div>
+            <?php foreach ($sb_nav_items as $sb_index => $sb_item): ?>
                 <?php $sb_is_active = strpos($sb_current_path, $sb_item['match']) !== false; ?>
                 <li>
-                    <a class="sb-link<?php echo $sb_is_active ? ' is-active' : ''; ?>"
+                    <a class="sb-link nav-link<?php echo $sb_is_active ? ' is-active active' : ''; ?>"
                         href="<?php echo $sb_item['href']; ?>"
+                        data-nav-index="<?php echo $sb_index; ?>"
                         <?php echo $sb_is_active ? 'aria-current="page"' : ''; ?>>
                         <i class="bi <?php echo $sb_item['icon']; ?>" aria-hidden="true"></i>
                         <span><?php echo $sb_item['label']; ?></span>
