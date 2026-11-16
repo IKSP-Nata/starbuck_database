@@ -2,45 +2,32 @@
 define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/config/config.php';
 
-// Deteksi nama kolom primary key pada tabel produk (id_produk atau id)
-$col_id_produk = 'id';
-$check_prod_pk = mysqli_query($koneksi, "SHOW COLUMNS FROM produk LIKE 'id_produk'");
-if ($check_prod_pk && mysqli_num_rows($check_prod_pk) > 0) {
-    $col_id_produk = 'id_produk';
-}
-
-// Deteksi nama kolom jumlah pada tabel detail_transaksi
-$col_jumlah = 'jumlah';
-$res_dt_cols = mysqli_query($koneksi, "SHOW COLUMNS FROM detail_transaksi");
-if ($res_dt_cols) {
-    while ($col = mysqli_fetch_assoc($res_dt_cols)) {
-        if (in_array($col['Field'], ['jumlah', 'qty', 'kuantitas'], true)) {
-            $col_jumlah = $col['Field'];
-            break;
-        }
-    }
-}
-
 $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
-                 dt.$col_jumlah AS jumlah_beli, p.nama_produk
+                 COALESCE(k.nama_kasir, '-') AS nama_kasir,
+                 GROUP_CONCAT(
+                     CASE
+                         WHEN p.nama_produk IS NOT NULL AND dt.kuantitas IS NOT NULL
+                             THEN CONCAT(p.nama_produk, ' (x', dt.kuantitas, ')')
+                         ELSE p.nama_produk
+                     END
+                     SEPARATOR ', '
+                 ) AS daftar_menu,
+                 SUM(dt.kuantitas) AS total_kuantitas
           FROM transaksi t
+          LEFT JOIN kasir k ON t.id_kasir = k.id_kasir
           LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
-          LEFT JOIN produk p ON dt.id_produk = p.$col_id_produk
+          LEFT JOIN produk p ON dt.id_produk = p.id_produk
+          GROUP BY t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu, k.nama_kasir
           ORDER BY t.id_transaksi DESC";
 
 $result = mysqli_query($koneksi, $query);
 $rows = [];
 $total_pendapatan = 0;
-$seen_trx = [];
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
         $rows[] = $row;
-        $tid = $row['id_transaksi'];
-        if (!isset($seen_trx[$tid])) {
-            $seen_trx[$tid] = true;
-            $total_pendapatan += (float)$row['total'];
-        }
+        $total_pendapatan += (float)$row['total'];
     }
 }
 ?>
@@ -50,91 +37,126 @@ if ($result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Transaksi Penjualan - Starbuck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
     <style>
+        :root {
+            --bg-canvas: #F8F6F3;
+            --bg-surface: #FFFFFF;
+            --bg-subtle: #F3EFEA;
+            --primary-coffee: #4E342E;
+            --primary-hover: #3B2621;
+            --text-main: #2C221E;
+            --text-muted: #7A6F69;
+            --border-soft: #EAE4DD;
+        }
         * {
             box-sizing: border-box;
         }
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f4f6f8;
-            color: #1f2937;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
             margin: 0;
-            padding: 24px;
+            padding: 32px 20px;
+            -webkit-font-smoothing: antialiased;
         }
         .report-container {
-            max-width: 960px;
+            max-width: 1020px;
             margin: 0 auto;
-            background: #fff;
-            padding: 28px 32px;
-            border-radius: 8px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            background: var(--bg-surface);
+            padding: 32px;
+            border-radius: 18px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 4px 20px rgba(44, 34, 30, 0.04);
         }
         .no-print {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
-        .btn {
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 18px;
+            font-family: inherit;
             font-size: 14px;
             font-weight: 600;
-            padding: 8px 18px;
-            border: none;
-            border-radius: 6px;
+            border-radius: 12px;
             cursor: pointer;
             text-decoration: none;
-            display: inline-block;
+            transition: background-color 150ms ease;
         }
         .btn-print {
-            background-color: #00704a;
-            color: #fff;
+            color: #FFFFFF;
+            background-color: var(--primary-coffee);
+            border: 1px solid var(--primary-coffee);
         }
         .btn-print:hover {
-            background-color: #005a3b;
+            background-color: var(--primary-hover);
         }
         .btn-back {
-            background-color: #6c757d;
-            color: #fff;
+            color: var(--primary-coffee);
+            background-color: transparent;
+            border: 1px solid var(--primary-coffee);
+        }
+        .btn-back:hover {
+            background-color: var(--bg-subtle);
         }
         .report-header {
-            text-align: center;
-            border-bottom: 2px solid #00704a;
-            padding-bottom: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-soft);
+            padding-bottom: 18px;
             margin-bottom: 20px;
         }
         .report-header h1 {
             margin: 0;
-            font-size: 22px;
-            letter-spacing: 1px;
-            color: #00704a;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
         }
         .report-header p {
-            margin: 6px 0 0;
+            margin: 4px 0 0;
             font-size: 13px;
-            color: #4b5563;
+            color: var(--text-muted);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 13.5px;
         }
         th, td {
-            border: 1px solid #d1d5db;
-            padding: 9px 10px;
+            border-bottom: 1px solid var(--border-soft);
+            padding: 12px 14px;
             text-align: left;
+            vertical-align: middle;
         }
         thead th {
-            background-color: #00704a;
-            color: #fff;
+            font-size: 12px;
             font-weight: 600;
-        }
-        tbody tr:nth-child(even) {
-            background-color: #f9fafb;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--text-muted);
+            background-color: var(--bg-subtle);
+            border-top: 1px solid var(--border-soft);
         }
         tfoot td {
-            background-color: #ecfdf5;
+            background-color: var(--bg-subtle);
             font-weight: 700;
-            font-size: 14px;
+            font-size: 15px;
+            border-top: 2px solid var(--primary-coffee);
+            border-bottom: none;
+            padding-top: 14px;
+            padding-bottom: 14px;
         }
         .text-center {
             text-align: center;
@@ -142,27 +164,30 @@ if ($result) {
         .text-end {
             text-align: right;
         }
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
         @media print {
             body {
-                background: #fff;
+                background: #FFFFFF;
                 padding: 0;
             }
-            .no-print {
+            .no-print,
+            .sb-sidebar,
+            .sb-topbar {
                 display: none !important;
             }
             .report-container {
                 box-shadow: none;
+                border: none;
+                border-radius: 0;
                 padding: 0;
                 max-width: 100%;
             }
-            thead th {
-                background-color: #00704a !important;
-                color: #fff !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+            thead th,
             tfoot td {
-                background-color: #ecfdf5 !important;
+                background-color: #F3EFEA !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -173,54 +198,62 @@ if ($result) {
 
     <div class="report-container">
         <div class="no-print">
-            <button type="button" class="btn btn-print" onclick="window.print()">Cetak Laporan</button>
-            <a href="list.php" class="btn btn-back">Kembali</a>
+            <button type="button" class="btn-action btn-print" onclick="window.print()">Cetak Laporan</button>
+            <a href="list.php" class="btn-action btn-back">Kembali</a>
         </div>
 
         <div class="report-header">
-            <h1>LAPORAN TRANSAKSI PENJUALAN STARBUCKS</h1>
-            <p>Dicetak pada: <?php echo date('d/m/Y H:i:s'); ?> WITA</p>
+            <div>
+                <h1>Laporan Transaksi Penjualan</h1>
+                <p>Rekapitulasi transaksi operasional Starbuck</p>
+            </div>
+            <div class="tabular-nums" style="font-size: 13px; color: var(--text-muted);">
+                Dicetak: <?php echo date('d/m/Y H:i:s'); ?> WITA
+            </div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th class="text-center">No</th>
-                    <th class="text-center">No. Transaksi</th>
-                    <th>Tanggal</th>
-                    <th>Waktu (WITA)</th>
+                    <th class="text-center" style="width: 48px;">No</th>
                     <th>Menu</th>
-                    <th class="text-center">Jumlah</th>
+                    <th class="text-end">Kuantitas</th>
                     <th class="text-end">Subtotal</th>
                     <th class="text-end">Pajak (11%)</th>
                     <th class="text-end">Total</th>
+                    <th>Tanggal</th>
+                    <th>Waktu (WITA)</th>
+                    <th>Kasir</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($rows)): ?>
                     <tr>
-                        <td colspan="9" class="text-center">Belum ada data transaksi.</td>
+                        <td colspan="9" class="text-center" style="padding: 24px; color: var(--text-muted);">
+                            Belum ada data transaksi yang tercatat.
+                        </td>
                     </tr>
                 <?php else: ?>
                     <?php $no = 1; foreach ($rows as $row): ?>
                     <tr>
-                        <td class="text-center"><?php echo $no++; ?></td>
-                        <td class="text-center">#<?php echo str_pad(htmlspecialchars($row['id_transaksi']), 4, '0', STR_PAD_LEFT); ?></td>
-                        <td><?php echo date('d/m/Y', strtotime($row['tanggal'])); ?></td>
-                        <td><?php echo htmlspecialchars($row['waktu']); ?> WITA</td>
-                        <td><?php echo !empty($row['nama_produk']) ? htmlspecialchars($row['nama_produk']) : '-'; ?></td>
-                        <td class="text-center"><?php echo isset($row['jumlah_beli']) && $row['jumlah_beli'] !== null ? (int)$row['jumlah_beli'] : '-'; ?></td>
-                        <td class="text-end">Rp <?php echo number_format((float)$row['subtotal'], 0, ',', '.'); ?></td>
-                        <td class="text-end">Rp <?php echo number_format((float)$row['pajak'], 0, ',', '.'); ?></td>
-                        <td class="text-end">Rp <?php echo number_format((float)$row['total'], 0, ',', '.'); ?></td>
+                        <td class="text-center tabular-nums"><?php echo $no++; ?></td>
+                        <td><?php echo !empty($row['daftar_menu']) ? htmlspecialchars($row['daftar_menu']) : '-'; ?></td>
+                        <td class="text-end tabular-nums"><?php echo $row['total_kuantitas'] !== null ? (int)$row['total_kuantitas'] : '-'; ?></td>
+                        <td class="text-end tabular-nums">Rp <?php echo number_format((float)$row['subtotal'], 0, ',', '.'); ?></td>
+                        <td class="text-end tabular-nums">Rp <?php echo number_format((float)$row['pajak'], 0, ',', '.'); ?></td>
+                        <td class="text-end tabular-nums" style="font-weight: 700;">Rp <?php echo number_format((float)$row['total'], 0, ',', '.'); ?></td>
+                        <td class="tabular-nums"><?php echo htmlspecialchars($row['tanggal']); ?></td>
+                        <td class="tabular-nums"><?php echo htmlspecialchars($row['waktu']); ?></td>
+                        <td><?php echo htmlspecialchars($row['nama_kasir']); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="8" class="text-end">Total Keseluruhan Pendapatan</td>
-                    <td class="text-end">Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></td>
+                    <td colspan="5" class="text-end">Total Pendapatan</td>
+                    <td class="text-end tabular-nums">Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></td>
+                    <td colspan="3"></td>
                 </tr>
             </tfoot>
         </table>
@@ -228,4 +261,3 @@ if ($result) {
 
 </body>
 </html>
-

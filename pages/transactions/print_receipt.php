@@ -9,37 +9,13 @@ $items = [];
 if ($id_transaksi !== '') {
     $id_esc = mysqli_real_escape_string($koneksi, $id_transaksi);
 
-    // Deteksi nama kolom primary key pada tabel produk (id_produk atau id)
-    $col_id_produk = 'id';
-    $check_prod_pk = mysqli_query($koneksi, "SHOW COLUMNS FROM produk LIKE 'id_produk'");
-    if ($check_prod_pk && mysqli_num_rows($check_prod_pk) > 0) {
-        $col_id_produk = 'id_produk';
-    }
-
-    // Deteksi nama kolom jumlah dan harga pada tabel detail_transaksi
-    $col_jumlah = 'jumlah';
-    $col_harga_detail = null;
-    $res_dt_cols = mysqli_query($koneksi, "SHOW COLUMNS FROM detail_transaksi");
-    if ($res_dt_cols) {
-        while ($col = mysqli_fetch_assoc($res_dt_cols)) {
-            $field = $col['Field'];
-            if (in_array($field, ['jumlah', 'qty', 'kuantitas'], true)) {
-                $col_jumlah = $field;
-            } else if (in_array($field, ['harga', 'harga_satuan'], true)) {
-                $col_harga_detail = $field;
-            }
-        }
-    }
-
-    $select_harga = $col_harga_detail
-        ? "COALESCE(dt.$col_harga_detail, p.harga) AS harga_satuan"
-        : "p.harga AS harga_satuan";
-
     $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
-                     dt.$col_jumlah AS jumlah_beli, p.nama_produk, $select_harga
+                     COALESCE(k.nama_kasir, '-') AS nama_kasir,
+                     dt.kuantitas, p.nama_produk, p.harga AS harga_satuan
               FROM transaksi t
+              LEFT JOIN kasir k ON t.id_kasir = k.id_kasir
               LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
-              LEFT JOIN produk p ON dt.id_produk = p.$col_id_produk
+              LEFT JOIN produk p ON dt.id_produk = p.id_produk
               WHERE t.id_transaksi = '$id_esc'";
 
     $result = mysqli_query($koneksi, $query);
@@ -48,6 +24,7 @@ if ($id_transaksi !== '') {
             if ($trx === null) {
                 $trx = [
                     'id_transaksi' => $row['id_transaksi'],
+                    'nama_kasir'   => $row['nama_kasir'],
                     'subtotal'     => (float)$row['subtotal'],
                     'pajak'        => (float)$row['pajak'],
                     'total'        => (float)$row['total'],
@@ -59,7 +36,7 @@ if ($id_transaksi !== '') {
                 $items[] = [
                     'nama_produk'  => $row['nama_produk'],
                     'harga_satuan' => (float)$row['harga_satuan'],
-                    'jumlah_beli'  => (int)$row['jumlah_beli'],
+                    'kuantitas'    => (int)$row['kuantitas'],
                 ];
             }
         }
@@ -71,115 +48,170 @@ if ($id_transaksi !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struk Transaksi <?php echo $trx ? '#' . htmlspecialchars($trx['id_transaksi']) : ''; ?></title>
+    <title>Struk Transaksi <?php echo $trx ? '#' . htmlspecialchars($trx['id_transaksi']) : ''; ?> - Starbuck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
     <style>
+        :root {
+            --bg-canvas: #F8F6F3;
+            --bg-surface: #FFFFFF;
+            --bg-subtle: #F3EFEA;
+            --primary-coffee: #4E342E;
+            --primary-hover: #3B2621;
+            --text-main: #2C221E;
+            --text-muted: #7A6F69;
+            --border-soft: #EAE4DD;
+        }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #1a1d20;
-            color: #111;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 24px 12px;
+            padding: 32px 16px;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
         .no-print {
-            margin-bottom: 16px;
             display: flex;
             gap: 8px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 16px;
         }
-        .btn {
-            font-family: system-ui, -apple-system, sans-serif;
+        .btn-action {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 16px;
+            font-family: inherit;
             font-size: 14px;
             font-weight: 600;
-            padding: 8px 18px;
-            border: none;
-            border-radius: 6px;
+            border-radius: 12px;
             cursor: pointer;
             text-decoration: none;
-            display: inline-block;
+            transition: background-color 150ms ease;
         }
         .btn-print {
-            background-color: #00704a;
-            color: #fff;
+            color: #FFFFFF;
+            background-color: var(--primary-coffee);
+            border: 1px solid var(--primary-coffee);
         }
         .btn-print:hover {
-            background-color: #005a3b;
+            background-color: var(--primary-hover);
         }
         .btn-back {
-            background-color: #495057;
-            color: #fff;
+            color: var(--primary-coffee);
+            background-color: var(--bg-surface);
+            border: 1px solid var(--primary-coffee);
+        }
+        .btn-back:hover {
+            background-color: var(--bg-subtle);
         }
         .receipt {
-            width: 80mm;
-            max-width: 100%;
-            background: #fff;
-            padding: 18px 14px;
-            border-radius: 4px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-            font-size: 12px;
-            line-height: 1.45;
+            width: 100%;
+            max-width: 320px;
+            background: var(--bg-surface);
+            padding: 24px 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 4px 20px rgba(44, 34, 30, 0.04);
+            font-size: 13px;
+            line-height: 1.5;
         }
         .receipt-header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
         .brand {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 700;
-            letter-spacing: 2px;
-            color: #00704a;
+            letter-spacing: -0.01em;
+            color: var(--primary-coffee);
         }
         .sub-brand {
-            font-size: 10px;
-            color: #555;
+            font-size: 12px;
+            color: var(--text-muted);
             margin-top: 2px;
         }
         .divider {
             border: none;
-            border-top: 1px dashed #333;
-            margin: 10px 0;
+            border-top: 1px dashed var(--border-soft);
+            margin: 12px 0;
         }
         .meta-row,
         .total-row {
             display: flex;
             justify-content: space-between;
+            align-items: baseline;
             gap: 8px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
+        }
+        .meta-label,
+        .total-label {
+            color: var(--text-muted);
+        }
+        .meta-value,
+        .total-value {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
         }
         .item-block {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        .item-block:last-child {
+            margin-bottom: 0;
         }
         .item-name {
-            font-weight: 700;
+            font-weight: 600;
+            color: var(--text-main);
             margin-bottom: 2px;
         }
         .item-detail {
             display: flex;
             justify-content: space-between;
-            font-size: 11.5px;
-            color: #222;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+        .item-subtotal {
+            font-weight: 600;
+            color: var(--text-main);
         }
         .grand-total {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
-            margin-top: 4px;
+            color: var(--text-main);
+            padding-top: 2px;
+        }
+        .grand-total .total-label {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+        .grand-total .total-value {
+            font-size: 18px;
+            font-weight: 700;
         }
         .receipt-footer {
             text-align: center;
-            margin-top: 12px;
-            font-size: 11px;
-            color: #444;
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--text-muted);
         }
         .not-found {
             text-align: center;
             padding: 20px 10px;
-            font-family: system-ui, -apple-system, sans-serif;
+            color: var(--text-muted);
         }
         @media print {
             @page {
@@ -187,18 +219,24 @@ if ($id_transaksi !== '') {
                 margin: 4mm;
             }
             body {
-                background: #fff;
+                background: #FFFFFF;
                 padding: 0;
-                display: block;
+                min-height: auto;
             }
-            .no-print {
+            .no-print,
+            .sb-sidebar,
+            .sb-topbar {
                 display: none !important;
             }
             .receipt {
-                width: 100%;
+                max-width: 100%;
                 box-shadow: none;
+                border: none;
                 border-radius: 0;
                 padding: 0;
+            }
+            .divider {
+                border-top-color: #999999;
             }
         }
     </style>
@@ -207,35 +245,39 @@ if ($id_transaksi !== '') {
 
     <div class="no-print">
         <?php if ($trx): ?>
-        <button type="button" class="btn btn-print" onclick="window.print()">Cetak Struk</button>
+        <button type="button" class="btn-action btn-print" onclick="window.print()">Cetak Struk</button>
         <?php endif; ?>
-        <a href="list.php" class="btn btn-back">Kembali</a>
+        <a href="list.php" class="btn-action btn-back">Kembali</a>
     </div>
 
     <div class="receipt">
         <?php if (!$trx): ?>
             <div class="not-found">
-                <p><strong>Data transaksi tidak ditemukan.</strong></p>
+                <p>Data transaksi tidak ditemukan.</p>
             </div>
         <?php else: ?>
             <div class="receipt-header">
-                <div class="brand">STARBUCKS</div>
-                <div class="sub-brand">Coffee &amp; Beverages</div>
+                <div class="brand">Starbuck</div>
+                <div class="sub-brand">Struk Pembayaran Resmi</div>
             </div>
 
             <hr class="divider">
 
             <div class="meta-row">
-                <span>No. Transaksi</span>
-                <span>#<?php echo str_pad(htmlspecialchars($trx['id_transaksi']), 4, '0', STR_PAD_LEFT); ?></span>
+                <span class="meta-label">No. Transaksi</span>
+                <span class="meta-value">#<?php echo str_pad(htmlspecialchars($trx['id_transaksi']), 4, '0', STR_PAD_LEFT); ?></span>
             </div>
             <div class="meta-row">
-                <span>Tanggal</span>
-                <span><?php echo date('d/m/Y', strtotime($trx['tanggal'])); ?></span>
+                <span class="meta-label">Kasir</span>
+                <span class="meta-value"><?php echo htmlspecialchars($trx['nama_kasir']); ?></span>
             </div>
             <div class="meta-row">
-                <span>Waktu</span>
-                <span><?php echo htmlspecialchars($trx['waktu']); ?> WITA</span>
+                <span class="meta-label">Tanggal</span>
+                <span class="meta-value"><?php echo date('d/m/Y', strtotime($trx['tanggal'])); ?></span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Waktu</span>
+                <span class="meta-value"><?php echo htmlspecialchars($trx['waktu']); ?> WITA</span>
             </div>
 
             <hr class="divider">
@@ -246,12 +288,12 @@ if ($id_transaksi !== '') {
                 </div>
             <?php else: ?>
                 <?php foreach ($items as $item): ?>
-                    <?php $line_total = $item['harga_satuan'] * $item['jumlah_beli']; ?>
+                    <?php $line_total = $item['harga_satuan'] * $item['kuantitas']; ?>
                     <div class="item-block">
                         <div class="item-name"><?php echo htmlspecialchars($item['nama_produk']); ?></div>
                         <div class="item-detail">
-                            <span><?php echo $item['jumlah_beli']; ?> x Rp <?php echo number_format($item['harga_satuan'], 0, ',', '.'); ?></span>
-                            <span>Rp <?php echo number_format($line_total, 0, ',', '.'); ?></span>
+                            <span><?php echo (int)$item['kuantitas']; ?> &times; Rp <?php echo number_format($item['harga_satuan'], 0, ',', '.'); ?></span>
+                            <span class="item-subtotal">Rp <?php echo number_format($line_total, 0, ',', '.'); ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -260,23 +302,25 @@ if ($id_transaksi !== '') {
             <hr class="divider">
 
             <div class="total-row">
-                <span>Subtotal</span>
-                <span>Rp <?php echo number_format($trx['subtotal'], 0, ',', '.'); ?></span>
+                <span class="total-label">Subtotal</span>
+                <span class="total-value">Rp <?php echo number_format($trx['subtotal'], 0, ',', '.'); ?></span>
             </div>
             <div class="total-row">
-                <span>Pajak (11%)</span>
-                <span>Rp <?php echo number_format($trx['pajak'], 0, ',', '.'); ?></span>
+                <span class="total-label">Pajak (11%)</span>
+                <span class="total-value">Rp <?php echo number_format($trx['pajak'], 0, ',', '.'); ?></span>
             </div>
+
             <hr class="divider">
+
             <div class="total-row grand-total">
-                <span>TOTAL</span>
-                <span>Rp <?php echo number_format($trx['total'], 0, ',', '.'); ?></span>
+                <span class="total-label">Total</span>
+                <span class="total-value">Rp <?php echo number_format($trx['total'], 0, ',', '.'); ?></span>
             </div>
 
             <hr class="divider">
 
             <div class="receipt-footer">
-                <div>Terima kasih atas kunjungan Anda!</div>
+                <div>Terima kasih atas kunjungan Anda.</div>
                 <div>Simpan struk ini sebagai bukti pembayaran.</div>
             </div>
         <?php endif; ?>
@@ -284,4 +328,3 @@ if ($id_transaksi !== '') {
 
 </body>
 </html>
-
