@@ -3,34 +3,36 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 ?>
 
-<div class="container">
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6 mt-5">
-            <form action="/starbuck/process/process_products.php" method="post">
-                <input type="hidden" name="action" value="add">
-
-                <div class="form-floating mt-5">
-                    <label for="nama_produk">Nama Produk</label>
-                    <input type="text" name="nama_produk" class="form-control" id="nama_produk"
-                        placeholder="Nama Produk" required>
-                </div>
-                <div class="form-floating mt-5">
-                    <label for="harga">Harga</label>
-                    <input type="number" name="harga" class="form-control" id="harga"
-                        placeholder="Harga" required>
-                </div>
-                <div class="mt-5 d-flex gap-2">
-                    <button type="submit" class="btn-solid theme-success">Tambah Data</button>
-                    <a href="list.php" class="btn-solid theme-secondary">Kembali</a>
-                </div>
-            </form>
+<div class="container-fluid px-0">
+    <div class="card-soft card-narrow mt-2">
+        <div class="mb-4">
+            <h1 class="page-title">Tambah Produk</h1>
+            <p class="page-subtitle">Masukkan nama menu dan harga jual satuan</p>
         </div>
-        <div class="col-3"></div>
+
+        <form action="/starbuck/process/process_products.php" method="post">
+            <input type="hidden" name="action" value="add">
+
+            <div class="mb-3">
+                <label for="nama_produk" class="form-label fw-medium">Nama Produk</label>
+                <input type="text" name="nama_produk" class="form-control" id="nama_produk"
+                    placeholder="Contoh: Caramel Macchiato" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="harga" class="form-label fw-medium">Harga (Rp)</label>
+                <input type="number" name="harga" class="form-control tabular-nums" id="harga"
+                    placeholder="Contoh: 45000" min="0" required>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-coffee">Simpan</button>
+                <a href="list.php" class="btn-coffee-outline">Batal</a>
+            </div>
+        </form>
     </div>
 </div>
 
 <?php
 include ROOTPATH . '/include/footer.php';
 ?>
-

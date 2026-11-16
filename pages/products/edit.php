@@ -18,32 +18,37 @@ $row = mysqli_fetch_assoc($result);
 $id_val = $row[$col_id] ?? ($row['id'] ?? ($row['id_produk'] ?? $id));
 ?>
 
-<div class="container">
-    <div class="row">
-        <div class="col-3"></div>
-        <div class="col-6 mt-5">
-            <form action="/starbuck/process/process_products.php" method="post">
-                <input type="hidden" name="action" value="edit">
-                <input type="hidden" name="id" value="<?php echo $id_val; ?>">
-                <input type="hidden" name="id_produk" value="<?php echo $id_val; ?>">
-
-                <div class="form-floating mt-5">
-                    <label for="nama_produk">Nama Produk</label>
-                    <input type="text" name="nama_produk" value="<?php echo htmlspecialchars($row['nama_produk'] ?? ''); ?>"
-                        class="form-control" id="nama_produk" placeholder="Nama Produk" required>
-                </div>
-                <div class="form-floating mt-5">
-                    <label for="harga">Harga</label>
-                    <input type="number" name="harga" value="<?php echo $row['harga'] ?? ''; ?>"
-                        class="form-control" id="harga" placeholder="Harga" required>
-                </div>
-                <div class="mt-5 d-flex gap-2">
-                    <button type="submit" class="btn-solid theme-warning">Edit Data</button>
-                    <a href="list.php" class="btn-solid theme-secondary">Kembali</a>
-                </div>
-            </form>
+<div class="container-fluid px-0">
+    <div class="card-soft card-narrow mt-2">
+        <div class="mb-4">
+            <h1 class="page-title">Edit Produk</h1>
+            <p class="page-subtitle">Perbarui informasi nama menu atau harga jual</p>
         </div>
-        <div class="col-3"></div>
+
+        <form action="/starbuck/process/process_products.php" method="post">
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id_val, ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="id_produk" value="<?php echo htmlspecialchars($id_val, ENT_QUOTES, 'UTF-8'); ?>">
+
+            <div class="mb-3">
+                <label for="nama_produk" class="form-label fw-medium">Nama Produk</label>
+                <input type="text" name="nama_produk"
+                    value="<?php echo htmlspecialchars($row['nama_produk'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                    class="form-control" id="nama_produk" placeholder="Nama Produk" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="harga" class="form-label fw-medium">Harga (Rp)</label>
+                <input type="number" name="harga"
+                    value="<?php echo htmlspecialchars($row['harga'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                    class="form-control tabular-nums" id="harga" placeholder="Harga" min="0" required>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-coffee">Simpan</button>
+                <a href="list.php" class="btn-coffee-outline">Batal</a>
+            </div>
+        </form>
     </div>
 </div>
 
