@@ -21,7 +21,7 @@ if ($result) {
             <p class="page-subtitle">Kelola katalog menu minuman dan makanan Starbuck</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <div class="search-box" style="width: 260px; max-width: 100%;">
+            <div class="search-box flex-grow-1" style="min-width: 220px;">
                 <i class="bi bi-search" aria-hidden="true"></i>
                 <input type="search" id="search-produk" class="form-control"
                     placeholder="Pencarian menu..." autocomplete="off" aria-label="Pencarian menu">
