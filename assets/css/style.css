@@ -576,6 +576,162 @@ a {
     color: var(--text-muted);
 }
 
+/* Search box dengan ikon kaca pembesar (PRD 2.4 & 4.5) */
+.search-box {
+    position: relative;
+    width: 100%;
+}
+
+.search-box .bi-search {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-box .form-control {
+    padding-left: 42px;
+    background-color: var(--bg-surface);
+}
+
+/* Kartu menu POS yang dapat diklik (PRD 4.5) */
+.menu-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 16px;
+    text-align: left;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.menu-card:hover {
+    background-color: var(--bg-subtle);
+}
+
+.menu-card.is-selected,
+.menu-card.is-selected:hover {
+    padding: 15px;
+    background-color: #FFFFFF;
+    border: 2px solid var(--primary-coffee);
+}
+
+.menu-card-body {
+    min-width: 0;
+    flex: 1;
+}
+
+.menu-card-title {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.menu-card-price {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+}
+
+.menu-card.is-selected .menu-card-price {
+    color: var(--primary-coffee);
+}
+
+/* Panel Bills & kontrol kuantitas (PRD 4.5) */
+.bills-panel {
+    position: sticky;
+    top: 24px;
+}
+
+.bills-selected-item {
+    padding: 16px;
+    background-color: var(--bg-subtle);
+    border-radius: var(--radius-control);
+}
+
+.qty-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qty-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--text-main);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.qty-btn:hover {
+    background-color: var(--bg-canvas);
+    border-color: var(--primary-coffee);
+}
+
+.qty-input {
+    width: 64px;
+    min-height: 36px;
+    padding: 4px 8px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.bills-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+}
+
+.bills-total-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-top: 4px;
+}
+
+.bills-total-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.bills-total-value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main);
+}
+
 /* --------------------------------------------------------------------------
    5. Aksesibilitas & gerak
    -------------------------------------------------------------------------- */
