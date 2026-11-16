@@ -310,6 +310,25 @@
     }
 
     hitungTotal();
+
+    // Otomatis pilih menu dari parameter URL (?id_produk=...) sesuai PRD Bagian 6
+    try {
+        var pid = new URLSearchParams(window.location.search).get('id_produk');
+        if (pid) {
+            var targetSelector = window.CSS && typeof window.CSS.escape === 'function'
+                ? '[data-id="' + window.CSS.escape(pid) + '"]'
+                : '[data-id="' + pid.replace(/(["\\])/g, '\\$1') + '"]';
+            var card = document.querySelector(targetSelector);
+            if (card) {
+                card.click();
+                if (typeof card.scrollIntoView === 'function') {
+                    card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }
+        }
+    } catch (e) {
+        // Abaikan jika parameter tidak valid atau selector gagal
+    }
 })();
 </script>
 
