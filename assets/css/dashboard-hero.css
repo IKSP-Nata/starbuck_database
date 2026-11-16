@@ -338,13 +338,43 @@
     color: var(--hero-muted);
 }
 
-/* Fallback transisi CSS sederhana bila tanpa GSAP / reduced motion (5.1) */
+/* will-change hanya aktif selama animasi berlangsung (PRD 5.2) */
+.hero.is-animating .hero-stage,
+.hero.is-animating .hero-ghost-text,
+.hero.is-animating .hero-title-line-inner,
+.hero.is-animating .hero-price,
+.hero.is-animating .hero-cta {
+    will-change: transform, opacity;
+}
+
+/* Fallback transisi CSS sederhana bila tanpa GSAP / reduced motion (PRD 5.1) */
 .hero.is-changing .hero-stage,
 .hero.is-changing .hero-title,
 .hero.is-changing .hero-price,
 .hero.is-changing .hero-cta,
 .hero.is-changing .hero-ghost-text {
     transition: opacity 250ms ease;
+}
+
+.hero.is-changing.is-fading-out .hero-stage,
+.hero.is-changing.is-fading-out .hero-title,
+.hero.is-changing.is-fading-out .hero-price,
+.hero.is-changing.is-fading-out .hero-cta,
+.hero.is-changing.is-fading-out .hero-ghost-text {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-thumb,
+    .hero-cta,
+    .hero-backdrop {
+        transition-duration: 0.01ms !important;
+    }
+
+    .hero-thumb.is-active,
+    .hero-thumb[aria-pressed="true"] {
+        transform: none;
+    }
 }
 
 /* ==========================================================================

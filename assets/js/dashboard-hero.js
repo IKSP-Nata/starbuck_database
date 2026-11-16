@@ -19,6 +19,16 @@
     var thumbButtons = thumbsWrapEl ? Array.prototype.slice.call(thumbsWrapEl.querySelectorAll('.hero-thumb')) : [];
 
     var currentIndex = 0;
+    var activeTimeline = null;
+    var fallbackOutTimer = null;
+    var fallbackCleanTimer = null;
+
+    function prefersReducedMotion() {
+        return Boolean(
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        );
+    }
 
     function splitTitleLines(name) {
         var trimmed = (name || '').trim();
@@ -88,7 +98,6 @@
         imgEl.classList.remove('d-none');
         imgEl.src = gambarUrl;
 
-        // Jika gambar sudah ada di cache dalam kondisi gagal muat
         if (imgEl.complete && imgEl.naturalWidth === 0) {
             showFallbackAvatar(initials);
         }
@@ -132,6 +141,7 @@
     }
 
     function updateThumbnails(activeIndex) {
+        var behavior = prefersReducedMotion() ? 'auto' : 'smooth';
         thumbButtons.forEach(function (btn, idx) {
             var isActive = idx === activeIndex;
             btn.classList.toggle('is-active', isActive);
@@ -140,8 +150,158 @@
                 btn.scrollIntoView({
                     inline: 'center',
                     block: 'nearest',
-                    behavior: 'smooth'
+                    behavior: behavior
                 });
+            }
+        });
+    }
+
+    function clearFallbackTimers() {
+        if (fallbackOutTimer) {
+            window.clearTimeout(fallbackOutTimer);
+            fallbackOutTimer = null;
+        }
+        if (fallbackCleanTimer) {
+            window.clearTimeout(fallbackCleanTimer);
+            fallbackCleanTimer = null;
+        }
+    }
+
+    // Fallback transisi CSS sederhana (fade 250ms) bila GSAP tidak tersedia / reduced motion
+    function transitionWithCssFallback(product, targetIndex) {
+        if (activeTimeline) {
+            activeTimeline.kill();
+            activeTimeline = null;
+        }
+        clearFallbackTimers();
+        heroEl.classList.remove('is-animating');
+        heroEl.classList.add('is-changing', 'is-fading-out');
+
+        fallbackOutTimer = window.setTimeout(function () {
+            renderProduct(product, targetIndex);
+            // Force reflow agar browser menerapkan transisi kembali ke opacity 1
+            void heroEl.offsetWidth;
+            heroEl.classList.remove('is-fading-out');
+
+            fallbackCleanTimer = window.setTimeout(function () {
+                heroEl.classList.remove('is-changing');
+                fallbackCleanTimer = null;
+            }, 250);
+        }, 130);
+    }
+
+    // Transisi GSAP (~0,9s: keluar 0,35s -> ganti konten -> masuk 0,55s)
+    function transitionWithGsap(product, targetIndex) {
+        clearFallbackTimers();
+        heroEl.classList.remove('is-changing', 'is-fading-out');
+
+        if (activeTimeline) {
+            activeTimeline.kill();
+            activeTimeline = null;
+        }
+
+        heroEl.classList.add('is-animating');
+
+        var currentTitleInners = titleEl ? titleEl.querySelectorAll('.hero-title-line-inner') : [];
+        var outMetaTargets = [priceEl, orderBtnEl].filter(Boolean);
+
+        var tl = window.gsap.timeline({
+            onComplete: function () {
+                heroEl.classList.remove('is-animating');
+                activeTimeline = null;
+            }
+        });
+        activeTimeline = tl;
+
+        // 1. Fase Keluar (0,35s)
+        if (stageEl) {
+            tl.to(stageEl, {
+                opacity: 0,
+                y: 24,
+                scale: 0.96,
+                duration: 0.35,
+                ease: 'power2.inOut'
+            }, 0);
+        }
+
+        if (ghostTextEl) {
+            tl.to(ghostTextEl, {
+                opacity: 0,
+                x: -60,
+                duration: 0.35,
+                ease: 'power2.inOut'
+            }, 0);
+        }
+
+        if (currentTitleInners.length > 0) {
+            tl.to(currentTitleInners, {
+                opacity: 0,
+                y: -16,
+                duration: 0.30,
+                stagger: 0.05,
+                ease: 'power2.inOut'
+            }, 0);
+        }
+
+        if (outMetaTargets.length > 0) {
+            tl.to(outMetaTargets, {
+                opacity: 0,
+                y: -10,
+                duration: 0.28,
+                stagger: 0.04,
+                ease: 'power2.inOut'
+            }, 0.03);
+        }
+
+        // 2. Ganti Konten & 3. Fase Masuk (0,55s)
+        tl.add(function () {
+            renderProduct(product, targetIndex);
+
+            var newTitleInners = titleEl ? titleEl.querySelectorAll('.hero-title-line-inner') : [];
+            var inMetaTargets = [priceEl, orderBtnEl].filter(Boolean);
+
+            var inTl = window.gsap.timeline({
+                onComplete: function () {
+                    heroEl.classList.remove('is-animating');
+                    activeTimeline = null;
+                }
+            });
+            activeTimeline = inTl;
+
+            if (stageEl) {
+                inTl.fromTo(
+                    stageEl,
+                    { opacity: 0, y: 36, scale: 0.94 },
+                    { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out', clearProps: 'transform' },
+                    0
+                );
+            }
+
+            if (ghostTextEl) {
+                inTl.fromTo(
+                    ghostTextEl,
+                    { opacity: 0, x: 80 },
+                    { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out', clearProps: 'transform' },
+                    0
+                );
+            }
+
+            if (newTitleInners.length > 0) {
+                inTl.fromTo(
+                    newTitleInners,
+                    { opacity: 0, yPercent: 105, y: 0 },
+                    { opacity: 1, yPercent: 0, y: 0, duration: 0.50, stagger: 0.05, ease: 'power3.out', clearProps: 'transform' },
+                    0.02
+                );
+            }
+
+            if (inMetaTargets.length > 0) {
+                inTl.fromTo(
+                    inMetaTargets,
+                    { opacity: 0, y: 12 },
+                    { opacity: 1, y: 0, duration: 0.45, stagger: 0.06, ease: 'power3.out', clearProps: 'transform' },
+                    0.08
+                );
             }
         });
     }
@@ -156,8 +316,13 @@
 
         currentIndex = nextIndex;
         var product = products[currentIndex];
-        renderProduct(product, currentIndex);
         updateThumbnails(currentIndex);
+
+        if (window.gsap && typeof window.gsap.timeline === 'function' && !prefersReducedMotion()) {
+            transitionWithGsap(product, currentIndex);
+        } else {
+            transitionWithCssFallback(product, currentIndex);
+        }
     }
 
     function stepProduct(delta) {
