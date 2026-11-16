@@ -2,6 +2,11 @@
 define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/config/config.php';
 
+$filter = getTransaksiFilter($koneksi, $_GET);
+$where_sql = $filter['where_sql'];
+$query_string = $_SERVER['QUERY_STRING'] ?? '';
+$back_url = 'list.php' . ($query_string !== '' ? '?' . htmlspecialchars($query_string, ENT_QUOTES, 'UTF-8') : '');
+
 $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
                  COALESCE(MAX(k.nama_kasir), '-') AS nama_kasir,
                  GROUP_CONCAT(
@@ -17,6 +22,7 @@ $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.wakt
           LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
           LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
           LEFT JOIN produk p ON dt.id_produk = p.id_produk
+          $where_sql
           GROUP BY t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu
           ORDER BY t.id_transaksi DESC";
 
@@ -199,13 +205,13 @@ if ($result) {
     <div class="report-container">
         <div class="no-print">
             <button type="button" class="btn-action btn-print" onclick="window.print()">Cetak Laporan</button>
-            <a href="list.php" class="btn-action btn-back">Kembali</a>
+            <a href="<?php echo $back_url; ?>" class="btn-action btn-back">Kembali</a>
         </div>
 
         <div class="report-header">
             <div>
                 <h1>Laporan Transaksi Penjualan</h1>
-                <p>Rekapitulasi transaksi operasional Starbuck</p>
+                <p>Periode Laporan: <strong><?php echo htmlspecialchars($filter['periode_label']); ?></strong></p>
             </div>
             <div class="tabular-nums" style="font-size: 13px; color: var(--text-muted);">
                 Dicetak: <?php echo date('d/m/Y H:i:s'); ?> WITA
