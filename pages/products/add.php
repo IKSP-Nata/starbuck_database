@@ -10,7 +10,7 @@ include ROOTPATH . '/include/header.php';
             <p class="page-subtitle">Masukkan nama menu dan harga jual satuan</p>
         </div>
 
-        <form action="/starbuck/process/process_products.php" method="post">
+        <form action="/starbuck/process/process_products.php" method="post" enctype="multipart/form-data">
             <input type="hidden" name="action" value="add">
 
             <div class="mb-3">
@@ -19,10 +19,16 @@ include ROOTPATH . '/include/header.php';
                     placeholder="Contoh: Caramel Macchiato" required>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
                 <label for="harga" class="form-label fw-medium">Harga (Rp)</label>
                 <input type="number" name="harga" class="form-control tabular-nums" id="harga"
                     placeholder="Contoh: 45000" min="0" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="gambar" class="form-label fw-medium">Foto Produk (Opsional)</label>
+                <input type="file" name="gambar" id="gambar" class="form-control"
+                    accept="image/png, image/jpeg, image/webp">
             </div>
 
             <div class="d-flex gap-2">

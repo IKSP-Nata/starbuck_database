@@ -42,12 +42,20 @@ if ($result) {
                 $nama     = htmlspecialchars($nama_raw, ENT_QUOTES, 'UTF-8');
                 $harga    = (float)($row['harga'] ?? 0);
                 $inisial  = strtoupper(substr($nama_raw !== '' ? $nama_raw : 'PR', 0, 2));
+                $gambar   = trim($row['gambar'] ?? '');
+                $has_img  = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
             ?>
             <div class="col-md-6 col-xl-4 produk-item-col"
                  data-nama-search="<?php echo htmlspecialchars(strtolower($nama_raw), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="card-soft h-100 d-flex flex-column justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <?php if ($has_img): ?>
+                            <img src="../../assets/img/products/<?php echo rawurlencode(basename($gambar)); ?>"
+                                 alt="<?php echo $nama; ?>"
+                                 class="product-avatar-img">
+                        <?php else: ?>
+                            <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <?php endif; ?>
                         <div class="min-w-0 flex-grow-1">
                             <h2 class="h6 fw-semibold mb-1 text-truncate"><?php echo $nama; ?></h2>
                             <div class="fw-bold tabular-nums" style="color: var(--primary-coffee); font-size: 16px;">

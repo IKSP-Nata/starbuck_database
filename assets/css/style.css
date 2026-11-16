@@ -587,6 +587,17 @@ a {
     border-radius: 14px;
 }
 
+/* Foto produk pada kartu menu dan daftar produk */
+.product-avatar-img {
+    display: block;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 14px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-soft);
+}
+
 /* Garis putus-putus sebelum Total */
 .dashed-divider {
     height: 0;

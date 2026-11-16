@@ -52,6 +52,9 @@
                             $nama_prod  = htmlspecialchars($nama_raw, ENT_QUOTES, 'UTF-8');
                             $harga_prod = (float)($produk['harga'] ?? 0);
                             $inisial    = strtoupper(substr($nama_raw !== '' ? $nama_raw : 'MN', 0, 2));
+                            $gambar     = trim($produk['gambar'] ?? '');
+                            $has_img    = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
+                            $img_src    = $has_img ? '../../assets/img/products/' . rawurlencode(basename($gambar)) : '';
                         ?>
                         <div class="col-md-6 menu-item-col" data-nama-search="<?php echo htmlspecialchars(strtolower($nama_raw), ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="button"
@@ -60,8 +63,15 @@
                                 data-nama="<?php echo $nama_prod; ?>"
                                 data-harga="<?php echo $harga_prod; ?>"
                                 data-inisial="<?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-gambar="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
                                 aria-pressed="false">
-                                <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
+                                <?php if ($has_img): ?>
+                                    <img src="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
+                                         alt="<?php echo $nama_prod; ?>"
+                                         class="product-avatar-img">
+                                <?php else: ?>
+                                    <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
+                                <?php endif; ?>
                                 <span class="menu-card-body">
                                     <span class="menu-card-title d-block"><?php echo $nama_prod; ?></span>
                                     <span class="menu-card-price d-block">Rp <?php echo number_format($harga_prod, 0, ',', '.'); ?></span>
@@ -94,6 +104,7 @@
                     <div class="bills-selected-item mb-3 d-none" id="bills-item">
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <span class="avatar-initial" id="selected-avatar" aria-hidden="true">--</span>
+                            <img src="" alt="" class="product-avatar-img d-none" id="selected-avatar-img">
                             <div class="min-w-0 flex-grow-1">
                                 <div class="fw-semibold text-truncate" id="selected-nama">-</div>
                                 <div class="page-subtitle tabular-nums mt-0" id="selected-harga">Rp 0</div>
@@ -155,6 +166,7 @@
     var billsEmpty    = document.getElementById('bills-empty');
     var billsItem     = document.getElementById('bills-item');
     var selectedAvatar = document.getElementById('selected-avatar');
+    var selectedAvatarImg = document.getElementById('selected-avatar-img');
     var selectedNama  = document.getElementById('selected-nama');
     var selectedHargaEl = document.getElementById('selected-harga');
 
@@ -204,6 +216,7 @@
         var nama    = card.getAttribute('data-nama') || '';
         var harga   = parseFloat(card.getAttribute('data-harga')) || 0;
         var inisial = card.getAttribute('data-inisial') || 'MN';
+        var gambar  = card.getAttribute('data-gambar') || '';
 
         selectedHarga = harga;
         inputIdProduk.value = id;
@@ -212,7 +225,17 @@
             inputJumlah.value = 1;
         }
 
-        selectedAvatar.textContent  = inisial;
+        if (gambar !== '') {
+            selectedAvatarImg.src = gambar;
+            selectedAvatarImg.alt = nama;
+            selectedAvatarImg.classList.remove('d-none');
+            selectedAvatar.classList.add('d-none');
+        } else {
+            selectedAvatarImg.src = '';
+            selectedAvatarImg.classList.add('d-none');
+            selectedAvatar.textContent = inisial;
+            selectedAvatar.classList.remove('d-none');
+        }
         selectedNama.textContent    = nama;
         selectedHargaEl.textContent = formatRupiah(harga) + ' / item';
 
