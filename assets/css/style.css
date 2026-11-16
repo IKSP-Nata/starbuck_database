@@ -1,0 +1,624 @@
+/* ==========================================================================
+   Starbuck POS - Warm Minimalist Coffee POS
+   Sistem desain kustom. Dimuat SETELAH CSS Bootstrap di include/header.php.
+   Catatan: CSS Bootstrap lokal memakai @layer, sehingga aturan tanpa layer
+   di file ini selalu menang tanpa perlu !important.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Variabel desain (PRD 2.1)
+   -------------------------------------------------------------------------- */
+:root {
+    --bg-canvas: #F8F6F3;
+    --bg-surface: #FFFFFF;
+    --bg-subtle: #F3EFEA;
+    --primary-coffee: #4E342E;
+    --primary-hover: #3B2621;
+    --text-main: #2C221E;
+    --text-muted: #7A6F69;
+    --border-soft: #EAE4DD;
+    --danger-soft-bg: #FBEDEA;
+    --danger-soft-text: #A3382B;
+    --radius-card: 18px;
+    --radius-control: 12px;
+    --shadow-soft: 0 4px 20px rgba(44, 34, 30, 0.04);
+
+    /* Turunan internal (bukan warna baru) */
+    --sidebar-width: 110px;
+    --focus-ring: 0 0 0 3px rgba(78, 52, 46, .12);
+    --transition-fast: 150ms ease;
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+    /* Paksa tema terang agar tidak ikut dark mode sistem operasi */
+    color-scheme: light;
+}
+
+/* --------------------------------------------------------------------------
+   2. Dasar & tipografi (PRD 2.2)
+   -------------------------------------------------------------------------- */
+html,
+body {
+    background-color: var(--bg-canvas);
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    color: var(--text-main);
+}
+
+a {
+    color: var(--primary-coffee);
+}
+
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+}
+
+.page-subtitle {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.text-muted,
+.text-soft {
+    color: var(--text-muted) !important;
+}
+
+/* Angka metrik & nominal: digit sejajar */
+.num,
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+.metric-value {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main);
+}
+
+.label-caps {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   3. Layout: sidebar kiri + area konten (PRD 4.1)
+   -------------------------------------------------------------------------- */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 1100;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    background: var(--primary-coffee);
+    border-radius: var(--radius-control);
+    text-decoration: none;
+}
+
+.skip-link:focus {
+    top: 16px;
+}
+
+.sb-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--sidebar-width);
+    padding: 28px 0 24px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-soft);
+    border-radius: 0 20px 20px 0;
+    box-shadow: var(--shadow-soft);
+}
+
+.sb-brand {
+    display: block;
+    margin-bottom: 36px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--primary-coffee);
+    text-decoration: none;
+}
+
+.sb-brand:hover {
+    color: var(--primary-hover);
+}
+
+.sb-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+    padding: 0 16px;
+    list-style: none;
+}
+
+.sb-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 68px;
+    padding: 12px 4px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: var(--radius-control);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sb-link .bi {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.sb-link:hover {
+    color: var(--text-main);
+    background-color: var(--bg-subtle);
+}
+
+.sb-link.is-active,
+.sb-link.is-active:hover {
+    color: #FFFFFF;
+    background-color: var(--primary-coffee);
+}
+
+/* Navbar atas untuk layar kecil (disembunyikan di desktop) */
+.sb-topbar {
+    display: none;
+}
+
+.sb-content {
+    min-height: 100vh;
+    margin-left: var(--sidebar-width);
+    padding: 32px;
+    background-color: var(--bg-canvas);
+}
+
+@media (max-width: 991.98px) {
+    .sb-sidebar {
+        display: none;
+    }
+
+    .sb-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        display: block;
+        padding: 12px 20px;
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .sb-topbar-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sb-topbar .sb-brand {
+        margin-bottom: 0;
+        font-size: 18px;
+    }
+
+    .sb-toggler {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        font-size: 22px;
+        color: var(--text-main);
+        background: transparent;
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-control);
+        cursor: pointer;
+        transition: background-color var(--transition-fast);
+    }
+
+    .sb-toggler:hover {
+        background-color: var(--bg-subtle);
+    }
+
+    .sb-topbar .sb-nav {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 12px 0 4px;
+    }
+
+    .sb-topbar .sb-link {
+        min-height: 60px;
+        padding: 10px 4px;
+    }
+
+    .sb-content {
+        margin-left: 0;
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .sb-topbar .sb-nav {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sb-content {
+        padding: 20px 16px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   4. Komponen dasar (PRD 2.3)
+   -------------------------------------------------------------------------- */
+
+/* Kartu */
+.card-soft {
+    padding: 24px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+}
+
+.card-soft-flush {
+    padding: 0;
+    overflow: hidden;
+}
+
+.card-narrow {
+    max-width: 560px;
+    margin-inline: auto;
+}
+
+/* Tombol */
+.btn-coffee,
+.btn-coffee-outline,
+.btn-neutral-outline,
+.btn-soft-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 18px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-coffee {
+    color: #FFFFFF;
+    background-color: var(--primary-coffee);
+    border: 1px solid var(--primary-coffee);
+}
+
+.btn-coffee:hover {
+    color: #FFFFFF;
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-coffee-outline {
+    color: var(--primary-coffee);
+    background-color: transparent;
+    border: 1px solid var(--primary-coffee);
+}
+
+.btn-coffee-outline:hover {
+    color: var(--primary-coffee);
+    background-color: var(--bg-subtle);
+}
+
+.btn-neutral-outline {
+    color: var(--text-main);
+    background-color: transparent;
+    border: 1px solid var(--border-soft);
+}
+
+.btn-neutral-outline:hover {
+    color: var(--text-main);
+    background-color: var(--bg-subtle);
+}
+
+.btn-soft-danger {
+    color: var(--danger-soft-text);
+    background-color: var(--danger-soft-bg);
+    border: 1px solid transparent;
+}
+
+.btn-soft-danger:hover {
+    color: var(--danger-soft-text);
+    background-color: #F7DFDA;
+}
+
+.btn-sm-soft {
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 13px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-coffee:disabled,
+.btn-coffee.disabled,
+.btn-coffee-outline:disabled,
+.btn-neutral-outline:disabled,
+.btn-soft-danger:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Tautan teks, contoh: "Lihat Data →" */
+.link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-coffee);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.link-arrow:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Form: label di atas input, tanpa form-floating */
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.form-control,
+.form-select {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--text-main);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-control);
+    box-shadow: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.form-select {
+    padding-right: 40px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237A6F69' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px 10px;
+}
+
+.form-control:focus,
+.form-control:focus-visible,
+.form-select:focus,
+.form-select:focus-visible {
+    border-color: var(--primary-coffee);
+    outline: 0;
+    box-shadow: var(--focus-ring);
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--bg-subtle);
+}
+
+/* Tabel (pengganti tabel Bootstrap default) */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-soft {
+    width: 100%;
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-main);
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent;
+}
+
+.table-soft thead th {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    color: var(--text-muted);
+    background-color: var(--bg-subtle);
+    border: 0;
+}
+
+.table-soft tbody th,
+.table-soft tbody td {
+    padding: 16px;
+    vertical-align: middle;
+    font-weight: 400;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--border-soft);
+}
+
+.table-soft tbody tr {
+    transition: background-color var(--transition-fast);
+}
+
+.table-soft tbody tr:hover {
+    background-color: var(--bg-canvas);
+}
+
+.table-soft .col-num,
+.table-soft .col-money {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.table-soft .col-index {
+    width: 56px;
+    text-align: center;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Avatar inisial pengganti foto produk (PRD 3.4) */
+.avatar-initial {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--primary-coffee);
+    background-color: var(--bg-subtle);
+    border-radius: 14px;
+}
+
+/* Garis putus-putus sebelum Total */
+.dashed-divider {
+    height: 0;
+    margin: 16px 0;
+    border: 0;
+    border-top: 1px dashed var(--border-soft);
+    opacity: 1;
+}
+
+/* Status kosong yang berkarakter */
+.empty-state {
+    padding: 24px 16px;
+    font-size: 14px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   5. Aksesibilitas & gerak
+   -------------------------------------------------------------------------- */
+:focus-visible {
+    outline: 2px solid var(--primary-coffee);
+    outline-offset: 2px;
+}
+
+.sb-link:focus-visible,
+.btn-coffee:focus-visible,
+.btn-coffee-outline:focus-visible,
+.btn-neutral-outline:focus-visible,
+.btn-soft-danger:focus-visible {
+    outline: 2px solid var(--primary-coffee);
+    outline-offset: 2px;
+    box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   6. Cetak: sembunyikan navigasi
+   -------------------------------------------------------------------------- */
+@media print {
+    .sb-sidebar,
+    .sb-topbar,
+    .skip-link {
+        display: none !important;
+    }
+
+    .sb-content {
+        margin-left: 0;
+        padding: 0;
+        background: #FFFFFF;
+    }
+
+    body {
+        background: #FFFFFF;
+    }
+}
