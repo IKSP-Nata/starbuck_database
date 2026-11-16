@@ -7,6 +7,38 @@
     $result_produk = mysqli_query($koneksi, $query_produk);
 ?>
 
+<style>
+.text-light {
+    color: #f8f9fa !important;
+}
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 0.55rem 2.25rem 0.55rem 0.85rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--bs-control-fg, #f8f9fa);
+    background-color: var(--bs-control-bg, var(--bs-bg-1, #212529));
+    background-image: var(--bs-control-select-bg-dark, url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff80' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"));
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    border: var(--bs-control-border-width, 1px) solid var(--bs-control-border-color, #495057);
+    border-radius: var(--bs-control-border-radius, 0.375rem);
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.form-select:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.form-select option {
+    background-color: #212529;
+    color: #f8f9fa;
+}
+</style>
+
 <div class="container">
     <div class="row">
         <div class="col-md-3"></div>
@@ -16,8 +48,9 @@
                 <form action="../../process/process_transactions.php" method="post">
                     <input type="hidden" name="action" value="add">
 
-                    <div class="form-floating mt-3">
-                        <select name="id_produk" id="id_produk" class="form-control" required onchange="hitungTotal()">
+                    <div class="mb-3">
+                        <label for="id_produk" class="form-label text-light">Pilih Menu</label>
+                        <select name="id_produk" id="id_produk" class="form-select" required onchange="hitungTotal()">
                             <option value="" data-harga="0">-- Pilih Menu --</option>
                             <?php
                             if ($result_produk) {
@@ -34,13 +67,12 @@
                             }
                             ?>
                         </select>
-                        <label for="id_produk">Pilih Menu</label>
                     </div>
 
-                    <div class="form-floating mt-4">
+                    <div class="mb-3">
+                        <label for="jumlah" class="form-label text-light">Jumlah</label>
                         <input type="number" name="jumlah" class="form-control" id="jumlah"
                             placeholder="Jumlah" min="1" value="1" required oninput="hitungTotal()">
-                        <label for="jumlah">Jumlah</label>
                     </div>
 
                     <div class="card bg-1 border-secondary mt-4 p-3">
@@ -104,5 +136,6 @@ document.addEventListener('DOMContentLoaded', hitungTotal);
 <?php
     include ROOTPATH . '/include/footer.php';
 ?>
+
 
 
