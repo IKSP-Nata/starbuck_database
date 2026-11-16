@@ -76,7 +76,7 @@ if ($result) {
             </div>
 
             <div class="d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top" style="border-color: var(--border-soft) !important;">
-                <span class="page-subtitle me-1 mb-0">Filter cepat:</span>
+                <span class="page-subtitle me-1 mb-0">Filter :</span>
                 <a href="list.php?mode=hari_ini"
                    class="<?php echo $filter['active_mode'] === 'hari_ini' ? 'btn-coffee' : 'btn-neutral-outline'; ?> btn-sm-soft">
                     Hari Ini
