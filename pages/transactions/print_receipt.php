@@ -13,8 +13,8 @@ if ($id_transaksi !== '') {
                      COALESCE(k.nama_kasir, '-') AS nama_kasir,
                      dt.kuantitas, p.nama_produk, p.harga AS harga_satuan
               FROM transaksi t
-              LEFT JOIN kasir k ON t.id_kasir = k.id_kasir
               LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
+              LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
               LEFT JOIN produk p ON dt.id_produk = p.id_produk
               WHERE t.id_transaksi = '$id_esc'";
 

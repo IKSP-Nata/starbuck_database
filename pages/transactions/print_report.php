@@ -3,7 +3,7 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/config/config.php';
 
 $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
-                 COALESCE(k.nama_kasir, '-') AS nama_kasir,
+                 COALESCE(MAX(k.nama_kasir), '-') AS nama_kasir,
                  GROUP_CONCAT(
                      CASE
                          WHEN p.nama_produk IS NOT NULL AND dt.kuantitas IS NOT NULL
@@ -14,10 +14,10 @@ $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.wakt
                  ) AS daftar_menu,
                  SUM(dt.kuantitas) AS total_kuantitas
           FROM transaksi t
-          LEFT JOIN kasir k ON t.id_kasir = k.id_kasir
           LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
+          LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
           LEFT JOIN produk p ON dt.id_produk = p.id_produk
-          GROUP BY t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu, k.nama_kasir
+          GROUP BY t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu
           ORDER BY t.id_transaksi DESC";
 
 $result = mysqli_query($koneksi, $query);
