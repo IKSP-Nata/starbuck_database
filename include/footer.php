@@ -1,7 +1,7 @@
     </main>
 
-    <!-- Bundle JS Bootstrap lokal (nama file asli: bootsrap.js) -->
-    <script src="/starbuck/assets/js/bootsrap.js"></script>
+    <!-- Bootstrap 5.3 JS Bundle via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

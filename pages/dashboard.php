@@ -47,114 +47,123 @@ if ($res_kasir_list) {
         $kasir_terbaru[] = $row;
     }
 }
+
+$transaksi_terbaru = [];
+if ($res_trans && mysqli_num_rows($res_trans) > 0) {
+    $res_trans_list = mysqli_query($koneksi, "SELECT * FROM transaksi ORDER BY id_transaksi DESC LIMIT 5");
+    if ($res_trans_list) {
+        while ($row = mysqli_fetch_assoc($res_trans_list)) {
+            $transaksi_terbaru[] = $row;
+        }
+    }
+}
 ?>
 
-<div class="container mt-5">
+<div class="container-fluid px-0">
 
-    <div class="mb-4">
-        <h4>Dashboard</h4>
-        <p class="text-muted">Panel Admin Starbuck</p>
-    </div>
-
-    <div class="row g-4 mb-5">
-
-        <div class="col-6 col-md-3">
-            <div class="card p-4 h-100" style="border-left: 4px solid #198754;">
-                <div class="text-muted mb-1" style="font-size:0.82rem; text-transform:uppercase; letter-spacing:.05em;">Total Kasir</div>
-                <div style="font-size:2rem; font-weight:700; line-height:1;"><?php echo $total_kasir; ?></div>
-                <a href="/starbuck/pages/cashiers/list.php" class="btn-solid theme-success mt-3" style="font-size:0.8rem;">Lihat Data</a>
-            </div>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <div class="card p-4 h-100" style="border-left: 4px solid #0d6efd;">
-                <div class="text-muted mb-1" style="font-size:0.82rem; text-transform:uppercase; letter-spacing:.05em;">Total Produk</div>
-                <div style="font-size:2rem; font-weight:700; line-height:1;"><?php echo $total_produk; ?></div>
-                <a href="/starbuck/pages/products/list.php" class="btn-solid theme-primary mt-3" style="font-size:0.8rem;">Lihat Data</a>
-            </div>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <div class="card p-4 h-100" style="border-left: 4px solid #fd7e14;">
-                <div class="text-muted mb-1" style="font-size:0.82rem; text-transform:uppercase; letter-spacing:.05em;">Total Transaksi</div>
-                <div style="font-size:2rem; font-weight:700; line-height:1;"><?php echo $total_transaksi; ?></div>
-                <a href="/starbuck/pages/transactions/list.php" class="btn-solid theme-warning mt-3" style="font-size:0.8rem;">Lihat Data</a>
-            </div>
-        </div>
-
-        <div class="col-6 col-md-3">
-            <div class="card p-4 h-100" style="border-left: 4px solid #dc3545;">
-                <div class="text-muted mb-1" style="font-size:0.82rem; text-transform:uppercase; letter-spacing:.05em;">Total Pendapatan</div>
-                <div style="font-size:1.4rem; font-weight:700; line-height:1.2;">Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></div>
-                <a href="/starbuck/pages/transactions/list.php" class="btn-solid theme-danger mt-3" style="font-size:0.8rem;">Lihat Data</a>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="mb-5">
-        <h5 class="mb-3">Akses Cepat</h5>
-        <div class="row g-3">
-            <div class="col-6 col-md-3">
-                <a href="/starbuck/pages/cashiers/list.php" class="card p-4 text-center d-block" style="text-decoration:none;">
-                    <div style="font-weight:600;">Data Kasir</div>
-                    <div class="text-muted mt-1" style="font-size:0.82rem;">Kelola data kasir</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="/starbuck/pages/products/list.php" class="card p-4 text-center d-block" style="text-decoration:none;">
-                    <div style="font-weight:600;">Data Produk</div>
-                    <div class="text-muted mt-1" style="font-size:0.82rem;">Kelola data produk</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="/starbuck/pages/transactions/list.php" class="card p-4 text-center d-block" style="text-decoration:none;">
-                    <div style="font-weight:600;">Data Transaksi</div>
-                    <div class="text-muted mt-1" style="font-size:0.82rem;">Riwayat transaksi</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="/starbuck/pages/cashiers/add.php" class="card p-4 text-center d-block" style="text-decoration:none;">
-                    <div style="font-weight:600;">Tambah Kasir</div>
-                    <div class="text-muted mt-1" style="font-size:0.82rem;">Input kasir baru</div>
-                </a>
-            </div>
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Ringkasan Operasional Starbuck</p>
         </div>
     </div>
 
-    <div class="mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Data Kasir Terbaru</h5>
-            <a href="/starbuck/pages/cashiers/list.php" class="btn-solid theme-success" style="font-size:0.8rem;">Lihat Semua</a>
+    <!-- 4 Kartu Statistik Sejajar (PRD 4.2) -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card-soft h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="label-caps mb-2">Total Kasir</div>
+                    <div class="metric-value fw-bold mb-3"><?php echo (int)$total_kasir; ?></div>
+                </div>
+                <div>
+                    <a href="/starbuck/pages/cashiers/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                </div>
+            </div>
         </div>
-        <div class="card">
-            <table class="table table-hover mb-0">
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card-soft h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="label-caps mb-2">Total Produk</div>
+                    <div class="metric-value fw-bold mb-3"><?php echo (int)$total_produk; ?></div>
+                </div>
+                <div>
+                    <a href="/starbuck/pages/products/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card-soft h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="label-caps mb-2">Total Transaksi</div>
+                    <div class="metric-value fw-bold mb-3"><?php echo (int)$total_transaksi; ?></div>
+                </div>
+                <div>
+                    <a href="/starbuck/pages/transactions/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+            <div class="card-soft h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="label-caps mb-2">Total Pendapatan</div>
+                    <div class="metric-value fw-bold mb-3">Rp <?php echo number_format((float)$total_pendapatan, 0, ',', '.'); ?></div>
+                </div>
+                <div>
+                    <a href="/starbuck/pages/transactions/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Kartu Putih Transaksi Terbaru (PRD 4.2) -->
+    <div class="card-soft card-soft-flush">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 p-4">
+            <div>
+                <h2 class="h5 fw-semibold mb-1">Transaksi Terbaru</h2>
+                <p class="page-subtitle mb-0">5 transaksi terakhir yang tercatat</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/starbuck/pages/transactions/add.php" class="btn-coffee">+ Transaksi Baru</a>
+                <a href="/starbuck/pages/transactions/list.php" class="btn-coffee-outline">Lihat Semua</a>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="table-soft">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Nama Kasir</th>
-                        <th scope="col">No Telepon</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Aksi</th>
+                        <th scope="col" class="col-index">No</th>
+                        <th scope="col">Tanggal</th>
+                        <th scope="col">Waktu (WITA)</th>
+                        <th scope="col" class="col-money">Subtotal</th>
+                        <th scope="col" class="col-money">Pajak (11%)</th>
+                        <th scope="col" class="col-money">Total</th>
+                        <th scope="col" class="text-end">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($kasir_terbaru)): ?>
+                    <?php if (empty($transaksi_terbaru)): ?>
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Belum ada data kasir.</td>
+                        <td colspan="7" class="empty-state">Belum ada transaksi yang tercatat. Klik "+ Transaksi Baru" untuk memulai.</td>
                     </tr>
                     <?php else: ?>
-                    <?php $no = 1; foreach ($kasir_terbaru as $kasir): ?>
+                    <?php $no = 1; foreach ($transaksi_terbaru as $trx): ?>
                     <tr>
-                        <th scope="row"><?php echo $no++; ?></th>
-                        <td><?php echo htmlspecialchars($kasir['nama_kasir']); ?></td>
-                        <td><?php echo htmlspecialchars($kasir['no_telp']); ?></td>
-                        <td><?php echo htmlspecialchars($kasir['email']); ?></td>
-                        <td>
-                            <a href="/starbuck/pages/cashiers/edit.php?id_kasir=<?php echo $kasir['id_kasir']; ?>" class="btn-solid theme-warning" style="font-size:0.8rem;">Edit</a>
-                            <a href="/starbuck/process/process_cashiers.php?action=delete&id_kasir=<?php echo $kasir['id_kasir']; ?>"
-                               class="btn-solid theme-danger" style="font-size:0.8rem;"
-                               onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</a>
+                        <td class="col-index"><?php echo $no++; ?></td>
+                        <td class="tabular-nums"><?php echo htmlspecialchars($trx['tanggal']); ?></td>
+                        <td class="tabular-nums"><?php echo htmlspecialchars($trx['waktu']); ?></td>
+                        <td class="col-money">Rp <?php echo number_format((float)$trx['subtotal'], 0, ',', '.'); ?></td>
+                        <td class="col-money">Rp <?php echo number_format((float)$trx['pajak'], 0, ',', '.'); ?></td>
+                        <td class="col-money fw-bold">Rp <?php echo number_format((float)$trx['total'], 0, ',', '.'); ?></td>
+                        <td class="text-end">
+                            <a href="/starbuck/pages/transactions/print_receipt.php?id_transaksi=<?php echo urlencode($trx['id_transaksi']); ?>"
+                               target="_blank" class="btn-coffee-outline btn-sm-soft">Cetak Struk</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
