@@ -303,5 +303,6 @@ if ($titleWords && count($titleWords) > 2) {
 </div>
 
 <script>window.HERO_PRODUCTS = <?php echo json_encode($heroProducts, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;</script>
+<script src="/starbuck/assets/js/dashboard-hero.js"></script>
 
 <?php include ROOTPATH . '/include/footer.php'; ?>
