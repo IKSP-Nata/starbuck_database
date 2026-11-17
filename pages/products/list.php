@@ -62,7 +62,7 @@ if ($result) {
                         <?php endif; ?>
                         <div class="min-w-0 flex-grow-1">
                             <h2 class="h6 fw-semibold mb-1 text-truncate"><?php echo $nama; ?></h2>
-                            <div class="fw-bold tabular-nums" style="color: var(--starbucks-green); font-size: 16px;">
+                            <div class="fw-bold tabular-nums" style="color: var(--text-primary); font-size: 16px;">
                                 Rp <?php echo number_format($harga, 0, ',', '.'); ?>
                             </div>
                         </div>

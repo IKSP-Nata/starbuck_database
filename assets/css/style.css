@@ -9,30 +9,35 @@
    1. Palet Warna & Variabel Desain Resmi Starbucks
    -------------------------------------------------------------------------- */
 :root {
-    --bg-main: #F7F7F7;
+    --bg-main: #F7F5F0;
     --bg-surface: #FFFFFF;
-    --bg-subtle: #F2F0EB;
-    --starbucks-green: #00704A;
-    --starbucks-green-hover: #005C3D;
-    --starbucks-forest: #1E3932;
-    --starbucks-mint: #D4E9E2;
-    --text-primary: #1E3932;
-    --text-muted: rgba(0, 0, 0, 0.58);
-    --border-soft: rgba(0, 0, 0, 0.08);
+    --border-soft: #E5E0D8;
+    --primary-brand: #1E3932;
+    --primary-brand-hover: #006241;
+    --accent-active: #00754A;
+    --text-primary: #2C2A29;
+    --text-muted: #6B6661;
+    --danger-terracotta: #C84B31;
+    --warning-amber: #D48C2A;
 
-    /* Alias kompatibilitas & turunan sistem */
+    /* Permukaan sekunder hangat & alias kompatibilitas */
+    --bg-subtle: #F2EFE9;
     --bg-canvas: var(--bg-main);
-    --primary-coffee: var(--starbucks-green);
-    --primary-hover: var(--starbucks-green-hover);
+    --starbucks-green: var(--accent-active);
+    --starbucks-green-hover: var(--primary-brand-hover);
+    --starbucks-forest: var(--primary-brand);
+    --starbucks-mint: #E2EFEA;
+    --primary-coffee: var(--primary-brand);
+    --primary-hover: var(--primary-brand-hover);
     --text-main: var(--text-primary);
-    --danger-soft-bg: #FBEDEA;
-    --danger-soft-text: #A3382B;
+    --danger-soft-bg: rgba(200, 75, 49, 0.10);
+    --danger-soft-text: var(--danger-terracotta);
     --radius-card: 16px;
     --radius-control: 12px;
     --shadow-soft: none;
     --sidebar-width: 110px;
-    --focus-ring: 0 0 0 3px rgba(0, 112, 74, 0.16);
-    --transition-fast: 150ms ease;
+    --focus-ring: 0 0 0 3px rgba(0, 117, 74, 0.18);
+    --transition-fast: 180ms ease;
     --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
 
     /* Paksa tema terang agar tidak ikut dark mode sistem operasi */
@@ -60,7 +65,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans);
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
 }
 
 h1, h2, h3 {
@@ -76,7 +81,7 @@ table {
 }
 
 a {
-    color: var(--starbucks-green);
+    color: var(--accent-active);
 }
 
 .page-header {
@@ -94,7 +99,7 @@ a {
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
 }
 
 .page-subtitle {
@@ -126,7 +131,7 @@ a {
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.02em;
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
 }
 
 .label-caps {
@@ -254,7 +259,7 @@ a {
 
 .sb-link:hover,
 .sidebar-nav .nav-link:hover {
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
     background-color: var(--bg-subtle);
 }
 
@@ -263,7 +268,7 @@ a {
 .sidebar-nav .nav-link.active,
 .sidebar-nav .nav-link.active:hover {
     color: #FFFFFF;
-    background-color: var(--starbucks-green);
+    background-color: var(--accent-active);
 }
 
 .nav-curve-indicator {
@@ -294,7 +299,7 @@ a {
     }
 
     .sb-sidebar .sidebar-nav .nav-link:hover {
-        color: var(--starbucks-forest);
+        color: var(--text-primary);
         background-color: transparent;
     }
 
@@ -303,12 +308,12 @@ a {
     }
 
     .sb-sidebar .sidebar-nav .nav-link span {
-        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), color var(--transition-fast);
+        transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), color var(--transition-fast);
     }
 
     .sb-sidebar .sidebar-nav .nav-link.active,
     .sb-sidebar .sidebar-nav .nav-link.active:hover {
-        color: var(--starbucks-green);
+        color: var(--accent-active);
         background-color: transparent;
     }
 
@@ -318,7 +323,7 @@ a {
     }
 
     .sb-sidebar .sidebar-nav .nav-link.active span {
-        color: var(--starbucks-green);
+        color: var(--accent-active);
         font-weight: 600;
         transform: translateX(-14px);
     }
@@ -331,12 +336,12 @@ a {
         width: 58px;
         height: 58px;
         border-radius: 50%;
-        background-color: var(--starbucks-green);
+        background-color: var(--accent-active);
         border: 6px solid var(--bg-main);
         z-index: 1;
         pointer-events: none;
         opacity: 0;
-        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 150ms ease;
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
     }
 
     .nav-curve-indicator::before,
@@ -520,14 +525,15 @@ a {
     overflow: hidden;
 }
 
-/* Kartu sorotan editorial khas starbucks.com (#1E3932) */
+/* Kartu sorotan editorial utama (#1E3932) */
 .card-soft.card-forest {
-    background-color: var(--starbucks-forest);
-    border-color: var(--starbucks-forest);
+    background-color: var(--primary-brand);
+    border-color: var(--primary-brand);
+    color: #FFFFFF;
 }
 
 .card-soft.card-forest .label-caps {
-    color: var(--starbucks-mint);
+    color: rgba(255, 255, 255, 0.78);
 }
 
 .card-soft.card-forest .metric-value {
@@ -535,11 +541,11 @@ a {
 }
 
 .card-soft.card-forest .link-arrow {
-    color: var(--starbucks-mint);
+    color: #FFFFFF;
 }
 
 .card-soft.card-forest .link-arrow:hover {
-    color: #FFFFFF;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .card-narrow {
@@ -569,58 +575,68 @@ a {
     border-radius: 50px;
     cursor: pointer;
     box-shadow: none;
-    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.btn-coffee:active,
+.btn-coffee-outline:active,
+.btn-neutral-outline:active,
+.btn-soft-danger:active,
+.btn-primary:active,
+.btn-outline-primary:active {
+    transform: scale(0.98);
 }
 
 .btn-coffee,
 .btn-primary {
     color: #FFFFFF;
-    background-color: var(--starbucks-green);
-    border: 1px solid var(--starbucks-green);
+    background-color: var(--primary-brand);
+    border: 1px solid var(--primary-brand);
 }
 
 .btn-coffee:hover,
 .btn-primary:hover {
     color: #FFFFFF;
-    background-color: var(--starbucks-green-hover);
-    border-color: var(--starbucks-green-hover);
+    background-color: var(--primary-brand-hover);
+    border-color: var(--primary-brand-hover);
 }
 
 .btn-coffee-outline,
 .btn-outline-primary {
-    color: var(--starbucks-forest);
+    color: var(--primary-brand);
     background-color: transparent;
-    border: 1px solid var(--starbucks-forest);
+    border: 1px solid var(--primary-brand);
 }
 
 .btn-coffee-outline:hover,
 .btn-outline-primary:hover {
-    color: var(--starbucks-forest);
-    background-color: var(--starbucks-mint);
-    border-color: var(--starbucks-forest);
+    color: var(--primary-brand);
+    background-color: rgba(0, 117, 74, 0.08);
+    border-color: var(--primary-brand);
 }
 
 .btn-neutral-outline {
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
     background-color: transparent;
     border: 1px solid var(--border-soft);
 }
 
 .btn-neutral-outline:hover {
-    color: var(--starbucks-forest);
+    color: var(--primary-brand);
     background-color: var(--bg-subtle);
-    border-color: var(--starbucks-forest);
+    border-color: var(--primary-brand);
 }
 
 .btn-soft-danger {
-    color: var(--danger-soft-text);
-    background-color: var(--danger-soft-bg);
-    border: 1px solid transparent;
+    color: var(--danger-terracotta);
+    background-color: rgba(200, 75, 49, 0.08);
+    border: 1px solid rgba(200, 75, 49, 0.24);
 }
 
 .btn-soft-danger:hover {
-    color: var(--danger-soft-text);
-    background-color: #F7DFDA;
+    color: #FFFFFF;
+    background-color: var(--danger-terracotta);
+    border-color: var(--danger-terracotta);
 }
 
 .btn-sm-soft {
@@ -652,13 +668,13 @@ a {
     gap: 4px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--starbucks-green);
+    color: var(--accent-active);
     text-decoration: none;
     transition: color var(--transition-fast);
 }
 
 .link-arrow:hover {
-    color: var(--starbucks-green-hover);
+    color: var(--primary-brand-hover);
     text-decoration: underline;
     text-underline-offset: 3px;
 }
@@ -697,7 +713,7 @@ a {
 .form-select {
     padding-right: 40px;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231E3932' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232C2A29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 14px center;
     background-size: 14px 10px;
@@ -707,7 +723,7 @@ a {
 .form-control:focus-visible,
 .form-select:focus,
 .form-select:focus-visible {
-    border-color: var(--starbucks-green);
+    border-color: var(--accent-active);
     outline: 0;
     box-shadow: var(--focus-ring);
 }
@@ -778,7 +794,7 @@ a {
     font-variant-numeric: tabular-nums;
 }
 
-/* Avatar inisial pengganti foto produk (lingkaran mint & forest) */
+/* Avatar inisial pengganti foto produk (lingkaran lembut & house green) */
 .avatar-initial {
     display: inline-flex;
     flex-shrink: 0;
@@ -789,8 +805,8 @@ a {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.02em;
-    color: var(--starbucks-forest);
-    background-color: var(--starbucks-mint);
+    color: var(--primary-brand);
+    background-color: rgba(0, 117, 74, 0.10);
     border-radius: 50%;
 }
 
@@ -883,7 +899,7 @@ a {
 .menu-card.is-selected:hover {
     padding: 15px;
     background-color: var(--bg-surface);
-    border: 2px solid var(--starbucks-green);
+    border: 2px solid var(--accent-active);
 }
 
 .menu-card-body {
@@ -911,7 +927,7 @@ a {
 }
 
 .menu-card.is-selected .menu-card-price {
-    color: var(--starbucks-green);
+    color: var(--accent-active);
 }
 
 /* Panel Bills & kontrol kuantitas (PRD 4.5) */
@@ -951,8 +967,8 @@ a {
 }
 
 .qty-btn:hover {
-    background-color: var(--starbucks-mint);
-    border-color: var(--starbucks-green);
+    background-color: rgba(0, 117, 74, 0.08);
+    border-color: var(--accent-active);
 }
 
 .qty-input {
@@ -983,7 +999,7 @@ a {
 .bills-total-label {
     font-size: 16px;
     font-weight: 600;
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
 }
 
 .bills-total-value {
@@ -991,10 +1007,10 @@ a {
     font-weight: 700;
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
-    color: var(--starbucks-forest);
+    color: var(--text-primary);
 }
 
-/* Badge / highlight lembut (Starbucks Mint) */
+/* Badge indikator lembut & peringatan */
 .badge-mint {
     display: inline-flex;
     align-items: center;
@@ -1003,8 +1019,21 @@ a {
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--starbucks-forest);
-    background-color: var(--starbucks-mint);
+    color: var(--primary-brand);
+    background-color: rgba(0, 117, 74, 0.10);
+    border-radius: 50px;
+}
+
+.badge-warning-amber {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    background-color: var(--warning-amber);
     border-radius: 50px;
 }
 
@@ -1012,7 +1041,7 @@ a {
    5. Aksesibilitas & gerak
    -------------------------------------------------------------------------- */
 :focus-visible {
-    outline: 2px solid var(--starbucks-green);
+    outline: 2px solid var(--accent-active);
     outline-offset: 2px;
 }
 
@@ -1023,7 +1052,7 @@ a {
 .btn-soft-danger:focus-visible,
 .btn-primary:focus-visible,
 .btn-outline-primary:focus-visible {
-    outline: 2px solid var(--starbucks-green);
+    outline: 2px solid var(--accent-active);
     outline-offset: 2px;
     box-shadow: var(--focus-ring);
 }

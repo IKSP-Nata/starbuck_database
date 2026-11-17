@@ -54,16 +54,17 @@ if ($id_transaksi !== '') {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
         :root {
-            --bg-main: #F7F7F7;
+            --bg-main: #F7F5F0;
             --bg-surface: #FFFFFF;
-            --bg-subtle: #F2F0EB;
-            --starbucks-green: #00704A;
-            --starbucks-green-hover: #005C3D;
-            --starbucks-forest: #1E3932;
-            --starbucks-mint: #D4E9E2;
-            --text-primary: #1E3932;
-            --text-muted: rgba(0, 0, 0, 0.58);
-            --border-soft: rgba(0, 0, 0, 0.08);
+            --bg-subtle: #F2EFE9;
+            --border-soft: #E5E0D8;
+            --primary-brand: #1E3932;
+            --primary-brand-hover: #006241;
+            --accent-active: #00754A;
+            --text-primary: #2C2A29;
+            --text-muted: #6B6661;
+            --danger-terracotta: #C84B31;
+            --warning-amber: #D48C2A;
             --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
         }
         * {
@@ -109,24 +110,24 @@ if ($id_transaksi !== '') {
             border-radius: 50px;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 150ms ease, border-color 150ms ease;
+            transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
         }
         .btn-print {
             color: #FFFFFF;
-            background-color: var(--starbucks-green);
-            border: 1px solid var(--starbucks-green);
+            background-color: var(--primary-brand);
+            border: 1px solid var(--primary-brand);
         }
         .btn-print:hover {
-            background-color: var(--starbucks-green-hover);
-            border-color: var(--starbucks-green-hover);
+            background-color: var(--primary-brand-hover);
+            border-color: var(--primary-brand-hover);
         }
         .btn-back {
-            color: var(--starbucks-forest);
+            color: var(--primary-brand);
             background-color: var(--bg-surface);
-            border: 1px solid var(--starbucks-forest);
+            border: 1px solid var(--primary-brand);
         }
         .btn-back:hover {
-            background-color: var(--starbucks-mint);
+            background-color: rgba(0, 117, 74, 0.08);
         }
         .receipt {
             width: 100%;
@@ -147,7 +148,7 @@ if ($id_transaksi !== '') {
             font-size: 18px;
             font-weight: 700;
             letter-spacing: -0.02em;
-            color: var(--starbucks-green);
+            color: var(--primary-brand);
         }
         .sub-brand {
             font-size: 12px;
