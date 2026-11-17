@@ -39,7 +39,7 @@ if ($result) {
         <div>
             <h1 class="page-title">Riwayat Transaksi</h1>
             <p class="page-subtitle">
-                Menampilkan transaksi periode: <strong style="color: var(--text-main);"><?php echo htmlspecialchars($filter['periode_label']); ?></strong>
+                Periode <strong style="color: var(--text-primary);"><?php echo htmlspecialchars($filter['periode_label']); ?></strong>
             </p>
         </div>
         <div class="d-flex flex-wrap gap-2">
@@ -76,7 +76,7 @@ if ($result) {
             </div>
 
             <div class="d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top" style="border-color: var(--border-soft) !important;">
-                <span class="page-subtitle me-1 mb-0">Filter :</span>
+                <span class="page-subtitle me-1 mb-0">Filter Cepat</span>
                 <a href="list.php?mode=hari_ini"
                    class="<?php echo $filter['active_mode'] === 'hari_ini' ? 'btn-coffee' : 'btn-neutral-outline'; ?> btn-sm-soft">
                     Hari Ini

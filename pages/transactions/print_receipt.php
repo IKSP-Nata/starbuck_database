@@ -54,14 +54,16 @@ if ($id_transaksi !== '') {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
         :root {
-            --bg-canvas: #F8F6F3;
+            --bg-main: #F7F7F7;
             --bg-surface: #FFFFFF;
-            --bg-subtle: #F3EFEA;
-            --primary-coffee: #4E342E;
-            --primary-hover: #3B2621;
-            --text-main: #2C221E;
-            --text-muted: #7A6F69;
-            --border-soft: #EAE4DD;
+            --bg-subtle: #F2F0EB;
+            --starbucks-green: #00704A;
+            --starbucks-green-hover: #005C3D;
+            --starbucks-forest: #1E3932;
+            --starbucks-mint: #D4E9E2;
+            --text-primary: #1E3932;
+            --text-muted: rgba(0, 0, 0, 0.58);
+            --border-soft: rgba(0, 0, 0, 0.08);
             --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
         }
         * {
@@ -71,8 +73,8 @@ if ($id_transaksi !== '') {
         }
         body {
             font-family: var(--font-sans);
-            background-color: var(--bg-canvas);
-            color: var(--text-main);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -100,39 +102,40 @@ if ($id_transaksi !== '') {
             align-items: center;
             justify-content: center;
             min-height: 42px;
-            padding: 0 16px;
+            padding: 0 18px;
             font-family: inherit;
             font-size: 14px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 50px;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 150ms ease;
+            transition: background-color 150ms ease, border-color 150ms ease;
         }
         .btn-print {
             color: #FFFFFF;
-            background-color: var(--primary-coffee);
-            border: 1px solid var(--primary-coffee);
+            background-color: var(--starbucks-green);
+            border: 1px solid var(--starbucks-green);
         }
         .btn-print:hover {
-            background-color: var(--primary-hover);
+            background-color: var(--starbucks-green-hover);
+            border-color: var(--starbucks-green-hover);
         }
         .btn-back {
-            color: var(--primary-coffee);
+            color: var(--starbucks-forest);
             background-color: var(--bg-surface);
-            border: 1px solid var(--primary-coffee);
+            border: 1px solid var(--starbucks-forest);
         }
         .btn-back:hover {
-            background-color: var(--bg-subtle);
+            background-color: var(--starbucks-mint);
         }
         .receipt {
             width: 100%;
             max-width: 320px;
             background: var(--bg-surface);
             padding: 24px 20px;
-            border-radius: 18px;
+            border-radius: 16px;
             border: 1px solid var(--border-soft);
-            box-shadow: 0 4px 20px rgba(44, 34, 30, 0.04);
+            box-shadow: none;
             font-size: 13px;
             line-height: 1.5;
         }
@@ -143,8 +146,8 @@ if ($id_transaksi !== '') {
         .brand {
             font-size: 18px;
             font-weight: 700;
-            letter-spacing: -0.01em;
-            color: var(--primary-coffee);
+            letter-spacing: -0.02em;
+            color: var(--starbucks-green);
         }
         .sub-brand {
             font-size: 12px;
@@ -182,7 +185,7 @@ if ($id_transaksi !== '') {
         }
         .item-name {
             font-weight: 600;
-            color: var(--text-main);
+            color: var(--text-primary);
             margin-bottom: 2px;
         }
         .item-detail {
@@ -194,16 +197,16 @@ if ($id_transaksi !== '') {
         }
         .item-subtotal {
             font-weight: 600;
-            color: var(--text-main);
+            color: var(--text-primary);
         }
         .grand-total {
             font-size: 16px;
             font-weight: 700;
-            color: var(--text-main);
+            color: var(--text-primary);
             padding-top: 2px;
         }
         .grand-total .total-label {
-            color: var(--text-main);
+            color: var(--text-primary);
             font-weight: 700;
         }
         .grand-total .total-value {

@@ -48,14 +48,16 @@ if ($result) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
         :root {
-            --bg-canvas: #F8F6F3;
+            --bg-main: #F7F7F7;
             --bg-surface: #FFFFFF;
-            --bg-subtle: #F3EFEA;
-            --primary-coffee: #4E342E;
-            --primary-hover: #3B2621;
-            --text-main: #2C221E;
-            --text-muted: #7A6F69;
-            --border-soft: #EAE4DD;
+            --bg-subtle: #F2F0EB;
+            --starbucks-green: #00704A;
+            --starbucks-green-hover: #005C3D;
+            --starbucks-forest: #1E3932;
+            --starbucks-mint: #D4E9E2;
+            --text-primary: #1E3932;
+            --text-muted: rgba(0, 0, 0, 0.58);
+            --border-soft: rgba(0, 0, 0, 0.08);
             --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
         }
         * {
@@ -63,8 +65,8 @@ if ($result) {
         }
         body {
             font-family: var(--font-sans);
-            background-color: var(--bg-canvas);
-            color: var(--text-main);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
             margin: 0;
             padding: 32px 20px;
             -webkit-font-smoothing: antialiased;
@@ -81,9 +83,9 @@ if ($result) {
             margin: 0 auto;
             background: var(--bg-surface);
             padding: 32px;
-            border-radius: 18px;
+            border-radius: 16px;
             border: 1px solid var(--border-soft);
-            box-shadow: 0 4px 20px rgba(44, 34, 30, 0.04);
+            box-shadow: none;
         }
         .no-print {
             display: flex;
@@ -96,30 +98,31 @@ if ($result) {
             align-items: center;
             justify-content: center;
             min-height: 42px;
-            padding: 0 18px;
+            padding: 0 22px;
             font-family: inherit;
             font-size: 14px;
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 50px;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 150ms ease;
+            transition: background-color 150ms ease, border-color 150ms ease;
         }
         .btn-print {
             color: #FFFFFF;
-            background-color: var(--primary-coffee);
-            border: 1px solid var(--primary-coffee);
+            background-color: var(--starbucks-green);
+            border: 1px solid var(--starbucks-green);
         }
         .btn-print:hover {
-            background-color: var(--primary-hover);
+            background-color: var(--starbucks-green-hover);
+            border-color: var(--starbucks-green-hover);
         }
         .btn-back {
-            color: var(--primary-coffee);
+            color: var(--starbucks-forest);
             background-color: transparent;
-            border: 1px solid var(--primary-coffee);
+            border: 1px solid var(--starbucks-forest);
         }
         .btn-back:hover {
-            background-color: var(--bg-subtle);
+            background-color: var(--starbucks-mint);
         }
         .report-header {
             display: flex;
@@ -134,9 +137,9 @@ if ($result) {
         .report-header h1 {
             margin: 0;
             font-size: 24px;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: -0.02em;
-            color: var(--text-main);
+            color: var(--starbucks-forest);
         }
         .report-header p {
             margin: 4px 0 0;
@@ -155,10 +158,10 @@ if ($result) {
             vertical-align: middle;
         }
         thead th {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .06em;
+            letter-spacing: 0.08em;
             color: var(--text-muted);
             background-color: var(--bg-subtle);
             border-top: 1px solid var(--border-soft);
@@ -167,7 +170,7 @@ if ($result) {
             background-color: var(--bg-subtle);
             font-weight: 700;
             font-size: 15px;
-            border-top: 2px solid var(--primary-coffee);
+            border-top: 2px solid var(--starbucks-green);
             border-bottom: none;
             padding-top: 14px;
             padding-bottom: 14px;
@@ -201,7 +204,7 @@ if ($result) {
             }
             thead th,
             tfoot td {
-                background-color: #F3EFEA !important;
+                background-color: #F2F0EB !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }

@@ -24,7 +24,7 @@ if ($result) {
             <div class="search-box flex-grow-1" style="min-width: 220px;">
                 <i class="bi bi-search" aria-hidden="true"></i>
                 <input type="search" id="search-produk" class="form-control"
-                    placeholder="Pencarian menu..." autocomplete="off" aria-label="Pencarian menu">
+                    placeholder="Cari nama menu" autocomplete="off" aria-label="Pencarian menu">
             </div>
             <a href="/starbuck/pages/products/add.php" class="btn-coffee">+ Tambah Produk</a>
         </div>
@@ -62,7 +62,7 @@ if ($result) {
                         <?php endif; ?>
                         <div class="min-w-0 flex-grow-1">
                             <h2 class="h6 fw-semibold mb-1 text-truncate"><?php echo $nama; ?></h2>
-                            <div class="fw-bold tabular-nums" style="color: var(--primary-coffee); font-size: 16px;">
+                            <div class="fw-bold tabular-nums" style="color: var(--starbucks-green); font-size: 16px;">
                                 Rp <?php echo number_format($harga, 0, ',', '.'); ?>
                             </div>
                         </div>

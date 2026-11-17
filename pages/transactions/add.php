@@ -37,7 +37,7 @@
                 <div class="search-box mb-4">
                     <i class="bi bi-search" aria-hidden="true"></i>
                     <input type="search" id="search-menu" class="form-control"
-                        placeholder="Cari nama menu..." autocomplete="off" aria-label="Cari nama menu">
+                        placeholder="Cari nama menu" autocomplete="off" aria-label="Cari nama menu">
                 </div>
 
                 <?php if (empty($daftar_produk)): ?>
