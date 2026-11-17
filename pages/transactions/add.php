@@ -66,9 +66,13 @@
                                 data-gambar="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
                                 aria-pressed="false">
                                 <?php if ($has_img): ?>
-                                    <img src="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
-                                         alt="<?php echo $nama_prod; ?>"
-                                         class="product-avatar-img">
+                                    <span class="product-thumb-frame">
+                                        <img src="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
+                                             alt="<?php echo $nama_prod; ?>"
+                                             class="product-avatar-img"
+                                             onerror="this.parentElement.classList.add('is-fallback'); this.classList.add('d-none'); if(this.nextElementSibling){this.nextElementSibling.classList.remove('d-none');}">
+                                        <span class="avatar-initial d-none" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
+                                    </span>
                                 <?php else: ?>
                                     <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
                                 <?php endif; ?>

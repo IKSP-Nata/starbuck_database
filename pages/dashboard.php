@@ -110,7 +110,7 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card-soft h-100 d-flex flex-column justify-content-between">
+            <div class="card-soft card-forest h-100 d-flex flex-column justify-content-between">
                 <div>
                     <div class="label-caps mb-2">Total Pendapatan</div>
                     <div class="metric-value fw-bold mb-3">Rp <?php echo number_format((float)$total_pendapatan, 0, ',', '.'); ?></div>

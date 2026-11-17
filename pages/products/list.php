@@ -50,9 +50,13 @@ if ($result) {
                 <div class="card-soft h-100 d-flex flex-column justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <?php if ($has_img): ?>
-                            <img src="../../assets/img/products/<?php echo rawurlencode(basename($gambar)); ?>"
-                                 alt="<?php echo $nama; ?>"
-                                 class="product-avatar-img">
+                            <span class="product-thumb-frame">
+                                <img src="../../assets/img/products/<?php echo rawurlencode(basename($gambar)); ?>"
+                                     alt="<?php echo $nama; ?>"
+                                     class="product-avatar-img"
+                                     onerror="this.parentElement.classList.add('is-fallback'); this.classList.add('d-none'); if(this.nextElementSibling){this.nextElementSibling.classList.remove('d-none');}">
+                                <span class="avatar-initial d-none" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
+                            </span>
                         <?php else: ?>
                             <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
                         <?php endif; ?>
