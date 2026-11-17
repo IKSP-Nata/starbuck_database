@@ -1,11 +1,12 @@
 <?php
 // Menu navigasi utama (hanya 4 tautan sesuai PRD 4.1)
 $sb_current_path = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+$sb_base_url = (strpos($sb_current_path, '/starbuck/') === 0) ? '/starbuck' : '';
 $sb_nav_items = [
-    ['label' => 'Dashboard', 'icon' => 'bi-grid',    'href' => '/starbuck/pages/dashboard.php',         'match' => '/pages/dashboard.php'],
-    ['label' => 'Kasir',     'icon' => 'bi-people',  'href' => '/starbuck/pages/cashiers/list.php',     'match' => '/pages/cashiers/'],
-    ['label' => 'Produk',    'icon' => 'bi-cup-hot', 'href' => '/starbuck/pages/products/list.php',     'match' => '/pages/products/'],
-    ['label' => 'Transaksi', 'icon' => 'bi-receipt', 'href' => '/starbuck/pages/transactions/list.php', 'match' => '/pages/transactions/'],
+    ['label' => 'Dashboard', 'icon' => 'bi-grid',    'href' => $sb_base_url . '/pages/dashboard.php',         'match' => '/pages/dashboard.php'],
+    ['label' => 'Kasir',     'icon' => 'bi-people',  'href' => $sb_base_url . '/pages/cashiers/list.php',     'match' => '/pages/cashiers/'],
+    ['label' => 'Produk',    'icon' => 'bi-cup-hot', 'href' => $sb_base_url . '/pages/products/list.php',     'match' => '/pages/products/'],
+    ['label' => 'Transaksi', 'icon' => 'bi-receipt', 'href' => $sb_base_url . '/pages/transactions/list.php', 'match' => '/pages/transactions/'],
 ];
 ?>
 <!DOCTYPE html>
@@ -21,7 +22,7 @@ $sb_nav_items = [
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/starbuck/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo $sb_base_url; ?>/assets/css/style.css">
 </head>
 
 <body>
@@ -29,7 +30,10 @@ $sb_nav_items = [
 
     <!-- Sidebar kiri (desktop, >= 992px) -->
     <aside class="sb-sidebar sidebar" aria-label="Navigasi utama">
-        <a class="sb-brand" href="/starbuck/pages/dashboard.php">Starbuck</a>
+        <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
+            <img src="<?php echo $sb_base_url; ?>/assets/img/starbuck.jpg" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
+        </a>
         <ul class="sb-nav sidebar-nav">
             <div class="nav-curve-indicator" aria-hidden="true"></div>
             <?php foreach ($sb_nav_items as $sb_index => $sb_item): ?>
@@ -50,7 +54,10 @@ $sb_nav_items = [
     <!-- Navbar atas (layar < 992px) -->
     <header class="sb-topbar">
         <div class="sb-topbar-row">
-            <a class="sb-brand" href="/starbuck/pages/dashboard.php">Starbuck</a>
+            <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
+                <img src="<?php echo $sb_base_url; ?>/assets/img/starbuck.jpg" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
+            </a>
             <button class="sb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sbMobileNav"
                 aria-controls="sbMobileNav" aria-expanded="false" aria-label="Buka menu navigasi">
                 <i class="bi bi-list" aria-hidden="true"></i>

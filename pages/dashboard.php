@@ -1,5 +1,7 @@
 <?php
-define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
+if (!defined('ROOTPATH')) {
+    define('ROOTPATH', dirname(__DIR__));
+}
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
@@ -78,7 +80,7 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
                     <div class="metric-value fw-bold mb-3"><?php echo (int)$total_kasir; ?></div>
                 </div>
                 <div>
-                    <a href="/starbuck/pages/cashiers/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                    <a href="<?php echo $sb_base_url; ?>/pages/cashiers/list.php" class="link-arrow">Lihat Data &rarr;</a>
                 </div>
             </div>
         </div>
@@ -90,7 +92,7 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
                     <div class="metric-value fw-bold mb-3"><?php echo (int)$total_produk; ?></div>
                 </div>
                 <div>
-                    <a href="/starbuck/pages/products/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                    <a href="<?php echo $sb_base_url; ?>/pages/products/list.php" class="link-arrow">Lihat Data &rarr;</a>
                 </div>
             </div>
         </div>
@@ -102,7 +104,7 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
                     <div class="metric-value fw-bold mb-3"><?php echo (int)$total_transaksi; ?></div>
                 </div>
                 <div>
-                    <a href="/starbuck/pages/transactions/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                    <a href="<?php echo $sb_base_url; ?>/pages/transactions/list.php" class="link-arrow">Lihat Data &rarr;</a>
                 </div>
             </div>
         </div>
@@ -114,7 +116,7 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
                     <div class="metric-value fw-bold mb-3">Rp <?php echo number_format((float)$total_pendapatan, 0, ',', '.'); ?></div>
                 </div>
                 <div>
-                    <a href="/starbuck/pages/transactions/list.php" class="link-arrow">Lihat Data &rarr;</a>
+                    <a href="<?php echo $sb_base_url; ?>/pages/transactions/list.php" class="link-arrow">Lihat Data &rarr;</a>
                 </div>
             </div>
         </div>
@@ -129,8 +131,8 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
                 <p class="page-subtitle mb-0">5 transaksi terakhir yang tercatat</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
-                <a href="/starbuck/pages/transactions/add.php" class="btn-coffee">+ Transaksi Baru</a>
-                <a href="/starbuck/pages/transactions/list.php" class="btn-coffee-outline">Lihat Semua</a>
+                <a href="<?php echo $sb_base_url; ?>/pages/transactions/add.php" class="btn-coffee">+ Transaksi Baru</a>
+                <a href="<?php echo $sb_base_url; ?>/pages/transactions/list.php" class="btn-coffee-outline">Lihat Semua</a>
             </div>
         </div>
 
@@ -162,7 +164,7 @@ if ($res_trans && mysqli_num_rows($res_trans) > 0) {
                         <td class="col-money">Rp <?php echo number_format((float)$trx['pajak'], 0, ',', '.'); ?></td>
                         <td class="col-money fw-bold">Rp <?php echo number_format((float)$trx['total'], 0, ',', '.'); ?></td>
                         <td class="text-end">
-                            <a href="/starbuck/pages/transactions/print_receipt.php?id_transaksi=<?php echo urlencode($trx['id_transaksi']); ?>"
+                            <a href="<?php echo $sb_base_url; ?>/pages/transactions/print_receipt.php?id_transaksi=<?php echo urlencode($trx['id_transaksi']); ?>"
                                target="_blank" class="btn-coffee-outline btn-sm-soft">Cetak Struk</a>
                         </td>
                     </tr>
