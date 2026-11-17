@@ -28,7 +28,7 @@
     --sidebar-width: 110px;
     --focus-ring: 0 0 0 3px rgba(78, 52, 46, .12);
     --transition-fast: 150ms ease;
-    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
 
     /* Paksa tema terang agar tidak ikut dark mode sistem operasi */
     color-scheme: light;
@@ -56,6 +56,14 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans);
     color: var(--text-main);
+}
+
+input,
+button,
+select,
+textarea,
+table {
+    font-family: var(--font-sans);
 }
 
 a {
@@ -93,7 +101,14 @@ a {
 
 /* Angka metrik & nominal: digit sejajar */
 .num,
-.tabular-nums {
+.tabular-nums,
+.metric-value,
+.col-money,
+.col-num,
+.col-index,
+.menu-card-price,
+.qty-input,
+.bills-total-value {
     font-variant-numeric: tabular-nums;
 }
 
@@ -102,7 +117,6 @@ a {
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.01em;
-    font-variant-numeric: tabular-nums;
     color: var(--text-main);
 }
 

@@ -51,7 +51,7 @@ if ($id_transaksi !== '') {
     <title>Struk Transaksi <?php echo $trx ? '#' . htmlspecialchars($trx['id_transaksi']) : ''; ?> - Starbuck</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <style>
         :root {
             --bg-canvas: #F8F6F3;
@@ -62,6 +62,7 @@ if ($id_transaksi !== '') {
             --text-main: #2C221E;
             --text-muted: #7A6F69;
             --border-soft: #EAE4DD;
+            --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
         }
         * {
             box-sizing: border-box;
@@ -69,7 +70,7 @@ if ($id_transaksi !== '') {
             padding: 0;
         }
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-family: var(--font-sans);
             background-color: var(--bg-canvas);
             color: var(--text-main);
             display: flex;
@@ -78,6 +79,13 @@ if ($id_transaksi !== '') {
             padding: 32px 16px;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+        }
+        button,
+        input,
+        select,
+        textarea,
+        table {
+            font-family: var(--font-sans);
         }
         .no-print {
             display: flex;
