@@ -1,32 +1,37 @@
 /* ==========================================================================
-   Starbuck POS - Warm Minimalist Coffee POS
-   Sistem desain kustom. Dimuat SETELAH CSS Bootstrap di include/header.php.
+   Starbuck POS - Sistem Desain Resmi Starbucks
+   Dimuat SETELAH CSS Bootstrap di include/header.php.
    Catatan: CSS Bootstrap lokal memakai @layer, sehingga aturan tanpa layer
    di file ini selalu menang tanpa perlu !important.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Variabel desain (PRD 2.1)
+   1. Palet Warna & Variabel Desain Resmi Starbucks
    -------------------------------------------------------------------------- */
 :root {
-    --bg-canvas: #F8F6F3;
+    --bg-main: #F7F7F7;
     --bg-surface: #FFFFFF;
-    --bg-subtle: #F3EFEA;
-    --primary-coffee: #4E342E;
-    --primary-hover: #3B2621;
-    --text-main: #2C221E;
-    --text-muted: #7A6F69;
-    --border-soft: #EAE4DD;
+    --bg-subtle: #F2F0EB;
+    --starbucks-green: #00704A;
+    --starbucks-green-hover: #005C3D;
+    --starbucks-forest: #1E3932;
+    --starbucks-mint: #D4E9E2;
+    --text-primary: #1E3932;
+    --text-muted: rgba(0, 0, 0, 0.58);
+    --border-soft: rgba(0, 0, 0, 0.08);
+
+    /* Alias kompatibilitas & turunan sistem */
+    --bg-canvas: var(--bg-main);
+    --primary-coffee: var(--starbucks-green);
+    --primary-hover: var(--starbucks-green-hover);
+    --text-main: var(--text-primary);
     --danger-soft-bg: #FBEDEA;
     --danger-soft-text: #A3382B;
-    --radius-card: 18px;
+    --radius-card: 16px;
     --radius-control: 12px;
-    --shadow-soft: 0 4px 20px rgba(44, 34, 30, 0.04);
-
-    /* Turunan internal (bukan warna baru) */
-    --bg-main: var(--bg-canvas);
+    --shadow-soft: none;
     --sidebar-width: 110px;
-    --focus-ring: 0 0 0 3px rgba(78, 52, 46, .12);
+    --focus-ring: 0 0 0 3px rgba(0, 112, 74, 0.16);
     --transition-fast: 150ms ease;
     --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
 
@@ -35,11 +40,11 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. Dasar & tipografi (PRD 2.2)
+   2. Dasar & Tipografi Tajam
    -------------------------------------------------------------------------- */
 html,
 body {
-    background-color: var(--bg-canvas);
+    background-color: var(--bg-main);
 }
 
 body {
@@ -48,14 +53,18 @@ body {
     font-size: 15px;
     font-weight: 400;
     line-height: 1.55;
-    color: var(--text-main);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans);
-    color: var(--text-main);
+    color: var(--starbucks-forest);
+}
+
+h1, h2, h3 {
+    letter-spacing: -0.02em;
 }
 
 input,
@@ -67,7 +76,7 @@ table {
 }
 
 a {
-    color: var(--primary-coffee);
+    color: var(--starbucks-green);
 }
 
 .page-header {
@@ -82,10 +91,10 @@ a {
 .page-title {
     margin: 0;
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;
-    color: var(--text-main);
+    color: var(--starbucks-forest);
 }
 
 .page-subtitle {
@@ -116,15 +125,15 @@ a {
     font-size: 30px;
     font-weight: 700;
     line-height: 1.15;
-    letter-spacing: -0.01em;
-    color: var(--text-main);
+    letter-spacing: -0.02em;
+    color: var(--starbucks-forest);
 }
 
 .label-caps {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .06em;
+    letter-spacing: 0.08em;
     color: var(--text-muted);
 }
 
@@ -140,8 +149,8 @@ a {
     font-size: 14px;
     font-weight: 600;
     color: #FFFFFF;
-    background: var(--primary-coffee);
-    border-radius: var(--radius-control);
+    background: var(--starbucks-green);
+    border-radius: 50px;
     text-decoration: none;
 }
 
@@ -163,8 +172,8 @@ a {
     padding: 28px 0 24px;
     background: var(--bg-surface);
     border-right: 1px solid var(--border-soft);
-    border-radius: 0 20px 20px 0;
-    box-shadow: var(--shadow-soft);
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .sb-brand {
@@ -173,15 +182,15 @@ a {
     justify-content: center;
     margin-bottom: 36px;
     font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--primary-coffee);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--starbucks-forest);
     text-decoration: none;
     text-align: center;
 }
 
 .sb-brand:hover {
-    color: var(--primary-hover);
+    color: var(--starbucks-green);
 }
 
 .sidebar-brand-logo {
@@ -191,7 +200,8 @@ a {
     border-radius: 50%;
     display: block;
     margin: 0 auto;
-    box-shadow: 0 2px 8px rgba(78, 52, 46, 0.08);
+    box-shadow: none;
+    border: 1px solid var(--border-soft);
     transition: transform var(--transition-fast);
 }
 
@@ -201,9 +211,9 @@ a {
 
 .sidebar-brand-fallback {
     font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--primary-coffee);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--starbucks-forest);
 }
 
 .sb-nav,
@@ -244,7 +254,7 @@ a {
 
 .sb-link:hover,
 .sidebar-nav .nav-link:hover {
-    color: var(--text-main);
+    color: var(--starbucks-forest);
     background-color: var(--bg-subtle);
 }
 
@@ -253,7 +263,7 @@ a {
 .sidebar-nav .nav-link.active,
 .sidebar-nav .nav-link.active:hover {
     color: #FFFFFF;
-    background-color: var(--primary-coffee);
+    background-color: var(--starbucks-green);
 }
 
 .nav-curve-indicator {
@@ -264,7 +274,7 @@ a {
     .sb-sidebar,
     .sidebar {
         overflow: visible;
-        border-right: none;
+        border-right: 1px solid var(--border-soft);
     }
 
     .sb-sidebar .sidebar-nav {
@@ -284,7 +294,7 @@ a {
     }
 
     .sb-sidebar .sidebar-nav .nav-link:hover {
-        color: var(--text-main);
+        color: var(--starbucks-forest);
         background-color: transparent;
     }
 
@@ -298,7 +308,7 @@ a {
 
     .sb-sidebar .sidebar-nav .nav-link.active,
     .sb-sidebar .sidebar-nav .nav-link.active:hover {
-        color: var(--primary-coffee);
+        color: var(--starbucks-green);
         background-color: transparent;
     }
 
@@ -308,7 +318,7 @@ a {
     }
 
     .sb-sidebar .sidebar-nav .nav-link.active span {
-        color: var(--primary-coffee);
+        color: var(--starbucks-green);
         font-weight: 600;
         transform: translateX(-14px);
     }
@@ -321,7 +331,7 @@ a {
         width: 58px;
         height: 58px;
         border-radius: 50%;
-        background-color: var(--primary-coffee);
+        background-color: var(--starbucks-green);
         border: 6px solid var(--bg-main);
         z-index: 1;
         pointer-events: none;
@@ -362,7 +372,7 @@ a {
     min-height: 100vh;
     margin-left: var(--sidebar-width);
     padding: 32px;
-    background-color: var(--bg-canvas);
+    background-color: var(--bg-main);
 }
 
 @media (max-width: 991.98px) {
@@ -383,7 +393,7 @@ a {
         padding: 12px 20px;
         background: var(--bg-surface);
         border-bottom: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
+        box-shadow: none;
     }
 
     .sb-topbar-row {
@@ -486,16 +496,23 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   4. Komponen dasar (PRD 2.3)
+   4. Komponen dasar (Gaya Flat & Pill Resmi Starbucks)
    -------------------------------------------------------------------------- */
 
-/* Kartu */
+/* Kartu & Panel */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-card);
+    box-shadow: none;
+}
+
 .card-soft {
     padding: 24px;
     background: var(--bg-surface);
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
+    box-shadow: none;
 }
 
 .card-soft-flush {
@@ -508,60 +525,69 @@ a {
     margin-inline: auto;
 }
 
-/* Tombol */
+/* Tombol Pil Starbucks */
 .btn-coffee,
 .btn-coffee-outline,
 .btn-neutral-outline,
-.btn-soft-danger {
+.btn-soft-danger,
+.btn-primary,
+.btn-outline-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     min-height: 44px;
-    padding: 0 18px;
+    padding: 0 22px;
     font-family: var(--font-sans);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
     text-decoration: none;
-    border-radius: var(--radius-control);
+    border-radius: 50px;
     cursor: pointer;
+    box-shadow: none;
     transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.btn-coffee {
+.btn-coffee,
+.btn-primary {
     color: #FFFFFF;
-    background-color: var(--primary-coffee);
-    border: 1px solid var(--primary-coffee);
+    background-color: var(--starbucks-green);
+    border: 1px solid var(--starbucks-green);
 }
 
-.btn-coffee:hover {
+.btn-coffee:hover,
+.btn-primary:hover {
     color: #FFFFFF;
-    background-color: var(--primary-hover);
-    border-color: var(--primary-hover);
+    background-color: var(--starbucks-green-hover);
+    border-color: var(--starbucks-green-hover);
 }
 
-.btn-coffee-outline {
-    color: var(--primary-coffee);
+.btn-coffee-outline,
+.btn-outline-primary {
+    color: var(--starbucks-forest);
     background-color: transparent;
-    border: 1px solid var(--primary-coffee);
+    border: 1px solid var(--starbucks-forest);
 }
 
-.btn-coffee-outline:hover {
-    color: var(--primary-coffee);
-    background-color: var(--bg-subtle);
+.btn-coffee-outline:hover,
+.btn-outline-primary:hover {
+    color: var(--starbucks-forest);
+    background-color: var(--starbucks-mint);
+    border-color: var(--starbucks-forest);
 }
 
 .btn-neutral-outline {
-    color: var(--text-main);
+    color: var(--starbucks-forest);
     background-color: transparent;
     border: 1px solid var(--border-soft);
 }
 
 .btn-neutral-outline:hover {
-    color: var(--text-main);
+    color: var(--starbucks-forest);
     background-color: var(--bg-subtle);
+    border-color: var(--starbucks-forest);
 }
 
 .btn-soft-danger {
@@ -577,7 +603,7 @@ a {
 
 .btn-sm-soft {
     min-height: 36px;
-    padding: 0 14px;
+    padding: 0 16px;
     font-size: 13px;
 }
 
@@ -589,7 +615,9 @@ a {
 .btn-coffee.disabled,
 .btn-coffee-outline:disabled,
 .btn-neutral-outline:disabled,
-.btn-soft-danger:disabled {
+.btn-soft-danger:disabled,
+.btn-primary:disabled,
+.btn-outline-primary:disabled {
     opacity: .45;
     cursor: not-allowed;
     pointer-events: none;
@@ -602,13 +630,13 @@ a {
     gap: 4px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--primary-coffee);
+    color: var(--starbucks-green);
     text-decoration: none;
     transition: color var(--transition-fast);
 }
 
 .link-arrow:hover {
-    color: var(--primary-hover);
+    color: var(--starbucks-green-hover);
     text-decoration: underline;
     text-underline-offset: 3px;
 }
@@ -647,7 +675,7 @@ a {
 .form-select {
     padding-right: 40px;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237A6F69' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231E3932' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 14px center;
     background-size: 14px 10px;
@@ -657,7 +685,7 @@ a {
 .form-control:focus-visible,
 .form-select:focus,
 .form-select:focus-visible {
-    border-color: var(--primary-coffee);
+    border-color: var(--starbucks-green);
     outline: 0;
     box-shadow: var(--focus-ring);
 }
@@ -677,7 +705,7 @@ a {
     width: 100%;
     margin: 0;
     font-size: 14px;
-    color: var(--text-main);
+    color: var(--text-primary);
     border-collapse: separate;
     border-spacing: 0;
     background: transparent;
@@ -685,11 +713,11 @@ a {
 
 .table-soft thead th {
     padding: 12px 16px;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-align: left;
     text-transform: uppercase;
-    letter-spacing: .06em;
+    letter-spacing: 0.08em;
     white-space: nowrap;
     color: var(--text-muted);
     background-color: var(--bg-subtle);
@@ -711,7 +739,7 @@ a {
 }
 
 .table-soft tbody tr:hover {
-    background-color: var(--bg-canvas);
+    background-color: var(--bg-main);
 }
 
 .table-soft .col-num,
@@ -739,7 +767,7 @@ a {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: .02em;
-    color: var(--primary-coffee);
+    color: var(--starbucks-green);
     background-color: var(--bg-subtle);
     border-radius: 14px;
 }
@@ -804,7 +832,7 @@ a {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
+    box-shadow: none;
     cursor: pointer;
     transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
@@ -816,8 +844,8 @@ a {
 .menu-card.is-selected,
 .menu-card.is-selected:hover {
     padding: 15px;
-    background-color: #FFFFFF;
-    border: 2px solid var(--primary-coffee);
+    background-color: var(--bg-surface);
+    border: 2px solid var(--starbucks-green);
 }
 
 .menu-card-body {
@@ -830,7 +858,7 @@ a {
     font-size: 15px;
     font-weight: 600;
     line-height: 1.35;
-    color: var(--text-main);
+    color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -845,7 +873,7 @@ a {
 }
 
 .menu-card.is-selected .menu-card-price {
-    color: var(--primary-coffee);
+    color: var(--starbucks-green);
 }
 
 /* Panel Bills & kontrol kuantitas (PRD 4.5) */
@@ -876,7 +904,7 @@ a {
     font-size: 18px;
     font-weight: 600;
     line-height: 1;
-    color: var(--text-main);
+    color: var(--text-primary);
     background-color: var(--bg-surface);
     border: 1px solid var(--border-soft);
     border-radius: 50%;
@@ -885,8 +913,8 @@ a {
 }
 
 .qty-btn:hover {
-    background-color: var(--bg-canvas);
-    border-color: var(--primary-coffee);
+    background-color: var(--starbucks-mint);
+    border-color: var(--starbucks-green);
 }
 
 .qty-input {
@@ -917,7 +945,7 @@ a {
 .bills-total-label {
     font-size: 16px;
     font-weight: 600;
-    color: var(--text-main);
+    color: var(--starbucks-forest);
 }
 
 .bills-total-value {
@@ -925,14 +953,28 @@ a {
     font-weight: 700;
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
-    color: var(--text-main);
+    color: var(--starbucks-forest);
+}
+
+/* Badge / highlight lembut (Starbucks Mint) */
+.badge-mint {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--starbucks-forest);
+    background-color: var(--starbucks-mint);
+    border-radius: 50px;
 }
 
 /* --------------------------------------------------------------------------
    5. Aksesibilitas & gerak
    -------------------------------------------------------------------------- */
 :focus-visible {
-    outline: 2px solid var(--primary-coffee);
+    outline: 2px solid var(--starbucks-green);
     outline-offset: 2px;
 }
 
@@ -940,8 +982,10 @@ a {
 .btn-coffee:focus-visible,
 .btn-coffee-outline:focus-visible,
 .btn-neutral-outline:focus-visible,
-.btn-soft-danger:focus-visible {
-    outline: 2px solid var(--primary-coffee);
+.btn-soft-danger:focus-visible,
+.btn-primary:focus-visible,
+.btn-outline-primary:focus-visible {
+    outline: 2px solid var(--starbucks-green);
     outline-offset: 2px;
     box-shadow: var(--focus-ring);
 }
