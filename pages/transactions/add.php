@@ -1,35 +1,46 @@
 <?php
-    define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
-    include ROOTPATH . '/include/header.php';
-    include ROOTPATH . '/config/config.php';
+define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
+include ROOTPATH . '/include/header.php';
+include ROOTPATH . '/config/config.php';
 
-    $query_produk  = "SELECT * FROM produk ORDER BY nama_produk ASC";
-    $result_produk = mysqli_query($koneksi, $query_produk);
+$query_produk  = "SELECT * FROM produk ORDER BY nama_produk ASC";
+$result_produk = mysqli_query($koneksi, $query_produk);
 
-    $daftar_produk = [];
-    if ($result_produk) {
-        while ($row = mysqli_fetch_assoc($result_produk)) {
-            $daftar_produk[] = $row;
-        }
+$daftar_produk = [];
+if ($result_produk) {
+    while ($row = mysqli_fetch_assoc($result_produk)) {
+        $daftar_produk[] = $row;
     }
-    $jumlah_menu = count($daftar_produk);
+}
+$jumlah_menu = count($daftar_produk);
+
+$query_kasir  = "SELECT id_kasir, nama_kasir FROM kasir ORDER BY nama_kasir ASC";
+$result_kasir = mysqli_query($koneksi, $query_kasir);
+
+$daftar_kasir = [];
+if ($result_kasir) {
+    while ($row_k = mysqli_fetch_assoc($result_kasir)) {
+        $daftar_kasir[] = $row_k;
+    }
+}
 ?>
 
 <div class="container-fluid px-0">
     <form action="../../process/process_transactions.php" method="post" id="form-transaksi">
         <input type="hidden" name="action" value="add">
         <input type="hidden" name="id_produk" id="id_produk" value="" required>
+        <input type="hidden" name="catatan" id="input_catatan" value="">
 
         <div class="row g-4 align-items-start">
 
-            <!-- Kolom Kiri: Katalog Pilih Menu (PRD 4.5) -->
+            <!-- Kolom Kiri: Katalog Pilih Menu (col-lg-7) -->
             <div class="col-lg-7">
                 <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
                     <div>
                         <h1 class="page-title">Pilih Menu</h1>
                         <p class="page-subtitle">Klik salah satu kartu menu untuk memasukkan ke tagihan</p>
                     </div>
-                    <span class=" page-subtitle tabular-nums" id="menu-count">
+                    <span class="page-subtitle tabular-nums" id="menu-count">
                         <?php echo $jumlah_menu; ?> menu tersedia
                     </span>
                 </div>
@@ -47,21 +58,33 @@
                 <?php else: ?>
                     <div class="row g-3" id="menu-grid">
                         <?php foreach ($daftar_produk as $produk):
-                            $id_prod    = $produk['id_produk'] ?? $produk['id'] ?? '';
-                            $nama_raw   = trim($produk['nama_produk'] ?? '');
-                            $nama_prod  = htmlspecialchars($nama_raw, ENT_QUOTES, 'UTF-8');
-                            $harga_prod = (float)($produk['harga'] ?? 0);
-                            $inisial    = strtoupper(substr($nama_raw !== '' ? $nama_raw : 'MN', 0, 2));
-                            $gambar     = trim($produk['gambar'] ?? '');
-                            $has_img    = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
-                            $img_src    = $has_img ? '../../assets/img/products/' . rawurlencode(basename($gambar)) : '';
+                            $id_prod      = $produk['id_produk'] ?? $produk['id'] ?? '';
+                            $nama_raw     = trim($produk['nama_produk'] ?? '');
+                            $nama_prod    = htmlspecialchars($nama_raw, ENT_QUOTES, 'UTF-8');
+                            $harga_prod   = (float)($produk['harga'] ?? 0);
+                            $kategori_raw = trim($produk['kategori'] ?? 'Minuman');
+                            if ($kategori_raw === '') {
+                                $kategori_raw = 'Minuman';
+                            }
+                            $kategori_esc = htmlspecialchars($kategori_raw, ENT_QUOTES, 'UTF-8');
+                            $badge_cls    = 'badge-category';
+                            if ($kategori_raw === 'Tambahan') {
+                                $badge_cls .= ' badge-category-tambahan';
+                            } elseif ($kategori_raw === 'Makanan') {
+                                $badge_cls .= ' badge-category-makanan';
+                            }
+                            $inisial      = strtoupper(substr($nama_raw !== '' ? $nama_raw : 'MN', 0, 2));
+                            $gambar       = trim($produk['gambar'] ?? '');
+                            $has_img      = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
+                            $img_src      = $has_img ? '../../assets/img/products/' . rawurlencode(basename($gambar)) : '';
                         ?>
                         <div class="col-md-6 menu-item-col" data-nama-search="<?php echo htmlspecialchars(strtolower($nama_raw), ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="button"
                                 class="menu-card"
-                                data-id="<?php echo htmlspecialchars($id_prod, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-id="<?php echo htmlspecialchars((string)$id_prod, ENT_QUOTES, 'UTF-8'); ?>"
                                 data-nama="<?php echo $nama_prod; ?>"
                                 data-harga="<?php echo $harga_prod; ?>"
+                                data-kategori="<?php echo $kategori_esc; ?>"
                                 data-inisial="<?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?>"
                                 data-gambar="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
                                 aria-pressed="false">
@@ -77,6 +100,7 @@
                                     <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
                                 <?php endif; ?>
                                 <span class="menu-card-body">
+                                    <span class="<?php echo $badge_cls; ?> mb-1"><?php echo $kategori_esc; ?></span>
                                     <span class="menu-card-title d-block"><?php echo $nama_prod; ?></span>
                                     <span class="menu-card-price d-block">Rp <?php echo number_format($harga_prod, 0, ',', '.'); ?></span>
                                 </span>
@@ -91,7 +115,7 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Kolom Kanan: Panel Sticky Bills (PRD 4.5) -->
+            <!-- Kolom Kanan: Panel Sticky Bills (col-lg-5) -->
             <div class="col-lg-5">
                 <div class="card-soft bills-panel">
                     <div class="mb-3">
@@ -99,7 +123,20 @@
                         <p class="page-subtitle mb-0">Ringkasan Transaksi</p>
                     </div>
 
-                    <!-- Status kosong saat belum ada menu dipilih (PRD 3.2) -->
+                    <!-- Pilihan Kasir Bertugas (Wajib, disimpan di localStorage) -->
+                    <div class="mb-3">
+                        <label for="id_kasir" class="form-label fw-medium">Kasir Bertugas</label>
+                        <select name="id_kasir" id="id_kasir" class="form-select" required>
+                            <option value="">Pilih kasir bertugas</option>
+                            <?php foreach ($daftar_kasir as $kasir): ?>
+                                <option value="<?php echo (int)$kasir['id_kasir']; ?>">
+                                    <?php echo htmlspecialchars($kasir['nama_kasir'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Status kosong saat belum ada menu dipilih -->
                     <div class="empty-state bills-selected-item mb-3" id="bills-empty">
                         Pilih menu di sebelah kiri untuk memulai transaksi.
                     </div>
@@ -110,7 +147,7 @@
                             <span class="avatar-initial" id="selected-avatar" aria-hidden="true">--</span>
                             <img src="" alt="" class="product-avatar-img d-none" id="selected-avatar-img">
                             <div class="min-w-0 flex-grow-1">
-                                <div class="fw-semibold text-truncate" id="selected-nama">-</div>
+                                <div class="fw-semibold text-truncate product-card-title" id="selected-nama">-</div>
                                 <div class="page-subtitle tabular-nums mt-0" id="selected-harga">Rp 0</div>
                             </div>
                         </div>
@@ -126,8 +163,33 @@
                         </div>
                     </div>
 
+                    <!-- Bagian Kustomisasi Pesanan (Hanya untuk kategori Minuman) -->
+                    <div class="drink-custom-collapse" id="drink-custom-wrap" aria-hidden="true">
+                        <div class="drink-custom-inner">
+                            <div class="drink-custom-section">
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium mb-2">Penyajian (Suhu)</label>
+                                    <div class="option-chip-group" role="group" aria-label="Pilihan penyajian suhu">
+                                        <button type="button" class="option-chip is-active" data-suhu="Ice" aria-pressed="true" tabindex="-1">Ice</button>
+                                        <button type="button" class="option-chip" data-suhu="Hot" aria-pressed="false" tabindex="-1">Hot</button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label fw-medium mb-2">Tingkat Gula</label>
+                                    <div class="option-chip-group" role="group" aria-label="Pilihan tingkat gula">
+                                        <button type="button" class="option-chip" data-gula="No sugar" aria-pressed="false" tabindex="-1">No sugar</button>
+                                        <button type="button" class="option-chip" data-gula="Less sugar" aria-pressed="false" tabindex="-1">Less sugar</button>
+                                        <button type="button" class="option-chip is-active" data-gula="Normal" aria-pressed="true" tabindex="-1">Normal</button>
+                                        <button type="button" class="option-chip" data-gula="High sugar" aria-pressed="false" tabindex="-1">High sugar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Rincian Subtotal, Pajak 11%, dan Total -->
-                    <div class="pt-1">
+                    <div class="pt-1" aria-live="polite" aria-atomic="true">
                         <div class="bills-row">
                             <span class="text-muted">Subtotal</span>
                             <span id="summary-subtotal" class="fw-semibold tabular-nums">Rp 0</span>
@@ -160,51 +222,160 @@
 
 <script>
 (function () {
-    var selectedHarga = 0;
-    var inputIdProduk = document.getElementById('id_produk');
-    var inputJumlah   = document.getElementById('jumlah');
-    var btnMinus      = document.getElementById('btn-qty-minus');
-    var btnPlus       = document.getElementById('btn-qty-plus');
-    var btnSubmit     = document.getElementById('btn-submit');
+    var KASIR_STORAGE_KEY = 'starbuck_active_kasir';
 
-    var billsEmpty    = document.getElementById('bills-empty');
-    var billsItem     = document.getElementById('bills-item');
-    var selectedAvatar = document.getElementById('selected-avatar');
+    var selectedHarga    = 0;
+    var selectedKategori = '';
+    var currentSuhu      = 'Ice';
+    var currentGula      = 'Normal';
+
+    var inputIdProduk     = document.getElementById('id_produk');
+    var inputCatatan      = document.getElementById('input_catatan');
+    var selectKasir       = document.getElementById('id_kasir');
+    var inputJumlah       = document.getElementById('jumlah');
+    var btnMinus          = document.getElementById('btn-qty-minus');
+    var btnPlus           = document.getElementById('btn-qty-plus');
+    var btnSubmit         = document.getElementById('btn-submit');
+
+    var billsEmpty        = document.getElementById('bills-empty');
+    var billsItem         = document.getElementById('bills-item');
+    var selectedAvatar    = document.getElementById('selected-avatar');
     var selectedAvatarImg = document.getElementById('selected-avatar-img');
-    var selectedNama  = document.getElementById('selected-nama');
-    var selectedHargaEl = document.getElementById('selected-harga');
+    var selectedNama      = document.getElementById('selected-nama');
+    var selectedHargaEl   = document.getElementById('selected-harga');
 
-    var elSubtotal    = document.getElementById('summary-subtotal');
-    var elPajak       = document.getElementById('summary-pajak');
-    var elTotal       = document.getElementById('summary-total');
+    var drinkCustomWrap   = document.getElementById('drink-custom-wrap');
+    var suhuChips         = document.querySelectorAll('.option-chip[data-suhu]');
+    var gulaChips         = document.querySelectorAll('.option-chip[data-gula]');
 
-    var menuCards     = document.querySelectorAll('.menu-card');
-    var searchInput   = document.getElementById('search-menu');
-    var menuCols      = document.querySelectorAll('.menu-item-col');
-    var menuCountEl   = document.getElementById('menu-count');
-    var searchEmptyEl = document.getElementById('search-empty');
+    var elSubtotal        = document.getElementById('summary-subtotal');
+    var elPajak           = document.getElementById('summary-pajak');
+    var elTotal           = document.getElementById('summary-total');
+
+    var menuCards         = document.querySelectorAll('.menu-card');
+    var searchInput       = document.getElementById('search-menu');
+    var menuCols          = document.querySelectorAll('.menu-item-col');
+    var menuCountEl       = document.getElementById('menu-count');
+    var searchEmptyEl     = document.getElementById('search-empty');
 
     function formatRupiah(angka) {
         return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
     }
 
+    // Pulihkan pilihan kasir terakhir dari localStorage
+    if (selectKasir) {
+        try {
+            var savedKasir = localStorage.getItem(KASIR_STORAGE_KEY);
+            if (savedKasir) {
+                var optionExists = Array.prototype.some.call(selectKasir.options, function (opt) {
+                    return opt.value === savedKasir;
+                });
+                if (optionExists) {
+                    selectKasir.value = savedKasir;
+                }
+            }
+        } catch (e) {}
+
+        selectKasir.addEventListener('change', function () {
+            try {
+                if (selectKasir.value) {
+                    localStorage.setItem(KASIR_STORAGE_KEY, selectKasir.value);
+                }
+            } catch (e) {}
+            hitungTotal();
+        });
+    }
+
+    function updateCatatanInput() {
+        if (!inputCatatan) {
+            return;
+        }
+        if (selectedKategori === 'Minuman') {
+            inputCatatan.value = currentSuhu + ', ' + currentGula;
+        } else {
+            inputCatatan.value = '';
+        }
+    }
+
+    function setActiveChip(chips, attrName, targetValue) {
+        chips.forEach(function (chip) {
+            var isMatch = chip.getAttribute(attrName) === targetValue;
+            chip.classList.toggle('is-active', isMatch);
+            chip.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+    }
+
+    function toggleDrinkCustomization(isMinuman, namaMenu) {
+        if (!drinkCustomWrap) {
+            return;
+        }
+        var allChips = drinkCustomWrap.querySelectorAll('.option-chip');
+
+        if (isMinuman) {
+            currentSuhu = 'Ice';
+            // Default cerdas: Americano, Espresso, atau Pike Place -> No sugar; lainnya -> Normal
+            var isBlackCoffee = /americano|espresso|pike\s*place/i.test(namaMenu || '');
+            currentGula = isBlackCoffee ? 'No sugar' : 'Normal';
+
+            setActiveChip(suhuChips, 'data-suhu', currentSuhu);
+            setActiveChip(gulaChips, 'data-gula', currentGula);
+
+            drinkCustomWrap.classList.add('is-open');
+            drinkCustomWrap.setAttribute('aria-hidden', 'false');
+            allChips.forEach(function (chip) {
+                chip.removeAttribute('tabindex');
+            });
+        } else {
+            drinkCustomWrap.classList.remove('is-open');
+            drinkCustomWrap.setAttribute('aria-hidden', 'true');
+            allChips.forEach(function (chip) {
+                chip.setAttribute('tabindex', '-1');
+            });
+        }
+
+        updateCatatanInput();
+    }
+
+    suhuChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            var val = chip.getAttribute('data-suhu');
+            if (val) {
+                currentSuhu = val;
+                setActiveChip(suhuChips, 'data-suhu', currentSuhu);
+                updateCatatanInput();
+            }
+        });
+    });
+
+    gulaChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            var val = chip.getAttribute('data-gula');
+            if (val) {
+                currentGula = val;
+                setActiveChip(gulaChips, 'data-gula', currentGula);
+                updateCatatanInput();
+            }
+        });
+    });
+
     function hitungTotal() {
         var hasProduct = inputIdProduk.value.trim() !== '';
-        var jumlah = parseInt(inputJumlah.value, 10);
+        var hasKasir   = selectKasir && selectKasir.value.trim() !== '';
+        var jumlah     = parseInt(inputJumlah.value, 10);
 
         if (isNaN(jumlah) || jumlah < 1) {
             jumlah = 0;
         }
 
-        var subtotal = hasProduct ? (selectedHarga * jumlah) : 0;
-        var pajak    = subtotal * 0.11;
+        var subtotal = hasProduct ? Math.round(selectedHarga * jumlah) : 0;
+        var pajak    = Math.round(subtotal * 0.11);
         var total    = subtotal + pajak;
 
         elSubtotal.textContent = formatRupiah(subtotal);
         elPajak.textContent    = formatRupiah(pajak);
         elTotal.textContent    = formatRupiah(total);
 
-        btnSubmit.disabled = !(hasProduct && jumlah >= 1);
+        btnSubmit.disabled = !(hasProduct && hasKasir && jumlah >= 1);
     }
 
     function pilihMenu(card) {
@@ -216,13 +387,15 @@
         card.classList.add('is-selected');
         card.setAttribute('aria-pressed', 'true');
 
-        var id      = card.getAttribute('data-id') || '';
-        var nama    = card.getAttribute('data-nama') || '';
-        var harga   = parseFloat(card.getAttribute('data-harga')) || 0;
-        var inisial = card.getAttribute('data-inisial') || 'MN';
-        var gambar  = card.getAttribute('data-gambar') || '';
+        var id       = card.getAttribute('data-id') || '';
+        var nama     = card.getAttribute('data-nama') || '';
+        var harga    = parseFloat(card.getAttribute('data-harga')) || 0;
+        var kategori = card.getAttribute('data-kategori') || 'Minuman';
+        var inisial  = card.getAttribute('data-inisial') || 'MN';
+        var gambar   = card.getAttribute('data-gambar') || '';
 
-        selectedHarga = harga;
+        selectedHarga    = harga;
+        selectedKategori = kategori;
         inputIdProduk.value = id;
 
         if (!inputJumlah.value || parseInt(inputJumlah.value, 10) < 1) {
@@ -246,6 +419,7 @@
         billsEmpty.classList.add('d-none');
         billsItem.classList.remove('d-none');
 
+        toggleDrinkCustomization(kategori === 'Minuman', nama);
         hitungTotal();
     }
 
@@ -315,7 +489,7 @@
 
     hitungTotal();
 
-    // Otomatis pilih menu dari parameter URL (?id_produk=...) sesuai PRD Bagian 6
+    // Otomatis pilih menu dari parameter URL (?id_produk=...)
     try {
         var pid = new URLSearchParams(window.location.search).get('id_produk');
         if (pid) {
@@ -330,15 +504,10 @@
                 }
             }
         }
-    } catch (e) {
-        // Abaikan jika parameter tidak valid atau selector gagal
-    }
+    } catch (e) {}
 })();
 </script>
 
 <?php
-    include ROOTPATH . '/include/footer.php';
+include ROOTPATH . '/include/footer.php';
 ?>
-
-
-
