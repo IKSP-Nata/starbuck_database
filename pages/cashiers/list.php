@@ -3,14 +3,7 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
-$query = "SELECT id_kasir, nama_kasir, no_telp, alamat, email FROM kasir ORDER BY id_kasir ASC";
-$result = mysqli_query($koneksi, $query);
-$daftar_kasir = [];
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $daftar_kasir[] = $row;
-    }
-}
+$daftar_kasir = Kasir::semua();
 ?>
 
 <div class="container-fluid px-0">

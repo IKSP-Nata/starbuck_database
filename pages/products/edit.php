@@ -4,27 +4,8 @@ include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_GET['id_produk']) ? (int)$_GET['id_produk'] : 0);
-
-// Deteksi nama kolom primary key (id atau id_produk)
-$col_id = 'id';
-$check_col = mysqli_query($koneksi, "SHOW COLUMNS FROM produk LIKE 'id_produk'");
-if ($check_col && mysqli_num_rows($check_col) > 0) {
-    $col_id = 'id_produk';
-}
-
-$row = null;
-if ($id > 0) {
-    $stmt = mysqli_prepare($koneksi, "SELECT * FROM produk WHERE $col_id = ? LIMIT 1");
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'i', $id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        if ($result) {
-            $row = mysqli_fetch_assoc($result);
-        }
-        mysqli_stmt_close($stmt);
-    }
-}
+$col_id = Produk::kolomId();
+$row = Produk::cari($id);
 
 $id_val       = $row[$col_id] ?? ($row['id'] ?? ($row['id_produk'] ?? $id));
 $kategori_val = $row['kategori'] ?? 'Minuman';

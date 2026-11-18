@@ -3,26 +3,9 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
-$query_produk  = "SELECT * FROM produk ORDER BY nama_produk ASC";
-$result_produk = mysqli_query($koneksi, $query_produk);
-
-$daftar_produk = [];
-if ($result_produk) {
-    while ($row = mysqli_fetch_assoc($result_produk)) {
-        $daftar_produk[] = $row;
-    }
-}
-$jumlah_menu = count($daftar_produk);
-
-$query_kasir  = "SELECT id_kasir, nama_kasir FROM kasir ORDER BY nama_kasir ASC";
-$result_kasir = mysqli_query($koneksi, $query_kasir);
-
-$daftar_kasir = [];
-if ($result_kasir) {
-    while ($row_k = mysqli_fetch_assoc($result_kasir)) {
-        $daftar_kasir[] = $row_k;
-    }
-}
+$daftar_produk = Produk::semua('nama');
+$jumlah_menu   = count($daftar_produk);
+$daftar_kasir  = Kasir::semua('nama');
 ?>
 
 <div class="container-fluid px-0">

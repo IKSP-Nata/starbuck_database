@@ -3,65 +3,11 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
-$filter = getTransaksiFilter($koneksi, $_GET);
-$where_sql = $filter['where_sql'];
-$query_string = $_SERVER['QUERY_STRING'] ?? '';
+$filter           = Transaksi::buatFilter($_GET);
+$query_string     = $_SERVER['QUERY_STRING'] ?? '';
 $print_report_url = 'print_report.php' . ($query_string !== '' ? '?' . htmlspecialchars($query_string, ENT_QUOTES, 'UTF-8') : '');
-
-// Ambil data utama transaksi sesuai filter periode WITA (1 baris per transaksi)
-$query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu
-          FROM transaksi t
-          $where_sql
-          ORDER BY t.id_transaksi DESC";
-$result = mysqli_query($koneksi, $query);
-
-$daftar_transaksi = [];
-$trx_ids = [];
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $id_trx = (int)$row['id_transaksi'];
-        $row['nama_kasir'] = '-';
-        $row['items'] = [];
-        $row['total_kuantitas'] = null;
-        $daftar_transaksi[$id_trx] = $row;
-        $trx_ids[] = $id_trx;
-    }
-}
-
-// Ambil rincian item, kasir, dan catatan kustomisasi sekaligus tanpa menggandakan baris transaksi
-if (!empty($trx_ids)) {
-    $ids_sql = implode(',', array_map('intval', $trx_ids));
-    $query_detail = "SELECT dt.id_transaksi, dt.kuantitas, dt.catatan, p.nama_produk, k.nama_kasir
-                     FROM detail_transaksi dt
-                     LEFT JOIN produk p ON dt.id_produk = p.id_produk
-                     LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
-                     WHERE dt.id_transaksi IN ($ids_sql)
-                     ORDER BY dt.id_detail_transaksi ASC";
-    $res_detail = mysqli_query($koneksi, $query_detail);
-    if ($res_detail) {
-        while ($det = mysqli_fetch_assoc($res_detail)) {
-            $id_trx = (int)$det['id_transaksi'];
-            if (!isset($daftar_transaksi[$id_trx])) {
-                continue;
-            }
-            if ($daftar_transaksi[$id_trx]['nama_kasir'] === '-' && !empty($det['nama_kasir'])) {
-                $daftar_transaksi[$id_trx]['nama_kasir'] = $det['nama_kasir'];
-            }
-            if (!empty($det['nama_produk'])) {
-                $qty_item = ($det['kuantitas'] !== null) ? (int)$det['kuantitas'] : 0;
-                $daftar_transaksi[$id_trx]['items'][] = [
-                    'nama_produk' => $det['nama_produk'],
-                    'kuantitas'   => $qty_item,
-                    'catatan'     => trim((string)($det['catatan'] ?? '')),
-                ];
-                if ($daftar_transaksi[$id_trx]['total_kuantitas'] === null) {
-                    $daftar_transaksi[$id_trx]['total_kuantitas'] = 0;
-                }
-                $daftar_transaksi[$id_trx]['total_kuantitas'] += $qty_item;
-            }
-        }
-    }
-}
+$riwayat          = Transaksi::ambilRiwayat($filter);
+$daftar_transaksi = $riwayat['rows'];
 ?>
 
 <div class="container-fluid px-0">

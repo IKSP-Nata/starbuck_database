@@ -3,14 +3,7 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
-$query = "SELECT * FROM produk";
-$result = mysqli_query($koneksi, $query);
-$daftar_produk = [];
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $daftar_produk[] = $row;
-    }
-}
+$daftar_produk = Produk::semua();
 ?>
 
 <div class="container-fluid px-0">

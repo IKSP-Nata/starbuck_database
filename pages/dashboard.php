@@ -24,173 +24,29 @@ $hari_singkat = [
     'Friday'    => 'Jum',
     'Saturday'  => 'Sab',
 ];
-$today_ymd  = date('Y-m-d');
-$today_name = $hari_indo[date('l')] ?? date('l');
-$today_label = $today_name . ', ' . formatTanggalIndo($today_ymd) . ' WITA';
+$today_ymd   = date('Y-m-d');
+$today_name  = $hari_indo[date('l')] ?? date('l');
+$today_label = $today_name . ', ' . Format::tanggalIndo($today_ymd) . ' WITA';
 
 // 1. Statistik Utama
-$total_kasir = 0;
-$res_kasir = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM kasir");
-if ($res_kasir && ($row_kasir = mysqli_fetch_assoc($res_kasir))) {
-    $total_kasir = (int)$row_kasir['total'];
-}
-
-$total_produk = 0;
-$res_produk = mysqli_query($koneksi, "SHOW TABLES LIKE 'produk'");
-if ($res_produk && mysqli_num_rows($res_produk) > 0) {
-    $rp = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM produk");
-    if ($rp && ($row_produk = mysqli_fetch_assoc($rp))) {
-        $total_produk = (int)$row_produk['total'];
-    }
-}
-
-$total_transaksi = 0;
-$total_pendapatan = 0.0;
-$res_trans = mysqli_query($koneksi, "SHOW TABLES LIKE 'transaksi'");
-$has_transaksi_table = ($res_trans && mysqli_num_rows($res_trans) > 0);
-if ($has_transaksi_table) {
-    $rt = mysqli_query($koneksi, "SELECT COUNT(*) AS total_trx, COALESCE(SUM(total), 0) AS total_rev FROM transaksi");
-    if ($rt && ($row_trans = mysqli_fetch_assoc($rt))) {
-        $total_transaksi  = (int)$row_trans['total_trx'];
-        $total_pendapatan = (float)$row_trans['total_rev'];
-    }
-}
+$statistik        = Transaksi::statistik();
+$total_kasir      = $statistik['total_kasir'];
+$total_produk     = $statistik['total_produk'];
+$total_transaksi  = $statistik['total_transaksi'];
+$total_pendapatan = $statistik['total_pendapatan'];
 
 // 2. Pendapatan 7 Hari Terakhir (WITA)
-$pendapatan_7_hari = [];
-for ($i = 6; $i >= 0; $i--) {
-    $ts  = strtotime("-$i days");
-    $ymd = date('Y-m-d', $ts);
-    $parts = explode(' ', formatTanggalIndo($ymd));
-    $tgl_pendek = isset($parts[0], $parts[1]) ? ($parts[0] . ' ' . $parts[1]) : $ymd;
-
-    $pendapatan_7_hari[$ymd] = [
-        'tanggal'    => $ymd,
-        'hari'       => $hari_singkat[date('l', $ts)] ?? date('D', $ts),
-        'tgl_pendek' => $tgl_pendek,
-        'total'      => 0.0,
-        'is_today'   => ($ymd === $today_ymd),
-    ];
-}
-
-$max_harian = 0.0;
-if ($has_transaksi_table) {
-    $start_7d = date('Y-m-d', strtotime('-6 days'));
-    $stmt_7d  = mysqli_prepare(
-        $koneksi,
-        "SELECT tanggal, COALESCE(SUM(total), 0) AS total_hari
-         FROM transaksi
-         WHERE tanggal BETWEEN ? AND ?
-         GROUP BY tanggal"
-    );
-    if ($stmt_7d) {
-        mysqli_stmt_bind_param($stmt_7d, 'ss', $start_7d, $today_ymd);
-        mysqli_stmt_execute($stmt_7d);
-        $res_7d = mysqli_stmt_get_result($stmt_7d);
-        if ($res_7d) {
-            while ($r7 = mysqli_fetch_assoc($res_7d)) {
-                $tgl_key = $r7['tanggal'];
-                $nilai   = (float)$r7['total_hari'];
-                if (isset($pendapatan_7_hari[$tgl_key])) {
-                    $pendapatan_7_hari[$tgl_key]['total'] = $nilai;
-                    if ($nilai > $max_harian) {
-                        $max_harian = $nilai;
-                    }
-                }
-            }
-        }
-        mysqli_stmt_close($stmt_7d);
-    }
-}
-
-/**
- * Format nominal ringkas di atas batang grafik (contoh: Rp 125rb atau Rp 0).
- */
-function formatRupiahRingkas($angka)
-{
-    $angka = (float)$angka;
-    if ($angka <= 0) {
-        return 'Rp 0';
-    }
-    if ($angka >= 1000000) {
-        $jt = round($angka / 1000000, 1);
-        return 'Rp ' . str_replace('.', ',', (string)$jt) . 'jt';
-    }
-    if ($angka >= 1000) {
-        return 'Rp ' . number_format(round($angka / 1000), 0, ',', '.') . 'rb';
-    }
-    return 'Rp ' . number_format($angka, 0, ',', '.');
-}
+$grafik_7d         = Transaksi::pendapatan7Hari($hari_singkat);
+$pendapatan_7_hari = $grafik_7d['days'];
+$max_harian        = $grafik_7d['max_harian'];
 
 // 3. Menu Terlaris (Top 5 berdasarkan SUM(kuantitas))
-$menu_terlaris = [];
-$max_terjual = 0;
-if ($has_transaksi_table) {
-    $query_top = "SELECT p.id_produk, p.nama_produk, p.gambar, COALESCE(SUM(dt.kuantitas), 0) AS total_terjual
-                  FROM detail_transaksi dt
-                  INNER JOIN produk p ON dt.id_produk = p.id_produk
-                  GROUP BY p.id_produk, p.nama_produk, p.gambar
-                  HAVING total_terjual > 0
-                  ORDER BY total_terjual DESC, p.nama_produk ASC
-                  LIMIT 5";
-    $res_top = mysqli_query($koneksi, $query_top);
-    if ($res_top) {
-        while ($row_top = mysqli_fetch_assoc($res_top)) {
-            $terjual = (int)$row_top['total_terjual'];
-            if ($terjual > $max_terjual) {
-                $max_terjual = $terjual;
-            }
-            $menu_terlaris[] = $row_top;
-        }
-    }
-}
+$top_menu      = Transaksi::menuTerlaris(5);
+$menu_terlaris = $top_menu['items'];
+$max_terjual   = $top_menu['max_terjual'];
 
 // 4. Transaksi Terbaru (5 Transaksi Terakhir beserta rincian menu & kasir)
-$transaksi_terbaru = [];
-$trx_ids = [];
-if ($has_transaksi_table) {
-    $res_trans_list = mysqli_query($koneksi, "SELECT * FROM transaksi ORDER BY id_transaksi DESC LIMIT 5");
-    if ($res_trans_list) {
-        while ($row = mysqli_fetch_assoc($res_trans_list)) {
-            $id_t = (int)$row['id_transaksi'];
-            $row['nama_kasir'] = '-';
-            $row['items'] = [];
-            $transaksi_terbaru[$id_t] = $row;
-            $trx_ids[] = $id_t;
-        }
-    }
-}
-
-if (!empty($trx_ids)) {
-    $ids_sql = implode(',', array_map('intval', $trx_ids));
-    $res_det = mysqli_query(
-        $koneksi,
-        "SELECT dt.id_transaksi, dt.kuantitas, dt.catatan, p.nama_produk, k.nama_kasir
-         FROM detail_transaksi dt
-         LEFT JOIN produk p ON dt.id_produk = p.id_produk
-         LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
-         WHERE dt.id_transaksi IN ($ids_sql)
-         ORDER BY dt.id_detail_transaksi ASC"
-    );
-    if ($res_det) {
-        while ($det = mysqli_fetch_assoc($res_det)) {
-            $id_t = (int)$det['id_transaksi'];
-            if (!isset($transaksi_terbaru[$id_t])) {
-                continue;
-            }
-            if ($transaksi_terbaru[$id_t]['nama_kasir'] === '-' && !empty($det['nama_kasir'])) {
-                $transaksi_terbaru[$id_t]['nama_kasir'] = $det['nama_kasir'];
-            }
-            if (!empty($det['nama_produk'])) {
-                $transaksi_terbaru[$id_t]['items'][] = [
-                    'nama_produk' => $det['nama_produk'],
-                    'kuantitas'   => (int)($det['kuantitas'] ?? 0),
-                    'catatan'     => trim((string)($det['catatan'] ?? '')),
-                ];
-            }
-        }
-    }
-}
+$transaksi_terbaru = Transaksi::terbaru(5);
 ?>
 
 <div class="container-fluid px-0">
@@ -299,7 +155,7 @@ if (!empty($trx_ids)) {
                     ?>
                     <div class="chart-7d-col<?php echo $item_hari['is_today'] ? ' is-today' : ''; ?>"
                          title="<?php echo htmlspecialchars($item_hari['tgl_pendek'] . ' - ' . $full_rupiah, ENT_QUOTES, 'UTF-8'); ?>">
-                        <div class="chart-7d-amount"><?php echo htmlspecialchars(formatRupiahRingkas($nilai_hari), ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="chart-7d-amount"><?php echo htmlspecialchars(Format::rupiahRingkas($nilai_hari), ENT_QUOTES, 'UTF-8'); ?></div>
                         <div class="chart-7d-track">
                             <div class="chart-7d-bar<?php echo $is_zero ? ' is-zero' : ''; ?>"
                                  style="height: <?php echo (int)$height_pct; ?>%;"></div>

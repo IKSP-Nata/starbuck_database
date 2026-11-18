@@ -3,59 +3,8 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/config/config.php';
 
 $id_transaksi = isset($_GET['id_transaksi']) ? (int)$_GET['id_transaksi'] : 0;
-$trx = null;
-$items = [];
-
-if ($id_transaksi > 0) {
-    $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
-                     COALESCE(k.nama_kasir, '-') AS nama_kasir,
-                     dt.kuantitas, dt.catatan,
-                     CASE
-                         WHEN dt.harga IS NOT NULL AND dt.harga > 0 THEN dt.harga
-                         ELSE p.harga
-                     END AS harga_satuan,
-                     p.nama_produk
-              FROM transaksi t
-              LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
-              LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
-              LEFT JOIN produk p ON dt.id_produk = p.id_produk
-              WHERE t.id_transaksi = ?
-              ORDER BY dt.id_detail_transaksi ASC";
-
-    $stmt = mysqli_prepare($koneksi, $query);
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'i', $id_transaksi);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        if ($result) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                if ($trx === null) {
-                    $trx = [
-                        'id_transaksi' => $row['id_transaksi'],
-                        'nama_kasir'   => $row['nama_kasir'],
-                        'subtotal'     => (float)$row['subtotal'],
-                        'pajak'        => (float)$row['pajak'],
-                        'total'        => (float)$row['total'],
-                        'tanggal'      => $row['tanggal'],
-                        'waktu'        => $row['waktu'],
-                    ];
-                } else if ($trx['nama_kasir'] === '-' && $row['nama_kasir'] !== '-') {
-                    $trx['nama_kasir'] = $row['nama_kasir'];
-                }
-
-                if (!empty($row['nama_produk'])) {
-                    $items[] = [
-                        'nama_produk'  => $row['nama_produk'],
-                        'harga_satuan' => (float)$row['harga_satuan'],
-                        'kuantitas'    => (int)$row['kuantitas'],
-                        'catatan'      => trim((string)($row['catatan'] ?? '')),
-                    ];
-                }
-            }
-        }
-        mysqli_stmt_close($stmt);
-    }
-}
+$trx   = Transaksi::cariDetail($id_transaksi);
+$items = $trx['items'] ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="id">
