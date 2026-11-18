@@ -7,7 +7,7 @@ include ROOTPATH . '/include/header.php';
     <div class="card-soft card-narrow mt-2">
         <div class="mb-4">
             <h1 class="page-title">Tambah Produk</h1>
-            <p class="page-subtitle">Masukkan nama menu dan harga jual satuan</p>
+            <p class="page-subtitle">Masukkan nama menu, harga jual satuan, dan kategori</p>
         </div>
 
         <form action="/starbuck/process/process_products.php" method="post" enctype="multipart/form-data">
@@ -23,6 +23,15 @@ include ROOTPATH . '/include/header.php';
                 <label for="harga" class="form-label fw-medium">Harga (Rp)</label>
                 <input type="number" name="harga" class="form-control tabular-nums" id="harga"
                     placeholder="Contoh: 45000" min="0" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="kategori" class="form-label fw-medium">Kategori</label>
+                <select name="kategori" id="kategori" class="form-select" required>
+                    <option value="Minuman" selected>Minuman</option>
+                    <option value="Tambahan">Tambahan</option>
+                    <option value="Makanan">Makanan</option>
+                </select>
             </div>
 
             <div class="mb-4">

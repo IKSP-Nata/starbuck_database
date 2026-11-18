@@ -1,90 +1,42 @@
     </main>
 
+    <!-- Modal Konfirmasi Hapus Bootstrap 5.3 -->
+    <div class="modal fade sb-modal" id="sbConfirmModal" tabindex="-1" aria-labelledby="sbConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-semibold mb-0" id="sbConfirmModalLabel">Konfirmasi Hapus</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0" id="sbConfirmModalMessage">Apakah Anda yakin ingin menghapus data ini?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-neutral-outline btn-sm-soft" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-danger-solid btn-sm-soft" id="sbConfirmModalOk">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php
+    $sb_flash_toast = null;
+    if (function_exists('getFlashToast')) {
+        $sb_flash_toast = getFlashToast();
+    } else if (!empty($_SESSION['sb_flash_toast']) && is_array($_SESSION['sb_flash_toast'])) {
+        $sb_flash_toast = $_SESSION['sb_flash_toast'];
+        unset($_SESSION['sb_flash_toast']);
+    }
+    $sb_footer_path = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $sb_footer_base = isset($sb_base_url) ? $sb_base_url : ((strpos($sb_footer_path, '/starbuck/') === 0) ? '/starbuck' : '');
+    ?>
+    <script>
+        window.SB_FLASH_TOAST = <?php echo json_encode($sb_flash_toast, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    </script>
+
     <!-- Bootstrap 5.3 JS Bundle via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-    (function () {
-        var STORAGE_KEY = 'starbuck_prev_nav';
-        var navContainer = document.querySelector('.sb-sidebar .sidebar-nav');
-        var indicator = navContainer ? navContainer.querySelector('.nav-curve-indicator') : null;
-        var navLinks = navContainer ? navContainer.querySelectorAll('.nav-link[data-nav-index]') : [];
-
-        if (!navContainer || !indicator || !navLinks.length) {
-            return;
-        }
-
-        function getTargetY(link) {
-            var indicatorHeight = indicator.offsetHeight || 58;
-            return link.offsetTop + (link.offsetHeight - indicatorHeight) / 2;
-        }
-
-        function positionIndicator(animateFromPrev) {
-            var activeLink = navContainer.querySelector('.nav-link.active');
-            if (!activeLink || window.innerWidth < 992) {
-                return;
-            }
-
-            var currentIdx = activeLink.getAttribute('data-nav-index');
-            var targetY = getTargetY(activeLink);
-            var prevIdx = null;
-
-            try {
-                prevIdx = sessionStorage.getItem(STORAGE_KEY);
-            } catch (e) {}
-
-            var prevLink = (animateFromPrev && prevIdx !== null)
-                ? navContainer.querySelector('.nav-link[data-nav-index="' + prevIdx + '"]')
-                : null;
-
-            if (prevLink && prevLink !== activeLink) {
-                var prevY = getTargetY(prevLink);
-                indicator.style.transition = 'none';
-                indicator.style.transform = 'translateY(' + prevY + 'px)';
-                indicator.style.opacity = '1';
-                void indicator.offsetHeight;
-
-                requestAnimationFrame(function () {
-                    indicator.style.transition = '';
-                    indicator.style.transform = 'translateY(' + targetY + 'px)';
-                });
-            } else {
-                indicator.style.transition = 'none';
-                indicator.style.transform = 'translateY(' + targetY + 'px)';
-                indicator.style.opacity = '1';
-                void indicator.offsetHeight;
-                indicator.style.transition = '';
-            }
-
-            try {
-                if (currentIdx !== null) {
-                    sessionStorage.setItem(STORAGE_KEY, currentIdx);
-                }
-            } catch (e) {}
-        }
-
-        navLinks.forEach(function (link) {
-            link.addEventListener('click', function () {
-                if (window.innerWidth < 992) {
-                    return;
-                }
-                navLinks.forEach(function (item) {
-                    item.classList.remove('active', 'is-active');
-                });
-                link.classList.add('active', 'is-active');
-                indicator.style.transform = 'translateY(' + getTargetY(link) + 'px)';
-            });
-        });
-
-        window.addEventListener('resize', function () {
-            if (window.innerWidth >= 992) {
-                positionIndicator(false);
-            }
-        });
-
-        positionIndicator(true);
-    })();
-    </script>
+    <script src="<?php echo $sb_footer_base; ?>/assets/js/app.js"></script>
 </body>
 
 </html>

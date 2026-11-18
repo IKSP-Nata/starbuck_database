@@ -1,5 +1,9 @@
 <?php
-// Menu navigasi utama (hanya 4 tautan sesuai PRD 4.1)
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    session_start();
+}
+
+// Menu navigasi utama (4 tautan operasional POS)
 $sb_current_path = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 $sb_base_url = (strpos($sb_current_path, '/starbuck/') === 0) ? '/starbuck' : '';
 $sb_nav_items = [
@@ -19,7 +23,7 @@ $sb_nav_items = [
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?php echo $sb_base_url; ?>/assets/css/style.css">
@@ -31,7 +35,7 @@ $sb_nav_items = [
     <!-- Sidebar kiri (desktop, >= 992px) -->
     <aside class="sb-sidebar sidebar" aria-label="Navigasi utama">
         <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
-            <img src="<?php echo $sb_base_url; ?>/assets/img/starbuck.jpg" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <img src="<?php echo $sb_base_url; ?>/assets/img/logo-starbuck.png" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
             <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
         </a>
         <ul class="sb-nav sidebar-nav">
@@ -55,7 +59,7 @@ $sb_nav_items = [
     <header class="sb-topbar">
         <div class="sb-topbar-row">
             <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
-                <img src="<?php echo $sb_base_url; ?>/assets/img/starbuck.jpg" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <img src="<?php echo $sb_base_url; ?>/assets/img/logo-starbuck.png" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
                 <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
             </a>
             <button class="sb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sbMobileNav"

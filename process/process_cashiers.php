@@ -8,18 +8,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
     $email      = trim($_POST['email'] ?? '');
 
     if ($nama_kasir === '' || $no_telp === '' || $alamat === '' || $email === '') {
-        echo "<script>
-        alert('Nama kasir, no. telepon, alamat, dan email wajib diisi.');
-        window.location.href='../pages/cashiers/add.php';
-        </script>";
+        setFlashToast('danger', 'Nama kasir, no. telepon, alamat, dan email wajib diisi.');
+        header('Location: ../pages/cashiers/add.php');
         exit;
     }
 
     if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-        echo "<script>
-        alert('Format email tidak valid. Gunakan alamat email yang benar.');
-        window.location.href='../pages/cashiers/add.php';
-        </script>";
+        setFlashToast('danger', 'Format email tidak valid. Gunakan alamat email yang benar.');
+        header('Location: ../pages/cashiers/add.php');
         exit;
     }
 
@@ -36,16 +32,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
     }
 
     if ($hasil) {
-        echo "<script>
-        alert('Data kasir berhasil ditambahkan.');
-        window.location.href='../pages/cashiers/list.php';
-        </script>";
-    } else {
-        echo "<script>
-        alert('Data gagal ditambahkan: " . addslashes($err_msg) . "');
-        window.location.href='../pages/cashiers/add.php';
-        </script>";
+        setFlashToast('success', 'Data kasir berhasil ditambahkan.');
+        header('Location: ../pages/cashiers/list.php');
+        exit;
     }
+
+    setFlashToast('danger', 'Data gagal ditambahkan: ' . $err_msg);
+    header('Location: ../pages/cashiers/add.php');
+    exit;
 } else if (isset($_POST['action']) && $_POST['action'] === 'edit') {
     $id_kasir   = isset($_POST['id_kasir']) ? (int)$_POST['id_kasir'] : 0;
     $nama_kasir = trim($_POST['nama_kasir'] ?? '');
@@ -53,19 +47,17 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
     $alamat     = trim($_POST['alamat'] ?? '');
     $email      = trim($_POST['email'] ?? '');
 
+    $redirect_edit = '../pages/cashiers/edit.php?id_kasir=' . urlencode((string)$id_kasir);
+
     if ($id_kasir <= 0 || $nama_kasir === '' || $no_telp === '' || $alamat === '' || $email === '') {
-        echo "<script>
-        alert('Semua data wajib diisi dengan lengkap.');
-        window.location.href='../pages/cashiers/edit.php?id_kasir=" . urlencode((string)$id_kasir) . "';
-        </script>";
+        setFlashToast('danger', 'Semua data wajib diisi dengan lengkap.');
+        header('Location: ' . $redirect_edit);
         exit;
     }
 
     if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-        echo "<script>
-        alert('Format email tidak valid. Gunakan alamat email yang benar.');
-        window.location.href='../pages/cashiers/edit.php?id_kasir=" . urlencode((string)$id_kasir) . "';
-        </script>";
+        setFlashToast('danger', 'Format email tidak valid. Gunakan alamat email yang benar.');
+        header('Location: ' . $redirect_edit);
         exit;
     }
 
@@ -80,25 +72,21 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
         $err_msg = mysqli_error($koneksi);
     }
 
-    if (!$hasil) {
-        echo "<script>
-        alert('Gagal mengupdate data kasir: " . addslashes($err_msg) . "');
-        window.location.href='../pages/cashiers/edit.php?id_kasir=" . urlencode((string)$id_kasir) . "';
-        </script>";
-    } else {
-        echo "<script>
-        alert('Data kasir berhasil diupdate.');
-        window.location.href='../pages/cashiers/list.php';
-        </script>";
+    if ($hasil) {
+        setFlashToast('success', 'Data kasir berhasil diperbarui.');
+        header('Location: ../pages/cashiers/list.php');
+        exit;
     }
+
+    setFlashToast('danger', 'Gagal mengupdate data kasir: ' . $err_msg);
+    header('Location: ' . $redirect_edit);
+    exit;
 } else if (isset($_GET['action']) && $_GET['action'] === 'delete') {
     $id_kasir = isset($_GET['id_kasir']) ? (int)$_GET['id_kasir'] : 0;
 
     if ($id_kasir <= 0) {
-        echo "<script>
-        alert('ID kasir tidak valid.');
-        window.location.href='../pages/cashiers/list.php';
-        </script>";
+        setFlashToast('danger', 'ID kasir tidak valid.');
+        header('Location: ../pages/cashiers/list.php');
         exit;
     }
 
@@ -117,19 +105,19 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
 
     if (!$hasil) {
         if ($err_no === 1451) {
-            $pesan = 'Kasir ini sudah tercatat pada riwayat transaksi dan tidak dapat dihapus.';
+            setFlashToast('danger', 'Kasir ini sudah tercatat pada riwayat transaksi dan tidak dapat dihapus.');
         } else {
-            $pesan = 'Gagal menghapus data kasir: ' . $err_msg;
+            setFlashToast('danger', 'Gagal menghapus data kasir: ' . $err_msg);
         }
-        echo "<script>
-        alert('" . addslashes($pesan) . "');
-        window.location.href='../pages/cashiers/list.php';
-        </script>";
-    } else {
-        echo "<script>
-        alert('Data kasir berhasil dihapus.');
-        window.location.href='../pages/cashiers/list.php';
-        </script>";
+        header('Location: ../pages/cashiers/list.php');
+        exit;
     }
+
+    setFlashToast('success', 'Data kasir berhasil dihapus.');
+    header('Location: ../pages/cashiers/list.php');
+    exit;
 }
+
+header('Location: ../pages/cashiers/list.php');
+exit;
 ?>

@@ -37,13 +37,24 @@ if ($result) {
     <?php else: ?>
         <div class="row g-4" id="produk-grid">
             <?php foreach ($daftar_produk as $row):
-                $id_val   = $row['id_produk'] ?? $row['id'] ?? '';
-                $nama_raw = trim($row['nama_produk'] ?? '');
-                $nama     = htmlspecialchars($nama_raw, ENT_QUOTES, 'UTF-8');
-                $harga    = (float)($row['harga'] ?? 0);
-                $inisial  = strtoupper(substr($nama_raw !== '' ? $nama_raw : 'PR', 0, 2));
-                $gambar   = trim($row['gambar'] ?? '');
-                $has_img  = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
+                $id_val       = $row['id_produk'] ?? $row['id'] ?? '';
+                $nama_raw     = trim($row['nama_produk'] ?? '');
+                $nama         = htmlspecialchars($nama_raw, ENT_QUOTES, 'UTF-8');
+                $harga        = (float)($row['harga'] ?? 0);
+                $kategori_raw = trim($row['kategori'] ?? 'Minuman');
+                if ($kategori_raw === '') {
+                    $kategori_raw = 'Minuman';
+                }
+                $kategori     = htmlspecialchars($kategori_raw, ENT_QUOTES, 'UTF-8');
+                $badge_cls    = 'badge-category';
+                if ($kategori_raw === 'Tambahan') {
+                    $badge_cls .= ' badge-category-tambahan';
+                } elseif ($kategori_raw === 'Makanan') {
+                    $badge_cls .= ' badge-category-makanan';
+                }
+                $inisial      = strtoupper(substr($nama_raw !== '' ? $nama_raw : 'PR', 0, 2));
+                $gambar       = trim($row['gambar'] ?? '');
+                $has_img      = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
             ?>
             <div class="col-md-6 col-xl-4 produk-item-col"
                  data-nama-search="<?php echo htmlspecialchars(strtolower($nama_raw), ENT_QUOTES, 'UTF-8'); ?>">
@@ -61,19 +72,23 @@ if ($result) {
                             <span class="avatar-initial" aria-hidden="true"><?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?></span>
                         <?php endif; ?>
                         <div class="min-w-0 flex-grow-1">
-                            <h2 class="h6 fw-semibold mb-1 text-truncate"><?php echo $nama; ?></h2>
-                            <div class="fw-bold tabular-nums" style="color: var(--text-primary); font-size: 16px;">
+                            <div class="mb-1">
+                                <span class="<?php echo $badge_cls; ?>"><?php echo $kategori; ?></span>
+                            </div>
+                            <h2 class="h6 fw-semibold mb-1 text-truncate product-card-title"><?php echo $nama; ?></h2>
+                            <div class="fw-bold product-price" style="color: var(--text-main); font-size: 16px;">
                                 Rp <?php echo number_format($harga, 0, ',', '.'); ?>
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 pt-3 border-top" style="border-color: var(--border-soft) !important;">
-                        <a href="edit.php?id=<?php echo urlencode($id_val); ?>&id_produk=<?php echo urlencode($id_val); ?>"
+                        <a href="edit.php?id=<?php echo urlencode((string)$id_val); ?>&id_produk=<?php echo urlencode((string)$id_val); ?>"
                            class="btn-neutral-outline btn-sm-soft">Edit</a>
-                        <a href="/starbuck/process/process_products.php?action=delete&id=<?php echo urlencode($id_val); ?>&id_produk=<?php echo urlencode($id_val); ?>"
+                        <a href="/starbuck/process/process_products.php?action=delete&id=<?php echo urlencode((string)$id_val); ?>&id_produk=<?php echo urlencode((string)$id_val); ?>"
                            class="btn-soft-danger btn-sm-soft"
-                           onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</a>
+                           data-confirm-delete
+                           data-confirm-message="Apakah Anda yakin ingin menghapus produk <?php echo $nama; ?>?">Hapus</a>
                     </div>
                 </div>
             </div>

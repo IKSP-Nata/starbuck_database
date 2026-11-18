@@ -9,35 +9,37 @@
    1. Palet Warna & Variabel Desain Resmi Starbucks
    -------------------------------------------------------------------------- */
 :root {
-    --bg-main: #F7F5F0;
+    --bg-canvas: #F7F5F0;
     --bg-surface: #FFFFFF;
-    --border-soft: #E5E0D8;
+    --bg-subtle: #EFECE6;
     --primary-brand: #1E3932;
-    --primary-brand-hover: #006241;
+    --primary-hover: #006241;
     --accent-active: #00754A;
-    --text-primary: #2C2A29;
+    --accent-soft: #D4E9E2;
+    --text-main: #2C2A29;
     --text-muted: #6B6661;
+    --border-soft: #E5E0D8;
+    --danger-soft-bg: #FDECE9;
     --danger-terracotta: #C84B31;
     --warning-amber: #D48C2A;
-
-    /* Permukaan sekunder hangat & alias kompatibilitas */
-    --bg-subtle: #F2EFE9;
-    --bg-canvas: var(--bg-main);
-    --starbucks-green: var(--accent-active);
-    --starbucks-green-hover: var(--primary-brand-hover);
-    --starbucks-forest: var(--primary-brand);
-    --starbucks-mint: #E2EFEA;
-    --primary-coffee: var(--primary-brand);
-    --primary-hover: var(--primary-brand-hover);
-    --text-main: var(--text-primary);
-    --danger-soft-bg: rgba(200, 75, 49, 0.10);
-    --danger-soft-text: var(--danger-terracotta);
     --radius-card: 16px;
     --radius-control: 12px;
+
+    /* Alias kompatibilitas & sistem tipografi duet */
+    --bg-main: var(--bg-canvas);
+    --primary-brand-hover: var(--primary-hover);
+    --text-primary: var(--text-main);
+    --starbucks-green: var(--accent-active);
+    --starbucks-green-hover: var(--primary-hover);
+    --starbucks-forest: var(--primary-brand);
+    --starbucks-mint: var(--accent-soft);
+    --primary-coffee: var(--primary-brand);
+    --danger-soft-text: var(--danger-terracotta);
     --shadow-soft: none;
     --sidebar-width: 110px;
     --focus-ring: 0 0 0 3px rgba(0, 117, 74, 0.18);
     --transition-fast: 180ms ease;
+    --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
 
     /* Paksa tema terang agar tidak ikut dark mode sistem operasi */
@@ -45,11 +47,11 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. Dasar & Tipografi Tajam
+   2. Dasar & Duet Tipografi (Plus Jakarta Sans + Inter)
    -------------------------------------------------------------------------- */
 html,
 body {
-    background-color: var(--bg-main);
+    background-color: var(--bg-canvas);
 }
 
 body {
@@ -58,26 +60,38 @@ body {
     font-size: 15px;
     font-weight: 400;
     line-height: 1.55;
-    color: var(--text-primary);
+    color: var(--text-main);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans);
-    color: var(--text-primary);
+h1, h2, h3, h4,
+.page-title,
+.card-title,
+.menu-card-title,
+.product-card-title,
+.bills-total-label {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text-main);
 }
 
-h1, h2, h3 {
-    letter-spacing: -0.02em;
+h5, h6 {
+    font-family: var(--font-display);
+    color: var(--text-main);
 }
 
 input,
-button,
 select,
 textarea,
-table {
+table,
+.form-control,
+.form-select {
     font-family: var(--font-sans);
+}
+
+button {
+    font-family: var(--font-display);
 }
 
 a {
@@ -121,8 +135,10 @@ a {
 .col-num,
 .col-index,
 .menu-card-price,
+.product-price,
 .qty-input,
 .bills-total-value {
+    font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
 }
 
@@ -185,23 +201,24 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
+    font-family: var(--font-display);
     font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--starbucks-forest);
+    color: var(--primary-brand);
     text-decoration: none;
     text-align: center;
 }
 
 .sb-brand:hover {
-    color: var(--starbucks-green);
+    color: var(--accent-active);
 }
 
 .sidebar-brand-logo {
-    width: 52px;
-    height: 52px;
-    object-fit: contain;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
     border-radius: 50%;
     display: block;
     margin: 0 auto;
@@ -211,14 +228,15 @@ a {
 }
 
 .sb-brand:hover .sidebar-brand-logo {
-    transform: scale(1.05);
+    transform: scale(1.04);
 }
 
 .sidebar-brand-fallback {
+    font-family: var(--font-display);
     font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--starbucks-forest);
+    color: var(--primary-brand);
 }
 
 .sb-nav,
@@ -228,7 +246,7 @@ a {
     gap: 8px;
     width: 100%;
     margin: 0;
-    padding: 0 16px;
+    padding: 0 12px;
     list-style: none;
 }
 
@@ -241,8 +259,9 @@ a {
     gap: 6px;
     min-height: 68px;
     padding: 12px 4px;
+    font-family: var(--font-display);
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
     text-align: center;
     color: var(--text-muted);
@@ -259,7 +278,7 @@ a {
 
 .sb-link:hover,
 .sidebar-nav .nav-link:hover {
-    color: var(--text-primary);
+    color: var(--text-main);
     background-color: var(--bg-subtle);
 }
 
@@ -278,93 +297,62 @@ a {
 @media (min-width: 992px) {
     .sb-sidebar,
     .sidebar {
-        overflow: visible;
+        overflow: hidden;
         border-right: 1px solid var(--border-soft);
     }
 
     .sb-sidebar .sidebar-nav {
         position: relative;
         gap: 6px;
-        padding: 0;
+        padding: 0 12px;
     }
 
     .sb-sidebar .sidebar-nav .nav-link {
         position: relative;
         z-index: 2;
-        height: 78px;
-        min-height: 78px;
-        padding: 8px 4px;
+        height: 72px;
+        min-height: 72px;
+        padding: 10px 4px;
         background-color: transparent;
-        border-radius: 0;
+        border-radius: 12px;
     }
 
     .sb-sidebar .sidebar-nav .nav-link:hover {
-        color: var(--text-primary);
-        background-color: transparent;
+        color: var(--text-main);
+        background-color: var(--bg-subtle);
     }
 
-    .sb-sidebar .sidebar-nav .nav-link .bi {
-        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), color var(--transition-fast);
-    }
-
+    .sb-sidebar .sidebar-nav .nav-link .bi,
     .sb-sidebar .sidebar-nav .nav-link span {
-        transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), color var(--transition-fast);
+        transition: color var(--transition-fast);
     }
 
     .sb-sidebar .sidebar-nav .nav-link.active,
     .sb-sidebar .sidebar-nav .nav-link.active:hover {
-        color: var(--accent-active);
+        color: #FFFFFF;
         background-color: transparent;
     }
 
-    .sb-sidebar .sidebar-nav .nav-link.active .bi {
-        color: #FFFFFF;
-        transform: translate(48px, 10px);
-    }
-
+    .sb-sidebar .sidebar-nav .nav-link.active .bi,
     .sb-sidebar .sidebar-nav .nav-link.active span {
-        color: var(--accent-active);
+        color: #FFFFFF;
         font-weight: 600;
-        transform: translateX(-14px);
     }
 
+    /* Kotak membulat 12px berada sepenuhnya di dalam lebar sidebar */
     .nav-curve-indicator {
         display: block;
         position: absolute;
         top: 0;
-        right: -22px;
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
+        left: 12px;
+        width: 86px;
+        height: 72px;
+        border-radius: 12px;
         background-color: var(--accent-active);
-        border: 6px solid var(--bg-main);
         z-index: 1;
         pointer-events: none;
         opacity: 0;
-        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
-    }
-
-    .nav-curve-indicator::before,
-    .nav-curve-indicator::after {
-        content: "";
-        position: absolute;
-        right: 16px;
-        width: 18px;
-        height: 18px;
-        background: transparent;
-        pointer-events: none;
-    }
-
-    .nav-curve-indicator::before {
-        top: -22px;
-        border-bottom-right-radius: 18px;
-        box-shadow: 6px 6px 0 0 var(--bg-main);
-    }
-
-    .nav-curve-indicator::after {
-        bottom: -22px;
-        border-top-right-radius: 18px;
-        box-shadow: 6px -6px 0 0 var(--bg-main);
+        transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 150ms ease;
     }
 }
 
@@ -558,6 +546,7 @@ a {
 .btn-coffee-outline,
 .btn-neutral-outline,
 .btn-soft-danger,
+.btn-danger-solid,
 .btn-primary,
 .btn-outline-primary {
     display: inline-flex;
@@ -566,7 +555,7 @@ a {
     gap: 6px;
     min-height: 44px;
     padding: 0 22px;
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -582,6 +571,7 @@ a {
 .btn-coffee-outline:active,
 .btn-neutral-outline:active,
 .btn-soft-danger:active,
+.btn-danger-solid:active,
 .btn-primary:active,
 .btn-outline-primary:active {
     transform: scale(0.98);
@@ -629,7 +619,7 @@ a {
 
 .btn-soft-danger {
     color: var(--danger-terracotta);
-    background-color: rgba(200, 75, 49, 0.08);
+    background-color: var(--danger-soft-bg);
     border: 1px solid rgba(200, 75, 49, 0.24);
 }
 
@@ -637,6 +627,18 @@ a {
     color: #FFFFFF;
     background-color: var(--danger-terracotta);
     border-color: var(--danger-terracotta);
+}
+
+.btn-danger-solid {
+    color: #FFFFFF;
+    background-color: var(--danger-terracotta);
+    border: 1px solid var(--danger-terracotta);
+}
+
+.btn-danger-solid:hover {
+    color: #FFFFFF;
+    background-color: #B03E26;
+    border-color: #B03E26;
 }
 
 .btn-sm-soft {
@@ -1010,31 +1012,117 @@ a {
     color: var(--text-primary);
 }
 
-/* Badge indikator lembut & peringatan */
-.badge-mint {
+/* Badge kategori produk & indikator lembut */
+.badge-mint,
+.badge-category {
     display: inline-flex;
     align-items: center;
     padding: 4px 12px;
+    font-family: var(--font-display);
     font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     color: var(--primary-brand);
-    background-color: rgba(0, 117, 74, 0.10);
+    background-color: var(--accent-soft);
     border-radius: 50px;
+}
+
+.badge-category-tambahan {
+    color: var(--text-main);
+    background-color: var(--bg-subtle);
+}
+
+.badge-category-makanan {
+    color: #7D4F12;
+    background-color: rgba(212, 140, 42, 0.16);
 }
 
 .badge-warning-amber {
     display: inline-flex;
     align-items: center;
     padding: 4px 12px;
+    font-family: var(--font-display);
     font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     color: #FFFFFF;
     background-color: var(--warning-amber);
     border-radius: 50px;
+}
+
+/* Toast notifikasi di pojok kanan atas */
+.sb-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1090;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: calc(100% - 40px);
+    max-width: 360px;
+    pointer-events: none;
+}
+
+.sb-toast {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--accent-active);
+    border-radius: var(--radius-control);
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.45;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1), transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sb-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.sb-toast.sb-toast-danger {
+    border-left-color: var(--danger-terracotta);
+    background-color: var(--bg-surface);
+}
+
+.sb-toast.sb-toast-warning {
+    border-left-color: var(--warning-amber);
+}
+
+.sb-toast-close {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    background: transparent;
+    border: 0;
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.sb-toast-close:hover {
+    color: var(--text-main);
+}
+
+/* Modal konfirmasi hapus Bootstrap */
+.sb-modal .modal-content {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-card);
+    box-shadow: none;
+}
+
+.sb-modal .modal-header,
+.sb-modal .modal-footer {
+    border-color: var(--border-soft);
 }
 
 /* --------------------------------------------------------------------------
@@ -1050,6 +1138,7 @@ a {
 .btn-coffee-outline:focus-visible,
 .btn-neutral-outline:focus-visible,
 .btn-soft-danger:focus-visible,
+.btn-danger-solid:focus-visible,
 .btn-primary:focus-visible,
 .btn-outline-primary:focus-visible {
     outline: 2px solid var(--accent-active);
@@ -1066,12 +1155,13 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   6. Cetak: sembunyikan navigasi
+   6. Cetak: sembunyikan navigasi & toast
    -------------------------------------------------------------------------- */
 @media print {
     .sb-sidebar,
     .sb-topbar,
-    .skip-link {
+    .skip-link,
+    .sb-toast-container {
         display: none !important;
     }
 

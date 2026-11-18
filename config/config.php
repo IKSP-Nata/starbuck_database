@@ -1,7 +1,46 @@
 <?php
 date_default_timezone_set('Asia/Makassar');
+
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    session_start();
+}
+
 $koneksi = mysqli_connect("localhost", "root", "", "starbuck") or die("Could not connect to database");
 mysqli_query($koneksi, "SET time_zone = '+08:00'");
+
+if (!function_exists('setFlashToast')) {
+    /**
+     * Simpan pesan notifikasi Toast ke session untuk ditampilkan setelah redirect.
+     */
+    function setFlashToast($type, $message)
+    {
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            session_start();
+        }
+        $_SESSION['sb_flash_toast'] = [
+            'type'    => (string)$type,
+            'message' => (string)$message,
+        ];
+    }
+}
+
+if (!function_exists('getFlashToast')) {
+    /**
+     * Ambil lalu hapus pesan notifikasi Toast dari session.
+     */
+    function getFlashToast()
+    {
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            session_start();
+        }
+        if (!empty($_SESSION['sb_flash_toast']) && is_array($_SESSION['sb_flash_toast'])) {
+            $flash = $_SESSION['sb_flash_toast'];
+            unset($_SESSION['sb_flash_toast']);
+            return $flash;
+        }
+        return null;
+    }
+}
 
 if (!function_exists('formatTanggalIndo')) {
     /**
