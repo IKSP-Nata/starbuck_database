@@ -521,7 +521,7 @@ a {
 }
 
 .card-soft.card-forest .label-caps {
-    color: rgba(255, 255, 255, 0.78);
+    color: var(--accent-soft);
 }
 
 .card-soft.card-forest .metric-value {
@@ -529,11 +529,11 @@ a {
 }
 
 .card-soft.card-forest .link-arrow {
-    color: #FFFFFF;
+    color: var(--accent-soft);
 }
 
 .card-soft.card-forest .link-arrow:hover {
-    color: rgba(255, 255, 255, 0.85);
+    color: #FFFFFF;
 }
 
 .card-narrow {
@@ -1179,6 +1179,158 @@ a {
 
 .sb-toast-close:hover {
     color: var(--text-main);
+}
+
+/* Grafik Batang 7 Hari Terakhir & Daftar Menu Terlaris (Dashboard) */
+.chart-7d-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+    padding-top: 8px;
+}
+
+.chart-7d-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+}
+
+.chart-7d-amount {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.chart-7d-col.is-today .chart-7d-amount {
+    color: var(--primary-brand);
+    font-weight: 700;
+}
+
+.chart-7d-track {
+    width: 100%;
+    max-width: 44px;
+    height: 168px;
+    background-color: var(--bg-subtle);
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.chart-7d-bar {
+    width: 100%;
+    border-radius: 10px;
+    background-color: var(--accent-active);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.chart-7d-bar.is-zero {
+    background-color: var(--border-soft);
+}
+
+.chart-7d-col.is-today .chart-7d-bar:not(.is-zero) {
+    background-color: var(--primary-brand);
+}
+
+.chart-7d-grid.is-ready .chart-7d-bar {
+    transform: scaleY(1);
+}
+
+.chart-7d-day {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.chart-7d-date {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+.top-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.top-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-menu-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-soft);
+}
+
+.top-menu-initial {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-brand);
+    background-color: var(--accent-soft);
+}
+
+.top-menu-bar-track {
+    width: 100%;
+    height: 6px;
+    background-color: var(--bg-subtle);
+    border-radius: 50px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.top-menu-bar-fill {
+    height: 100%;
+    background-color: var(--accent-active);
+    border-radius: 50px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.top-menu-list.is-ready .top-menu-bar-fill {
+    transform: scaleX(1);
+}
+
+@media (max-width: 575.98px) {
+    .chart-7d-grid {
+        gap: 6px;
+    }
+
+    .chart-7d-track {
+        height: 136px;
+    }
 }
 
 /* Modal konfirmasi hapus Bootstrap */
