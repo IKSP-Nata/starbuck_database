@@ -39,7 +39,9 @@ $sb_nav_items = [
             <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
         </a>
         <ul class="sb-nav sidebar-nav">
-            <div class="nav-curve-indicator" aria-hidden="true"></div>
+            <li class="nav-curve-indicator" aria-hidden="true">
+                <span class="nav-curve-core"></span>
+            </li>
             <?php foreach ($sb_nav_items as $sb_index => $sb_item): ?>
                 <?php $sb_is_active = strpos($sb_current_path, $sb_item['match']) !== false; ?>
                 <li>
@@ -47,8 +49,10 @@ $sb_nav_items = [
                         href="<?php echo $sb_item['href']; ?>"
                         data-nav-index="<?php echo $sb_index; ?>"
                         <?php echo $sb_is_active ? 'aria-current="page"' : ''; ?>>
-                        <i class="bi <?php echo $sb_item['icon']; ?>" aria-hidden="true"></i>
-                        <span><?php echo $sb_item['label']; ?></span>
+                        <span class="nav-icon-wrap" aria-hidden="true">
+                            <i class="bi <?php echo $sb_item['icon']; ?>"></i>
+                        </span>
+                        <span class="nav-label"><?php echo $sb_item['label']; ?></span>
                     </a>
                 </li>
             <?php endforeach; ?>

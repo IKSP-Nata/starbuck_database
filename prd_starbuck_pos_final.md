@@ -139,9 +139,11 @@ Hanya menganimasikan properti `transform` dan `opacity`, serta wajib mematikan a
 ### 5.1 Layout & Navigasi Sidebar (`include/header.php`, `include/footer.php`)
 - **Sidebar Desktop (`>= 992px`):** Posisi `fixed` di kiri, lebar `110px`, latar `#FFFFFF`, `border-right: 1px solid var(--border-soft)`.
 - **Logo Brand:** Bagian paling atas sidebar menampilkan logo Starbucks (`assets/img/logo-starbuck.png`, ukuran `48x48px`, `border-radius: 50%`) yang mengarah ke `dashboard.php`, dengan fallback teks `Starbuck` jika gambar gagal dimuat.
-- **Item Navigasi & Perbaikan Indikator Aktif:**
-  - 4 menu vertikal: **Dashboard**, **Kasir**, **Produk**, **Transaksi**. Setiap item menampilkan ikon outline (`20px`) tepat di atas label teks (`12px`), rata tengah.
-  - **Indikator Aktif di Dalam Sidebar:** Hapus bentuk lingkaran yang menonjol keluar dari tepi kanan sidebar agar tidak menabrak teks. Ganti dengan **kotak membulat (`border-radius: 12px`) berwarna `var(--accent-active)` (`#00754A`) yang berada sepenuhnya di dalam ruang sidebar** (lebar `86px`, rata tengah), dengan ikon dan teks berwarna putih `#FFFFFF`. Gunakan JavaScript ringan (`sessionStorage`) agar kotak indikator meluncur halus dari posisi menu sebelumnya saat berpindah halaman.
+- **Item Navigasi & Indikator Aktif (Curved Protruding Circle Indicator + Idle Animation):**
+  - 4 menu vertikal: **Dashboard**, **Kasir**, **Produk**, **Transaksi**. Untuk item non-aktif, ikon outline (`20px`) tampil tepat di atas label teks (`12px`) secara rata tengah.
+  - **Indikator Aktif Menonjol dengan Lekukan Halus:** Menggunakan elemen `.nav-curve-indicator` berbentuk lingkaran (`56px`, warna `var(--accent-active)` `#00754A`, bingkai `#F7F5F0`) yang menonjol keluar di tepi kanan sidebar dengan lekukan halus (*curved cutout*) atas dan bawah menyatu dengan latar `#F7F5F0`.
+  - Saat menu berstatus `.active`, ikon menu berpindah masuk ke tengah lingkaran `.nav-curve-indicator` berwarna putih `#FFFFFF`, sementara teks label menu tampil di sisi kiri dalam sidebar dengan `padding-right` yang cukup agar tidak bertabrakan dengan lingkaran.
+  - Menggunakan JavaScript (`sessionStorage`) agar indikator meluncur vertikal halus (`transform 400ms cubic-bezier(0.22, 1, 0.36, 1)`), diikuti *idle animation* bernapas/mengambang lembut (`@keyframes` `3s ease-in-out infinite`) pada lingkaran aktif dan ikon di dalamnya setelah transisi selesai (nonaktif otomatis pada `prefers-reduced-motion: reduce`).
 - **Layar Mobile (`< 992px`):** Sidebar berubah menjadi navbar atas yang rapi dengan tombol *collapse* Bootstrap.
 
 ### 5.2 Dashboard Operasional (`pages/dashboard.php`)

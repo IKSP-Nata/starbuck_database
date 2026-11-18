@@ -124,24 +124,53 @@
         });
     }
 
-    // 3. Indikator Kotak Aktif Sidebar (bergerak vertikal halus dengan sessionStorage)
+    // 3. Indikator Curved Protruding Sidebar + Idle Animation (menggunakan sessionStorage)
     var STORAGE_KEY = 'starbuck_prev_nav';
     var navContainer = document.querySelector('.sb-sidebar .sidebar-nav');
     var indicator = navContainer ? navContainer.querySelector('.nav-curve-indicator') : null;
     var navLinks = navContainer ? navContainer.querySelectorAll('.nav-link[data-nav-index]') : [];
+    var idleTimer = null;
 
     if (!navContainer || !indicator || !navLinks.length) {
         return;
     }
 
     function getTargetY(link) {
-        var indicatorHeight = indicator.offsetHeight || 72;
+        var indicatorHeight = indicator.offsetHeight || 56;
         return link.offsetTop + (link.offsetHeight - indicatorHeight) / 2;
+    }
+
+    function stopIdle() {
+        if (idleTimer) {
+            window.clearTimeout(idleTimer);
+            idleTimer = null;
+        }
+        indicator.classList.remove('is-idle');
+        navLinks.forEach(function (item) {
+            item.classList.remove('is-idle');
+        });
+    }
+
+    function startIdle(activeLink) {
+        stopIdle();
+        if (!activeLink || window.innerWidth < 992) {
+            return;
+        }
+        indicator.classList.add('is-idle');
+        activeLink.classList.add('is-idle');
+    }
+
+    function scheduleIdleAfterSlide(activeLink) {
+        stopIdle();
+        idleTimer = window.setTimeout(function () {
+            startIdle(activeLink);
+        }, 420);
     }
 
     function positionIndicator(animateFromPrev) {
         var activeLink = navContainer.querySelector('.nav-link.active');
         if (!activeLink || window.innerWidth < 992) {
+            stopIdle();
             return;
         }
 
@@ -159,6 +188,7 @@
 
         if (prevLink && prevLink !== activeLink) {
             var prevY = getTargetY(prevLink);
+            stopIdle();
             indicator.style.transition = 'none';
             indicator.style.transform = 'translateY(' + prevY + 'px)';
             indicator.style.opacity = '1';
@@ -167,6 +197,7 @@
             requestAnimationFrame(function () {
                 indicator.style.transition = '';
                 indicator.style.transform = 'translateY(' + targetY + 'px)';
+                scheduleIdleAfterSlide(activeLink);
             });
         } else {
             indicator.style.transition = 'none';
@@ -174,6 +205,7 @@
             indicator.style.opacity = '1';
             void indicator.offsetHeight;
             indicator.style.transition = '';
+            startIdle(activeLink);
         }
 
         try {
@@ -188,17 +220,21 @@
             if (window.innerWidth < 992) {
                 return;
             }
+            stopIdle();
             navLinks.forEach(function (item) {
                 item.classList.remove('active', 'is-active');
             });
             link.classList.add('active', 'is-active');
             indicator.style.transform = 'translateY(' + getTargetY(link) + 'px)';
+            scheduleIdleAfterSlide(link);
         });
     });
 
     window.addEventListener('resize', function () {
         if (window.innerWidth >= 992) {
             positionIndicator(false);
+        } else {
+            stopIdle();
         }
     });
 
