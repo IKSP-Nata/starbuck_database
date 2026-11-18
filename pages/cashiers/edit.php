@@ -4,10 +4,20 @@ define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
-$id = $_GET['id_kasir'] ?? '';
-$query = "SELECT * FROM kasir WHERE id_kasir = '$id'";
-$result = mysqli_query($koneksi, $query);
-$row = mysqli_fetch_assoc($result);
+$id = isset($_GET['id_kasir']) ? (int)$_GET['id_kasir'] : 0;
+$row = null;
+if ($id > 0) {
+    $stmt = mysqli_prepare($koneksi, "SELECT id_kasir, nama_kasir, no_telp, alamat, email FROM kasir WHERE id_kasir = ? LIMIT 1");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result) {
+            $row = mysqli_fetch_assoc($result);
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
 ?>
 
 <div class="container-fluid px-0">

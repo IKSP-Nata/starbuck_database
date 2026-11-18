@@ -1,64 +1,89 @@
 <?php
 include '../config/config.php';
 
-if (isset($_POST["action"]) && $_POST["action"] == "add") {
-    $nama_kasir     = $_POST['nama_kasir'] ?? '';
-    $no_telp        = $_POST['no_telp'] ?? '';
-    $alamat         = $_POST['alamat'] ?? '';
-    $email          = $_POST['email'] ?? '';
+if (isset($_POST['action']) && $_POST['action'] === 'add') {
+    $nama_kasir = trim($_POST['nama_kasir'] ?? '');
+    $no_telp    = trim($_POST['no_telp'] ?? '');
+    $alamat     = trim($_POST['alamat'] ?? '');
+    $email      = trim($_POST['email'] ?? '');
 
-    // Validasi agar tidak bisa submit jika data masih kosong
-    if (empty(trim($nama_kasir)) || empty(trim($no_telp)) || empty(trim($alamat)) || empty(trim($email))) {
+    if ($nama_kasir === '' || $no_telp === '' || $alamat === '' || $email === '') {
         echo "<script>
-        alert('Semua data wajib diisi! Mohon lengkapi formulir.');
+        alert('Nama kasir, no. telepon, alamat, dan email wajib diisi.');
         window.location.href='../pages/cashiers/add.php';
         </script>";
         exit;
     }
 
-    // Reset AUTO_INCREMENT agar ID mengikuti data terakhir yang ada (bukan melanjutkan yang sudah dihapus)
-    $max_result = mysqli_query($koneksi, "SELECT IFNULL(MAX(id_kasir), 0) + 1 AS next_id FROM kasir");
-    $max_row    = mysqli_fetch_assoc($max_result);
-    $next_id    = (int)$max_row['next_id'];
-    mysqli_query($koneksi, "ALTER TABLE kasir AUTO_INCREMENT = $next_id");
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        echo "<script>
+        alert('Format email tidak valid. Gunakan alamat email yang benar.');
+        window.location.href='../pages/cashiers/add.php';
+        </script>";
+        exit;
+    }
 
-    // menambahkan data kasir ke table kasir (id_kasir dibuat otomatis/auto increment)
-    $hasil = mysqli_query($koneksi, "INSERT INTO kasir (nama_kasir, no_telp, alamat, email) VALUES ('$nama_kasir', '$no_telp', '$alamat', '$email')");
+    // id_kasir dihasilkan otomatis oleh AUTO_INCREMENT MySQL
+    $stmt = mysqli_prepare($koneksi, "INSERT INTO kasir (nama_kasir, no_telp, alamat, email) VALUES (?, ?, ?, ?)");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 'ssss', $nama_kasir, $no_telp, $alamat, $email);
+        $hasil = mysqli_stmt_execute($stmt);
+        $err_msg = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $hasil = false;
+        $err_msg = mysqli_error($koneksi);
+    }
 
     if ($hasil) {
         echo "<script>
-        alert('Data berhasil ditambahkan!');
+        alert('Data kasir berhasil ditambahkan.');
         window.location.href='../pages/cashiers/list.php';
         </script>";
     } else {
         echo "<script>
-        alert('Data gagal ditambahkan: " . mysqli_error($koneksi) . "');
+        alert('Data gagal ditambahkan: " . addslashes($err_msg) . "');
         window.location.href='../pages/cashiers/add.php';
         </script>";
     }
-} else if (isset($_POST["action"]) && $_POST["action"] == "edit") {
-    $id_kasir       = $_POST["id_kasir"] ?? '';
-    $nama_kasir     = $_POST['nama_kasir'] ?? '';
-    $no_telp        = $_POST['no_telp'] ?? '';
-    $alamat         = $_POST['alamat'] ?? '';
-    $email          = $_POST['email'] ?? '';
+} else if (isset($_POST['action']) && $_POST['action'] === 'edit') {
+    $id_kasir   = isset($_POST['id_kasir']) ? (int)$_POST['id_kasir'] : 0;
+    $nama_kasir = trim($_POST['nama_kasir'] ?? '');
+    $no_telp    = trim($_POST['no_telp'] ?? '');
+    $alamat     = trim($_POST['alamat'] ?? '');
+    $email      = trim($_POST['email'] ?? '');
 
-    // Validasi agar tidak bisa submit jika data masih kosong
-    if (empty(trim($nama_kasir)) || empty(trim($no_telp)) || empty(trim($alamat)) || empty(trim($email))) {
+    if ($id_kasir <= 0 || $nama_kasir === '' || $no_telp === '' || $alamat === '' || $email === '') {
         echo "<script>
-        alert('Semua data wajib diisi! Mohon lengkapi formulir.');
-        window.location.href='../pages/cashiers/edit.php?id_kasir=$id_kasir';
+        alert('Semua data wajib diisi dengan lengkap.');
+        window.location.href='../pages/cashiers/edit.php?id_kasir=" . urlencode((string)$id_kasir) . "';
         </script>";
         exit;
     }
 
-    // mengupdate data kasir di table kasir
-    $hasil = mysqli_query($koneksi, "UPDATE kasir SET nama_kasir='$nama_kasir', no_telp='$no_telp', alamat='$alamat', email='$email' WHERE id_kasir='$id_kasir'");
+    if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+        echo "<script>
+        alert('Format email tidak valid. Gunakan alamat email yang benar.');
+        window.location.href='../pages/cashiers/edit.php?id_kasir=" . urlencode((string)$id_kasir) . "';
+        </script>";
+        exit;
+    }
+
+    $stmt = mysqli_prepare($koneksi, "UPDATE kasir SET nama_kasir = ?, no_telp = ?, alamat = ?, email = ? WHERE id_kasir = ?");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 'ssssi', $nama_kasir, $no_telp, $alamat, $email, $id_kasir);
+        $hasil = mysqli_stmt_execute($stmt);
+        $err_msg = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $hasil = false;
+        $err_msg = mysqli_error($koneksi);
+    }
 
     if (!$hasil) {
         echo "<script>
-        alert('Gagal mengupdate data kasir: " . mysqli_error($koneksi) . "');
-        window.location.href='../pages/cashiers/edit.php?id_kasir=$id_kasir';
+        alert('Gagal mengupdate data kasir: " . addslashes($err_msg) . "');
+        window.location.href='../pages/cashiers/edit.php?id_kasir=" . urlencode((string)$id_kasir) . "';
         </script>";
     } else {
         echo "<script>
@@ -66,27 +91,45 @@ if (isset($_POST["action"]) && $_POST["action"] == "add") {
         window.location.href='../pages/cashiers/list.php';
         </script>";
     }
+} else if (isset($_GET['action']) && $_GET['action'] === 'delete') {
+    $id_kasir = isset($_GET['id_kasir']) ? (int)$_GET['id_kasir'] : 0;
 
-} else if (isset($_GET["action"]) && $_GET["action"] == "delete") {
-    $id_kasir = $_GET["id_kasir"] ?? '';
-    // menghapus data kasir di table kasir
-    $hasil = mysqli_query($koneksi, "DELETE FROM kasir WHERE id_kasir='$id_kasir'");
+    if ($id_kasir <= 0) {
+        echo "<script>
+        alert('ID kasir tidak valid.');
+        window.location.href='../pages/cashiers/list.php';
+        </script>";
+        exit;
+    }
+
+    $stmt = mysqli_prepare($koneksi, "DELETE FROM kasir WHERE id_kasir = ?");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 'i', $id_kasir);
+        $hasil = mysqli_stmt_execute($stmt);
+        $err_no = mysqli_stmt_errno($stmt);
+        $err_msg = mysqli_stmt_error($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $hasil = false;
+        $err_no = mysqli_errno($koneksi);
+        $err_msg = mysqli_error($koneksi);
+    }
 
     if (!$hasil) {
+        if ($err_no === 1451) {
+            $pesan = 'Kasir ini sudah tercatat pada riwayat transaksi dan tidak dapat dihapus.';
+        } else {
+            $pesan = 'Gagal menghapus data kasir: ' . $err_msg;
+        }
         echo "<script>
-        alert('Gagal menghapus data kasir: " . mysqli_error($koneksi) . "');
+        alert('" . addslashes($pesan) . "');
         window.location.href='../pages/cashiers/list.php';
         </script>";
     } else {
-        // Reset AUTO_INCREMENT agar ID berikutnya mengikuti data terakhir yang masih ada
-        $max_result = mysqli_query($koneksi, "SELECT IFNULL(MAX(id_kasir), 0) + 1 AS next_id FROM kasir");
-        $max_row    = mysqli_fetch_assoc($max_result);
-        $next_id    = (int)$max_row['next_id'];
-        mysqli_query($koneksi, "ALTER TABLE kasir AUTO_INCREMENT = $next_id");
-
         echo "<script>
         alert('Data kasir berhasil dihapus.');
         window.location.href='../pages/cashiers/list.php';
         </script>";
     }
 }
+?>
