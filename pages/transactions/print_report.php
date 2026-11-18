@@ -7,33 +7,59 @@ $where_sql = $filter['where_sql'];
 $query_string = $_SERVER['QUERY_STRING'] ?? '';
 $back_url = 'list.php' . ($query_string !== '' ? '?' . htmlspecialchars($query_string, ENT_QUOTES, 'UTF-8') : '');
 
-$query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
-                 COALESCE(MAX(k.nama_kasir), '-') AS nama_kasir,
-                 GROUP_CONCAT(
-                     CASE
-                         WHEN p.nama_produk IS NOT NULL AND dt.kuantitas IS NOT NULL
-                             THEN CONCAT(p.nama_produk, ' (x', dt.kuantitas, ')')
-                         ELSE p.nama_produk
-                     END
-                     SEPARATOR ', '
-                 ) AS daftar_menu,
-                 SUM(dt.kuantitas) AS total_kuantitas
+$query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu
           FROM transaksi t
-          LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
-          LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
-          LEFT JOIN produk p ON dt.id_produk = p.id_produk
           $where_sql
-          GROUP BY t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu
           ORDER BY t.id_transaksi DESC";
 
 $result = mysqli_query($koneksi, $query);
 $rows = [];
+$trx_ids = [];
 $total_pendapatan = 0;
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
-        $rows[] = $row;
+        $id_trx = (int)$row['id_transaksi'];
+        $row['nama_kasir'] = '-';
+        $row['items'] = [];
+        $row['total_kuantitas'] = null;
+        $rows[$id_trx] = $row;
+        $trx_ids[] = $id_trx;
         $total_pendapatan += (float)$row['total'];
+    }
+}
+
+if (!empty($trx_ids)) {
+    $ids_sql = implode(',', array_map('intval', $trx_ids));
+    $query_detail = "SELECT dt.id_transaksi, dt.kuantitas, dt.catatan, p.nama_produk, k.nama_kasir
+                     FROM detail_transaksi dt
+                     LEFT JOIN produk p ON dt.id_produk = p.id_produk
+                     LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
+                     WHERE dt.id_transaksi IN ($ids_sql)
+                     ORDER BY dt.id_detail_transaksi ASC";
+    $res_detail = mysqli_query($koneksi, $query_detail);
+    if ($res_detail) {
+        while ($det = mysqli_fetch_assoc($res_detail)) {
+            $id_trx = (int)$det['id_transaksi'];
+            if (!isset($rows[$id_trx])) {
+                continue;
+            }
+            if ($rows[$id_trx]['nama_kasir'] === '-' && !empty($det['nama_kasir'])) {
+                $rows[$id_trx]['nama_kasir'] = $det['nama_kasir'];
+            }
+            if (!empty($det['nama_produk'])) {
+                $qty_item = ($det['kuantitas'] !== null) ? (int)$det['kuantitas'] : 0;
+                $rows[$id_trx]['items'][] = [
+                    'nama_produk' => $det['nama_produk'],
+                    'kuantitas'   => $qty_item,
+                    'catatan'     => trim((string)($det['catatan'] ?? '')),
+                ];
+                if ($rows[$id_trx]['total_kuantitas'] === null) {
+                    $rows[$id_trx]['total_kuantitas'] = 0;
+                }
+                $rows[$id_trx]['total_kuantitas'] += $qty_item;
+            }
+        }
     }
 }
 ?>
@@ -50,15 +76,14 @@ if ($result) {
         :root {
             --bg-main: #F7F5F0;
             --bg-surface: #FFFFFF;
-            --bg-subtle: #F2EFE9;
+            --bg-subtle: #EFECE6;
             --border-soft: #E5E0D8;
             --primary-brand: #1E3932;
             --primary-brand-hover: #006241;
             --accent-active: #00754A;
+            --accent-soft: #D4E9E2;
             --text-primary: #2C2A29;
             --text-muted: #6B6661;
-            --danger-terracotta: #C84B31;
-            --warning-amber: #D48C2A;
             --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
         }
         * {
@@ -176,6 +201,16 @@ if ($result) {
             padding-top: 14px;
             padding-bottom: 14px;
         }
+        .note-badge {
+            display: inline-block;
+            margin-top: 3px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-brand);
+            background-color: var(--accent-soft);
+            border-radius: 50px;
+        }
         .text-center {
             text-align: center;
         }
@@ -205,7 +240,7 @@ if ($result) {
             }
             thead th,
             tfoot td {
-                background-color: #F2EFE9 !important;
+                background-color: #EFECE6 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -223,7 +258,7 @@ if ($result) {
         <div class="report-header">
             <div>
                 <h1>Laporan Transaksi Penjualan</h1>
-                <p>Periode Laporan: <strong><?php echo htmlspecialchars($filter['periode_label']); ?></strong></p>
+                <p>Periode Laporan: <strong><?php echo htmlspecialchars($filter['periode_label'], ENT_QUOTES, 'UTF-8'); ?></strong></p>
             </div>
             <div class="tabular-nums" style="font-size: 13px; color: var(--text-muted);">
                 Dicetak: <?php echo date('d/m/Y H:i:s'); ?> WITA
@@ -234,44 +269,62 @@ if ($result) {
             <thead>
                 <tr>
                     <th class="text-center" style="width: 48px;">No</th>
-                    <th>Menu</th>
-                    <th class="text-end">Kuantitas</th>
-                    <th class="text-end">Subtotal</th>
-                    <th class="text-end">Pajak (11%)</th>
-                    <th class="text-end">Total</th>
                     <th>Tanggal</th>
                     <th>Waktu (WITA)</th>
                     <th>Kasir</th>
+                    <th>Menu</th>
+                    <th class="text-end">Jumlah</th>
+                    <th class="text-end">Subtotal</th>
+                    <th class="text-end">Pajak (11%)</th>
+                    <th class="text-end">Total</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($rows)): ?>
                     <tr>
                         <td colspan="9" class="text-center" style="padding: 24px; color: var(--text-muted);">
-                            Belum ada data transaksi yang tercatat.
+                            Belum ada data transaksi yang tercatat pada periode ini.
                         </td>
                     </tr>
                 <?php else: ?>
                     <?php $no = 1; foreach ($rows as $row): ?>
                     <tr>
                         <td class="text-center tabular-nums"><?php echo $no++; ?></td>
-                        <td><?php echo !empty($row['daftar_menu']) ? htmlspecialchars($row['daftar_menu']) : '-'; ?></td>
+                        <td class="tabular-nums"><?php echo htmlspecialchars(formatTanggalIndo($row['tanggal']), ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="tabular-nums"><?php echo htmlspecialchars($row['waktu'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td><?php echo htmlspecialchars($row['nama_kasir'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td>
+                            <?php if (empty($row['items'])): ?>
+                                -
+                            <?php else: ?>
+                                <?php $is_multi = count($row['items']) > 1; ?>
+                                <?php foreach ($row['items'] as $idx_item => $item): ?>
+                                    <div style="<?php echo $idx_item > 0 ? 'margin-top: 6px;' : ''; ?>">
+                                        <div>
+                                            <?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?>
+                                            <?php if ($is_multi): ?>
+                                                <span class="tabular-nums" style="color: var(--text-muted);">(x<?php echo (int)$item['kuantitas']; ?>)</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if ($item['catatan'] !== ''): ?>
+                                            <div><span class="note-badge"><?php echo htmlspecialchars($item['catatan'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-end tabular-nums"><?php echo $row['total_kuantitas'] !== null ? (int)$row['total_kuantitas'] : '-'; ?></td>
                         <td class="text-end tabular-nums">Rp <?php echo number_format((float)$row['subtotal'], 0, ',', '.'); ?></td>
                         <td class="text-end tabular-nums">Rp <?php echo number_format((float)$row['pajak'], 0, ',', '.'); ?></td>
                         <td class="text-end tabular-nums" style="font-weight: 700;">Rp <?php echo number_format((float)$row['total'], 0, ',', '.'); ?></td>
-                        <td class="tabular-nums"><?php echo htmlspecialchars($row['tanggal']); ?></td>
-                        <td class="tabular-nums"><?php echo htmlspecialchars($row['waktu']); ?></td>
-                        <td><?php echo htmlspecialchars($row['nama_kasir']); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5" class="text-end">Total Pendapatan</td>
+                    <td colspan="8" class="text-end">Total Pendapatan</td>
                     <td class="text-end tabular-nums">Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></td>
-                    <td colspan="3"></td>
                 </tr>
             </tfoot>
         </table>

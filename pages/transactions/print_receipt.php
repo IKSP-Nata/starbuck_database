@@ -2,44 +2,58 @@
 define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/config/config.php';
 
-$id_transaksi = isset($_GET['id_transaksi']) ? trim($_GET['id_transaksi']) : '';
+$id_transaksi = isset($_GET['id_transaksi']) ? (int)$_GET['id_transaksi'] : 0;
 $trx = null;
 $items = [];
 
-if ($id_transaksi !== '') {
-    $id_esc = mysqli_real_escape_string($koneksi, $id_transaksi);
-
+if ($id_transaksi > 0) {
     $query = "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
                      COALESCE(k.nama_kasir, '-') AS nama_kasir,
-                     dt.kuantitas, p.nama_produk, p.harga AS harga_satuan
+                     dt.kuantitas, dt.catatan,
+                     CASE
+                         WHEN dt.harga IS NOT NULL AND dt.harga > 0 THEN dt.harga
+                         ELSE p.harga
+                     END AS harga_satuan,
+                     p.nama_produk
               FROM transaksi t
               LEFT JOIN detail_transaksi dt ON t.id_transaksi = dt.id_transaksi
               LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
               LEFT JOIN produk p ON dt.id_produk = p.id_produk
-              WHERE t.id_transaksi = '$id_esc'";
+              WHERE t.id_transaksi = ?
+              ORDER BY dt.id_detail_transaksi ASC";
 
-    $result = mysqli_query($koneksi, $query);
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            if ($trx === null) {
-                $trx = [
-                    'id_transaksi' => $row['id_transaksi'],
-                    'nama_kasir'   => $row['nama_kasir'],
-                    'subtotal'     => (float)$row['subtotal'],
-                    'pajak'        => (float)$row['pajak'],
-                    'total'        => (float)$row['total'],
-                    'tanggal'      => $row['tanggal'],
-                    'waktu'        => $row['waktu'],
-                ];
-            }
-            if (!empty($row['nama_produk'])) {
-                $items[] = [
-                    'nama_produk'  => $row['nama_produk'],
-                    'harga_satuan' => (float)$row['harga_satuan'],
-                    'kuantitas'    => (int)$row['kuantitas'],
-                ];
+    $stmt = mysqli_prepare($koneksi, $query);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 'i', $id_transaksi);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                if ($trx === null) {
+                    $trx = [
+                        'id_transaksi' => $row['id_transaksi'],
+                        'nama_kasir'   => $row['nama_kasir'],
+                        'subtotal'     => (float)$row['subtotal'],
+                        'pajak'        => (float)$row['pajak'],
+                        'total'        => (float)$row['total'],
+                        'tanggal'      => $row['tanggal'],
+                        'waktu'        => $row['waktu'],
+                    ];
+                } else if ($trx['nama_kasir'] === '-' && $row['nama_kasir'] !== '-') {
+                    $trx['nama_kasir'] = $row['nama_kasir'];
+                }
+
+                if (!empty($row['nama_produk'])) {
+                    $items[] = [
+                        'nama_produk'  => $row['nama_produk'],
+                        'harga_satuan' => (float)$row['harga_satuan'],
+                        'kuantitas'    => (int)$row['kuantitas'],
+                        'catatan'      => trim((string)($row['catatan'] ?? '')),
+                    ];
+                }
             }
         }
+        mysqli_stmt_close($stmt);
     }
 }
 ?>
@@ -48,7 +62,7 @@ if ($id_transaksi !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struk Transaksi <?php echo $trx ? '#' . htmlspecialchars($trx['id_transaksi']) : ''; ?> - Starbuck</title>
+    <title>Struk Transaksi <?php echo $trx ? '#' . htmlspecialchars((string)$trx['id_transaksi'], ENT_QUOTES, 'UTF-8') : ''; ?> - Starbuck</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -56,15 +70,13 @@ if ($id_transaksi !== '') {
         :root {
             --bg-main: #F7F5F0;
             --bg-surface: #FFFFFF;
-            --bg-subtle: #F2EFE9;
+            --bg-subtle: #EFECE6;
             --border-soft: #E5E0D8;
             --primary-brand: #1E3932;
             --primary-brand-hover: #006241;
             --accent-active: #00754A;
             --text-primary: #2C2A29;
             --text-muted: #6B6661;
-            --danger-terracotta: #C84B31;
-            --warning-amber: #D48C2A;
             --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
         }
         * {
@@ -189,6 +201,11 @@ if ($id_transaksi !== '') {
             color: var(--text-primary);
             margin-bottom: 2px;
         }
+        .item-note {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
         .item-detail {
             display: flex;
             justify-content: space-between;
@@ -277,11 +294,11 @@ if ($id_transaksi !== '') {
 
             <div class="meta-row">
                 <span class="meta-label">No. Transaksi</span>
-                <span class="meta-value">#<?php echo str_pad(htmlspecialchars($trx['id_transaksi']), 4, '0', STR_PAD_LEFT); ?></span>
+                <span class="meta-value">#<?php echo str_pad(htmlspecialchars((string)$trx['id_transaksi'], ENT_QUOTES, 'UTF-8'), 4, '0', STR_PAD_LEFT); ?></span>
             </div>
             <div class="meta-row">
                 <span class="meta-label">Kasir</span>
-                <span class="meta-value"><?php echo htmlspecialchars($trx['nama_kasir']); ?></span>
+                <span class="meta-value"><?php echo htmlspecialchars($trx['nama_kasir'], ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
             <div class="meta-row">
                 <span class="meta-label">Tanggal</span>
@@ -289,7 +306,7 @@ if ($id_transaksi !== '') {
             </div>
             <div class="meta-row">
                 <span class="meta-label">Waktu</span>
-                <span class="meta-value"><?php echo htmlspecialchars($trx['waktu']); ?> WITA</span>
+                <span class="meta-value"><?php echo htmlspecialchars($trx['waktu'], ENT_QUOTES, 'UTF-8'); ?> WITA</span>
             </div>
 
             <hr class="divider">
@@ -302,7 +319,10 @@ if ($id_transaksi !== '') {
                 <?php foreach ($items as $item): ?>
                     <?php $line_total = $item['harga_satuan'] * $item['kuantitas']; ?>
                     <div class="item-block">
-                        <div class="item-name"><?php echo htmlspecialchars($item['nama_produk']); ?></div>
+                        <div class="item-name"><?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?></div>
+                        <?php if ($item['catatan'] !== ''): ?>
+                            <div class="item-note">Catatan: <?php echo htmlspecialchars($item['catatan'], ENT_QUOTES, 'UTF-8'); ?></div>
+                        <?php endif; ?>
                         <div class="item-detail">
                             <span><?php echo (int)$item['kuantitas']; ?> &times; Rp <?php echo number_format($item['harga_satuan'], 0, ',', '.'); ?></span>
                             <span class="item-subtotal">Rp <?php echo number_format($line_total, 0, ',', '.'); ?></span>

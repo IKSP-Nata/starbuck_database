@@ -106,7 +106,7 @@ if (!function_exists('getTransaksiFilter')) {
             $akhir_esc = mysqli_real_escape_string($koneksi, $tanggal_akhir);
             return [
                 'where_sql'     => "WHERE t.tanggal BETWEEN '$awal_esc' AND '$akhir_esc'",
-                'periode_label' => 'Periode: ' . formatTanggalIndo($tanggal_awal) . ' - ' . formatTanggalIndo($tanggal_akhir),
+                'periode_label' => formatTanggalIndo($tanggal_awal) . ' - ' . formatTanggalIndo($tanggal_akhir),
                 'active_mode'   => 'rentang',
                 'tanggal_awal'  => $tanggal_awal,
                 'tanggal_akhir' => $tanggal_akhir,
