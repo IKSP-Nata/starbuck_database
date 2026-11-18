@@ -13,8 +13,8 @@ $daftar_kasir = Kasir::semua();
             <h1 class="page-title">Kasir</h1>
             <p class="page-subtitle">Kelola data petugas kasir operasional Starbuck</p>
         </div>
-        <div class="d-flex flex-wrap align-items-center gap-2">
-            <div class="search-box flex-grow-1" style="min-width: 240px;">
+        <div class="d-flex align-items-center gap-2">
+            <div class="search-box" style="width: 240px; max-width: 100%;">
                 <i class="bi bi-search" aria-hidden="true"></i>
                 <input type="search" id="search-kasir" class="form-control"
                     placeholder="Cari nama atau email kasir" autocomplete="off" aria-label="Cari nama atau email kasir">

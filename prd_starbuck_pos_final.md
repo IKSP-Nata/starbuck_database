@@ -59,7 +59,7 @@ Setiap transaksi baru wajib mengisi kolom berikut secara utuh (tanpa merusak dat
 - `id_kasir`: diambil dari pilihan dropdown **Kasir Bertugas** pada panel *Bills* (wajib dipilih).
 - `kategori`: disalin otomatis dari nilai `produk.kategori` menu yang dibeli.
 - `kuantitas_harga`: hasil perkalian `harga * kuantitas`.
-- `catatan`: teks gabungan pilihan **Suhu & Gula** (contoh: `Ice, Less sugar` atau `Hot, No sugar`) **hanya untuk produk berkategori `Minuman`**. Untuk produk berkategori `Tambahan` atau `Makanan`, wajib disimpan sebagai `NULL`.
+- `catatan`: teks gabungan pilihan **Penyajian, Ukuran Gelas, & Tingkat Gula** (contoh: `Ice, Medium, Less sugar` atau `Hot, Large, No sugar`) **hanya untuk produk berkategori `Minuman`**. Untuk produk berkategori `Tambahan` atau `Makanan`, wajib disimpan sebagai `NULL`. Transaksi lama dengan 2 bagian (`Ice, Normal`) tetap ditampilkan secara kompatibel.
 - `id_nota`: pertahankan perilaku pengisian kode yang sudah berjalan berdasarkan hasil audit Tahap 0.
 
 ---
@@ -69,9 +69,9 @@ Setiap transaksi baru wajib mengisi kolom berikut secara utuh (tanpa merusak dat
 1. **Logika Perhitungan Transaksi:**
    - 1 transaksi = 1 jenis menu dengan jumlah beli (`kuantitas >= 1`).
    - Rumus: `subtotal = harga * kuantitas`, `pajak = round(subtotal * 0.11)` (pajak dikunci 11%), dan `total = subtotal + pajak`.
-   - Dihitung secara *real-time* di JavaScript untuk pratinjau kasir, dan **wajib dihitung ulang di server (PHP)** saat penyimpanan. Pilihan suhu dan gula tidak mengubah harga produk.
+   - Dihitung secara *real-time* di JavaScript untuk pratinjau kasir, dan **wajib dihitung ulang di server (PHP)** saat penyimpanan. Pilihan ukuran gelas (`Small`, `Medium`, `Large`), suhu, dan gula tidak mengubah harga produk.
 2. **Larangan Fitur Dummy:**
-   - Dilarang menampilkan stok produk, ukuran gelas (*Size*), metode pembayaran (*Payment Method*), diskon/promo, maupun **kalkulator uang tunai/kembalian** di panel *Bills*.
+   - Dilarang menampilkan stok produk, metode pembayaran (*Payment Method*), diskon/promo, maupun **kalkulator uang tunai/kembalian** di panel *Bills*.
 3. **Riwayat Transaksi Bersifat Read-Only & Berfilter Periode:**
    - Halaman `pages/transactions/list.php` tidak boleh memiliki tombol Edit atau Hapus.
    - Wajib memiliki filter periode tanggal dan bulan (default menampilkan transaksi **bulan berjalan** sesuai WITA).
@@ -160,50 +160,59 @@ Menampilkan ringkasan penjualan kasir secara langsung tanpa banner *landing page
 - **Baris Bawah:** Kartu **Transaksi Terbaru** (5 transaksi terakhir lengkap dengan Tanggal, Waktu WITA, Menu, Total, dan tombol `Cetak Struk`) beserta tombol `Lihat Semua`.
 
 ### 5.3 Manajemen Kasir (`pages/cashiers/`)
-- **`list.php`:** Header judul + pencarian nama kasir (live filter JS) + tombol `+ Tambah Kasir`. Tabel bersih di dalam kartu putih dengan tombol `Edit` dan `Hapus` (membuka modal konfirmasi Bootstrap).
+- **`list.php`:** Header judul di kiri, serta kotak pencarian nama/email kasir (live filter JS) dan tombol `+ Tambah Kasir` sejajar satu baris horizontal (`d-flex align-items-center gap-2`) di kanan atas. Tabel bersih di dalam kartu putih dengan tombol `Edit` dan `Hapus` (membuka modal konfirmasi Bootstrap).
 - **`add.php` & `edit.php`:** Kartu form terpusat (`max-width: 560px`). **Hapus input manual "ID Kasir" di `add.php`** karena `id_kasir` menggunakan `AUTO_INCREMENT`. Input yang ditampilkan: Nama Kasir, No. Telepon, Alamat, dan Email.
 - **Penanganan Foreign Key:** Jika pengguna menghapus kasir yang sudah tercatat di `detail_transaksi`, tangkap pengecualian/cek keterkaitan terlebih dahulu dan tampilkan notifikasi *Toast* yang jelas (*"Kasir ini sudah tercatat pada riwayat transaksi dan tidak dapat dihapus"*), bukan pesan *fatal error* SQL.
 
 ### 5.4 Manajemen Produk (`pages/products/`)
-- **`list.php`:** Header berisi judul, **Pencarian Menu** (live filter JS), dan tombol `+ Tambah Produk`. Katalog ditampilkan dalam bentuk **Card Grid** (`row g-4`, `col-md-6 col-xl-4`): menampilkan foto produk (`gambar` dari folder `assets/img/products/` dengan bingkai membulat halus, atau fallback avatar 2 huruf inisial berlatar `--accent-soft`), badge kecil `kategori` (`Minuman`, `Tambahan`, `Makanan`), Nama Produk (`Plus Jakarta Sans`), Harga (`Inter tabular-nums`), serta tombol `Edit` dan `Hapus` (dengan modal konfirmasi & proteksi *foreign key*). **Tanpa tampilan stok.**
+- **`list.php`:**
+  - Header menampilkan judul di kiri, serta **Pencarian Menu** (live filter JS) dan tombol `+ Tambah Produk` sejajar satu baris horizontal (`d-flex align-items-center gap-2`) di kanan atas.
+  - Di bawah judul terdapat bar chip filter kategori: **`Semua (N)`**, **`Minuman (N)`**, **`Tambahan (N)`**, dan **`Makanan (N)`** yang memfilter kartu produk secara *live* bersama kotak pencarian.
+  - Katalog ditampilkan dalam bentuk **Card Grid** (`row g-4`, `col-md-6 col-xl-4`): menampilkan foto produk (`gambar` dari folder `assets/img/products/` dengan bingkai membulat halus, atau fallback avatar 2 huruf inisial berlatar `--accent-soft`), badge kecil `kategori` (`Minuman`, `Tambahan`, `Makanan`), Nama Produk (`Plus Jakarta Sans`), dan Harga (`Inter tabular-nums`).
+  - Bagian bawah tiap kartu produk memuat tombol outline hijau berbentuk pill **`Pesan →`** di sisi kiri yang mengarah ke `../transactions/add.php?id_produk=ID`, sementara tombol **`Edit`** dan **`Hapus`** (dengan modal konfirmasi & proteksi *foreign key*) tetap di sisi kanan. **Tanpa tampilan stok.**
 - **`add.php` & `edit.php`:** Kartu form (`max-width: 560px`) berisi field: Nama Produk, Harga, **Kategori** (`<select name="kategori" class="form-select">` berisi `Minuman`, `Tambahan`, `Makanan`), dan Upload Gambar (lengkap dengan pratinjau gambar saat ini pada halaman edit).
 
 ### 5.5 Halaman Transaksi Baru (`pages/transactions/add.php`)
 Menggunakan tata letak *split-screen* kasir: `col-lg-7` (Katalog Pilih Menu di kiri) dan `col-lg-5` (Panel **Bills** *sticky* di kanan).
 
 **A. Kolom Kiri — Katalog Pilih Menu:**
-- Menampilkan jumlah menu tersedia, kotak pencarian *live filter*, dan deretan kartu produk.
+- Menampilkan jumlah menu tersedia, bar chip filter kategori (**`Semua`**, **`Minuman`**, **`Tambahan`**, **`Makanan`**) yang sejajar dengan kotak pencarian *live filter* `Cari nama menu`, dan deretan kartu produk.
 - Setiap kartu produk menyimpan atribut `data-id`, `data-nama`, `data-harga`, `data-kategori`, dan `data-gambar`.
+- Kartu menu yang sedang dipilih memiliki border hijau `2px solid var(--accent-active)` dan lencana ikon centang kecil (`.menu-card-check`) di pojok kanan atas.
 - Mendukung prapilih otomatis apabila halaman dibuka dengan parameter URL `?id_produk=ID`.
 
 **B. Kolom Kanan — Panel Bills (Sticky):**
 1. **Header Bills:** Judul `Bills` dan subjudul `Ringkasan Transaksi`.
 2. **Kasir Bertugas (Wajib):** `<label class="form-label fw-medium">Kasir Bertugas</label>` diikuti `<select name="id_kasir" id="id_kasir" class="form-select" required>` yang memuat seluruh daftar kasir dari tabel `kasir`. Simpan pilihan kasir terakhir di `localStorage` (di dalam `try/catch`) agar kasir tidak perlu memilih ulang setiap transaksi.
-3. **Item Terpilih & Kuantitas:** Menampilkan foto thumbnail/inisial, nama produk, harga satuan, serta tombol pengatur kuantitas (`-` / angka / `+`, minimal 1). Jika belum ada produk dipilih, tampilkan pesan status kosong yang rapi.
+3. **Item Terpilih & Kuantitas:** Menampilkan foto thumbnail/inisial, nama produk, harga satuan, serta tombol pengatur kuantitas (`-` / angka / `+`, minimal 1, tanpa tombol pintas 1x/2x/5x). Jika belum ada produk dipilih, tampilkan pesan status kosong yang rapi.
 4. **Pilihan Kustomisasi Minuman (Kondisional — Hanya untuk `kategori === 'Minuman'`):**
    - Bagian ini **hanya tampil** (membuka halus) apabila produk yang dipilih memiliki `data-kategori="Minuman"`.
-   - **Pilihan Suhu (Penyajian):** Tombol chip `<button type="button">` dengan opsi **`Ice`** dan **`Hot`** (default: **`Ice`**).
-   - **Pilihan Gula (Sugar Level):** Tombol chip `<button type="button">` dengan opsi **`No sugar`**, **`Less sugar`**, **`Normal`**, dan **`High sugar`**.
+   - **Ukuran Gelas:** Tombol chip `<button type="button">` dengan opsi **`Small`**, **`Medium`**, dan **`Large`** (tanpa mengubah harga produk).
+   - **Penyajian (Suhu):** Tombol chip `<button type="button">` dengan opsi **`Ice`** dan **`Hot`** (default: **`Ice`**).
+   - **Tingkat Gula (Sugar Level):** Tombol chip `<button type="button">` dengan opsi **`No sugar`**, **`Less sugar`**, **`Normal`**, dan **`High sugar`**.
    - **Penyesuaian Default Cerdas Berdasarkan Nama Minuman:**
-     - Jika nama minuman mengandung kata **`Americano`**, **`Pike Place`**, atau **`Espresso`** (kopi hitam tanpa susu), otomatis atur pilihan default gula ke **`No sugar`** saat produk diklik (kasir tetap dapat mengklik chip gula lain jika pembeli meminta gula).
-     - Untuk minuman lainnya (seperti *Mocha Latte*, *Caramel Macchiato*, *Matcha Latte*), otomatis atur pilihan default gula ke **`Normal`**.
-   - **Untuk Kategori `Tambahan` (`Oat Milk`, `Extra Shot`) atau `Makanan`:** Sembunyikan bagian Suhu & Gula secara otomatis dan pastikan input `catatan` bernilai kosong (`NULL`).
+     - **Ukuran Gelas:** Jika nama minuman mengandung `Tall` $\rightarrow$ pilih **`Small`**; jika mengandung `Grande` $\rightarrow$ pilih **`Medium`**; jika mengandung `Venti` $\rightarrow$ pilih **`Large`**; selain itu default **`Medium`**.
+     - **Tingkat Gula:** Jika nama minuman mengandung kata **`Americano`**, **`Pike Place`**, atau **`Espresso`** (kopi hitam tanpa susu), otomatis atur pilihan default gula ke **`No sugar`**; untuk minuman lainnya default **`Normal`**.
+     - **Penyajian:** Default **`Ice`**.
+   - Ketiga nilai digabungkan ke dalam `<input type="hidden" name="catatan">` dengan format `Penyajian, Ukuran, Gula` (contoh: `Ice, Medium, Less sugar` atau `Hot, Large, No sugar`).
+   - **Untuk Kategori `Tambahan` (`Oat Milk`, `Extra Shot`) atau `Makanan`:** Sembunyikan bagian kustomisasi secara otomatis dan pastikan input `catatan` bernilai kosong (`NULL`).
 5. **Rincian Pembayaran:** Menampilkan `Subtotal`, `Pajak (11%)`, garis pemisah putus-putus `1px dashed var(--border-soft)`, dan **`Total`** (`24px`, `Inter` bold `tabular-nums`).
 6. **Tombol Aksi:** Tombol penuh **Simpan & Cetak Struk** (nonaktif sampai produk dan kasir dipilih) dan tombol outline **Kembali ke Riwayat**. Tanpa input uang bayar/kembalian.
 
-### 5.6 Riwayat Transaksi, Struk 80mm, & Laporan (`pages/transactions/`)
-- **`list.php` (Filter Periode Wajib Sesuai Zona Waktu WITA):**
+### 5.6 Riwayat Transaksi, Modal Pratinjau Struk 80mm, & Laporan (`pages/transactions/`)
+- **`list.php` (Filter Periode Wajib WITA, Pencarian Cepat, & Modal Pratinjau Struk):**
   - Saat dibuka tanpa parameter filter, tabel **wajib hanya menampilkan transaksi pada bulan berjalan** (`DATE_FORMAT(t.tanggal, '%Y-%m') = date('Y-m')` berdasarkan `Asia/Makassar`), bukan menampilkan seluruh transaksi sekaligus.
   - Sediakan bar filter rapi di atas tabel (form `GET`, label di atas input) yang mencakup:
     1. **Dari Tanggal** (`tanggal_awal`) & **Sampai Tanggal** (`tanggal_akhir`).
     2. **Pilih Bulan** (`bulan`, format `YYYY-MM`).
-    3. Tombol **Terapkan**, serta tombol cepat **Hari Ini**, **Bulan Ini**, dan **Semua**.
-  - Tampilkan subjudul periode aktif (contoh: `Periode: November 2026` atau `18 Nov 2026`).
-  - Kolom tabel: `No`, `Tanggal`, `Waktu (WITA)`, `Kasir` (tampilkan `-` jika data lama `NULL`), `Menu` (tampilkan badge halus berisi `catatan` seperti `Ice, Less sugar` tepat di bawah nama menu jika ada), `Kuantitas`, `Subtotal`, `Pajak`, `Total`, dan `Aksi` (`Cetak Struk`).
+    3. Tombol **Terapkan**, serta baris bawah yang memuat tombol cepat **Hari Ini**, **Bulan Ini**, **Semua** di sisi kiri dan input pencarian *live* JS **`Cari nama menu atau kasir...`** di sisi kanan untuk menyaring baris tabel secara instan.
+  - Tampilkan subjudul periode aktif (contoh: `Periode November 2026` atau `18 Nov 2026`).
+  - Kolom tabel: `No`, `Tanggal`, `Waktu (WITA)`, `Kasir` (tampilkan `-` jika data lama `NULL`), `Menu` (tampilkan badge halus berisi `catatan` seperti `Ice, Medium, Less sugar` atau `Ice, Less sugar` tepat di bawah nama menu jika ada), `Jumlah`, `Subtotal`, `Pajak (11%)`, `Total`, dan `Aksi` (`Cetak Struk`).
+  - **Modal Pratinjau Struk 80mm (`max-width: 360px`):** Saat tombol `Cetak Struk` pada baris tabel diklik, tampilkan modal pratinjau struk resmi di tengah layar (memuat logo Starbucks, `Starbuck POS`, nomor nota, nama kasir, tanggal & waktu WITA, rincian item + teks `Catatan: ...`, subtotal, pajak 11%, dan total) lengkap dengan tombol **`Tutup`** dan tombol hijau **`Cetak Sekarang`** (membuka `print_receipt.php?id_transaksi=ID&autoprint=1` untuk mencetak struk).
   - Tombol **Cetak Laporan** di kanan atas wajib meneruskan *query string* filter periode yang sedang aktif ke `print_report.php`.
 - **`print_receipt.php` (Struk Kasir 80mm):**
   - Lebar maksimal `320px`, rata tengah, latar putih bersih, garis putus-putus.
-  - Menampilkan: Logo/Nama Starbuck, Nomor Transaksi, Tanggal & Waktu (WITA), **Nama Kasir** (`-` jika data lama), rincian Nama Menu, Kuantitas x Harga, **`Catatan` pesanan** (contoh: `Catatan: Ice, Less sugar` di bawah nama minuman apabila tidak kosong), Subtotal, Pajak (11%), Total, dan ucapan terima kasih.
+  - Menampilkan: Logo Starbucks, `Starbuck POS`, Nomor Nota (`#0001`), Tanggal & Waktu (WITA), **Nama Kasir** (`-` jika data lama), rincian Nama Menu, Kuantitas x Harga, **`Catatan` pesanan** (contoh: `Catatan: Ice, Medium, Less sugar` di bawah nama minuman apabila tidak kosong), Subtotal, Pajak (11%), Total, dan ucapan terima kasih. Mendukung parameter `autoprint=1` untuk langsung membuka dialog cetak browser.
   - `@media print` menyembunyikan seluruh tombol navigasi dan mencetak struk dengan bersih.
 - **`print_report.php` (Laporan Penjualan):**
   - Menggunakan logika filter tanggal/bulan WITA yang sama persis dengan `list.php`.
@@ -212,14 +221,14 @@ Menggunakan tata letak *split-screen* kasir: `col-lg-7` (Katalog Pilih Menu di k
 ---
 
 ## 6. Aksesibilitas & Responsif
-- Seluruh kontrol form dan chip pilihan suhu/gula dapat diakses dengan keyboard (`focus-visible` jelas, atribut `aria-pressed` pada chip, dan `aria-live="polite"` pada total tagihan).
+- Seluruh kontrol form dan chip pilihan ukuran/suhu/gula dapat diakses dengan keyboard (`focus-visible` jelas, atribut `aria-pressed` pada chip, dan `aria-live="polite"` pada total tagihan).
 - Tampilan wajib rapi dan bebas dari *horizontal scroll* liar pada ukuran layar **375px (Mobile)**, **768px (Tablet)**, dan **1440px (Desktop)**.
 
 ---
 
 ## 7. Keamanan & Validasi Backend
 - Hitung ulang `subtotal`, `pajak` (11%), dan `total` di sisi server berdasarkan `harga` asli dari tabel `produk` di database (abaikan angka harga/total yang dikirim dari form HTML).
-- Validasi nilai suhu (`Ice`, `Hot`) dan gula (`No sugar`, `Less sugar`, `Normal`, `High sugar`) di sisi server: hanya simpan ke kolom `catatan` apabila produk benar-benar berkategori `Minuman`; jika produk berkategori `Tambahan` atau `Makanan`, paksa nilai `catatan = NULL`.
+- Validasi nilai penyajian (`Ice`, `Hot`), ukuran gelas (`Small`, `Medium`, `Large`), dan gula (`No sugar`, `Less sugar`, `Normal`, `High sugar`) di sisi server (`PilihanPesanan::susunCatatan()`): hanya simpan ke kolom `catatan` apabila produk benar-benar berkategori `Minuman` (mendukung format 3 bagian `Penyajian, Ukuran, Gula` maupun 2 bagian `Penyajian, Gula`); jika produk berkategori `Tambahan` atau `Makanan`, paksa nilai `catatan = NULL`.
 - Validasi upload gambar produk: hanya izinkan ekstensi dan MIME type `jpg`, `jpeg`, `png`, `webp` dengan ukuran maksimal 2 MB dan penamaan file unik.
 
 ---
@@ -255,7 +264,7 @@ app/
 ## 9. Hal yang Dikecualikan (Out of Scope)
 - Tidak ada banner *hero* interaktif ala *landing page*, animasi GSAP, atau partikel biji kopi.
 - Tidak ada keranjang multi-item dalam satu transaksi (tetap 1 jenis menu per transaksi sesuai struktur form tugas).
-- Tidak ada kolom stok produk, pilihan ukuran cup (*Tall/Grande/Venti* sebagai opsi terpisah), maupun kalkulator uang bayar/kembalian.
+- Tidak ada kolom stok produk maupun kalkulator uang bayar/kembalian.
 
 ---
 

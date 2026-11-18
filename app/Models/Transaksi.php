@@ -93,7 +93,12 @@ class Transaksi
         }
         $idsSql = implode(',', array_map('intval', array_keys($transaksiMap)));
         $detailRows = Database::ambilSemua(
-            "SELECT dt.id_transaksi, dt.kuantitas, dt.catatan, p.nama_produk, k.nama_kasir
+            "SELECT dt.id_transaksi, dt.kuantitas, dt.catatan,
+                    CASE
+                        WHEN dt.harga IS NOT NULL AND dt.harga > 0 THEN dt.harga
+                        ELSE p.harga
+                    END AS harga_satuan,
+                    p.nama_produk, k.nama_kasir
              FROM detail_transaksi dt
              LEFT JOIN produk p ON dt.id_produk = p.id_produk
              LEFT JOIN kasir k ON dt.id_kasir = k.id_kasir
@@ -112,9 +117,10 @@ class Transaksi
             if (!empty($det['nama_produk'])) {
                 $qtyItem = ($det['kuantitas'] !== null) ? (int)$det['kuantitas'] : 0;
                 $transaksiMap[$idTrx]['items'][] = [
-                    'nama_produk' => $det['nama_produk'],
-                    'kuantitas'   => $qtyItem,
-                    'catatan'     => trim((string)($det['catatan'] ?? '')),
+                    'nama_produk'  => $det['nama_produk'],
+                    'harga_satuan' => (float)($det['harga_satuan'] ?? 0),
+                    'kuantitas'    => $qtyItem,
+                    'catatan'      => trim((string)($det['catatan'] ?? '')),
                 ];
                 if ($transaksiMap[$idTrx]['total_kuantitas'] === null) {
                     $transaksiMap[$idTrx]['total_kuantitas'] = 0;

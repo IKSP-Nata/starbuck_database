@@ -28,10 +28,18 @@ $daftar_kasir  = Kasir::semua('nama');
                     </span>
                 </div>
 
-                <div class="search-box mb-4">
-                    <i class="bi bi-search" aria-hidden="true"></i>
-                    <input type="search" id="search-menu" class="form-control"
-                        placeholder="Cari nama menu" autocomplete="off" aria-label="Cari nama menu">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2" role="group" aria-label="Filter kategori menu">
+                        <button type="button" class="option-chip is-active" data-filter-menu="Semua" aria-pressed="true">Semua</button>
+                        <button type="button" class="option-chip" data-filter-menu="Minuman" aria-pressed="false">Minuman</button>
+                        <button type="button" class="option-chip" data-filter-menu="Tambahan" aria-pressed="false">Tambahan</button>
+                        <button type="button" class="option-chip" data-filter-menu="Makanan" aria-pressed="false">Makanan</button>
+                    </div>
+                    <div class="search-box" style="flex: 1 1 200px; max-width: 260px;">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <input type="search" id="search-menu" class="form-control"
+                            placeholder="Cari nama menu" autocomplete="off" aria-label="Cari nama menu">
+                    </div>
                 </div>
 
                 <?php if (empty($daftar_produk)): ?>
@@ -61,7 +69,9 @@ $daftar_kasir  = Kasir::semua('nama');
                             $has_img      = $gambar !== '' && file_exists(ROOTPATH . '/assets/img/products/' . basename($gambar));
                             $img_src      = $has_img ? '../../assets/img/products/' . rawurlencode(basename($gambar)) : '';
                         ?>
-                        <div class="col-md-6 menu-item-col" data-nama-search="<?php echo htmlspecialchars(strtolower($nama_raw), ENT_QUOTES, 'UTF-8'); ?>">
+                        <div class="col-md-6 menu-item-col"
+                             data-kategori="<?php echo $kategori_esc; ?>"
+                             data-nama-search="<?php echo htmlspecialchars(strtolower($nama_raw), ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="button"
                                 class="menu-card"
                                 data-id="<?php echo htmlspecialchars((string)$id_prod, ENT_QUOTES, 'UTF-8'); ?>"
@@ -71,6 +81,9 @@ $daftar_kasir  = Kasir::semua('nama');
                                 data-inisial="<?php echo htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8'); ?>"
                                 data-gambar="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
                                 aria-pressed="false">
+                                <span class="menu-card-check" aria-hidden="true">
+                                    <i class="bi bi-check-lg"></i>
+                                </span>
                                 <?php if ($has_img): ?>
                                     <span class="product-thumb-frame">
                                         <img src="<?php echo htmlspecialchars($img_src, ENT_QUOTES, 'UTF-8'); ?>"
@@ -151,7 +164,16 @@ $daftar_kasir  = Kasir::semua('nama');
                         <div class="drink-custom-inner">
                             <div class="drink-custom-section">
                                 <div class="mb-3">
-                                    <label class="form-label fw-medium mb-2">Penyajian (Suhu)</label>
+                                    <label class="form-label fw-medium mb-2">Ukuran Gelas</label>
+                                    <div class="option-chip-group" role="group" aria-label="Pilihan ukuran gelas">
+                                        <button type="button" class="option-chip" data-ukuran="Small" aria-pressed="false" tabindex="-1">Small</button>
+                                        <button type="button" class="option-chip is-active" data-ukuran="Medium" aria-pressed="true" tabindex="-1">Medium</button>
+                                        <button type="button" class="option-chip" data-ukuran="Large" aria-pressed="false" tabindex="-1">Large</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium mb-2">Penyajian</label>
                                     <div class="option-chip-group" role="group" aria-label="Pilihan penyajian suhu">
                                         <button type="button" class="option-chip is-active" data-suhu="Ice" aria-pressed="true" tabindex="-1">Ice</button>
                                         <button type="button" class="option-chip" data-suhu="Hot" aria-pressed="false" tabindex="-1">Hot</button>
@@ -209,8 +231,10 @@ $daftar_kasir  = Kasir::semua('nama');
 
     var selectedHarga    = 0;
     var selectedKategori = '';
+    var currentUkuran    = 'Medium';
     var currentSuhu      = 'Ice';
     var currentGula      = 'Normal';
+    var activeFilterKat  = 'Semua';
 
     var inputIdProduk     = document.getElementById('id_produk');
     var inputCatatan      = document.getElementById('input_catatan');
@@ -228,8 +252,10 @@ $daftar_kasir  = Kasir::semua('nama');
     var selectedHargaEl   = document.getElementById('selected-harga');
 
     var drinkCustomWrap   = document.getElementById('drink-custom-wrap');
+    var ukuranChips       = document.querySelectorAll('.option-chip[data-ukuran]');
     var suhuChips         = document.querySelectorAll('.option-chip[data-suhu]');
     var gulaChips         = document.querySelectorAll('.option-chip[data-gula]');
+    var filterMenuChips   = document.querySelectorAll('[data-filter-menu]');
 
     var elSubtotal        = document.getElementById('summary-subtotal');
     var elPajak           = document.getElementById('summary-pajak');
@@ -274,7 +300,7 @@ $daftar_kasir  = Kasir::semua('nama');
             return;
         }
         if (selectedKategori === 'Minuman') {
-            inputCatatan.value = currentSuhu + ', ' + currentGula;
+            inputCatatan.value = currentSuhu + ', ' + currentUkuran + ', ' + currentGula;
         } else {
             inputCatatan.value = '';
         }
@@ -288,6 +314,20 @@ $daftar_kasir  = Kasir::semua('nama');
         });
     }
 
+    function getDefaultUkuran(namaMenu) {
+        var n = String(namaMenu || '');
+        if (/tall/i.test(n)) {
+            return 'Small';
+        }
+        if (/grande/i.test(n)) {
+            return 'Medium';
+        }
+        if (/venti/i.test(n)) {
+            return 'Large';
+        }
+        return 'Medium';
+    }
+
     function toggleDrinkCustomization(isMinuman, namaMenu) {
         if (!drinkCustomWrap) {
             return;
@@ -295,11 +335,13 @@ $daftar_kasir  = Kasir::semua('nama');
         var allChips = drinkCustomWrap.querySelectorAll('.option-chip');
 
         if (isMinuman) {
-            currentSuhu = 'Ice';
+            currentUkuran = getDefaultUkuran(namaMenu);
+            currentSuhu   = 'Ice';
             // Default cerdas: Americano, Espresso, atau Pike Place -> No sugar; lainnya -> Normal
             var isBlackCoffee = /americano|espresso|pike\s*place/i.test(namaMenu || '');
             currentGula = isBlackCoffee ? 'No sugar' : 'Normal';
 
+            setActiveChip(ukuranChips, 'data-ukuran', currentUkuran);
             setActiveChip(suhuChips, 'data-suhu', currentSuhu);
             setActiveChip(gulaChips, 'data-gula', currentGula);
 
@@ -318,6 +360,17 @@ $daftar_kasir  = Kasir::semua('nama');
 
         updateCatatanInput();
     }
+
+    ukuranChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            var val = chip.getAttribute('data-ukuran');
+            if (val) {
+                currentUkuran = val;
+                setActiveChip(ukuranChips, 'data-ukuran', currentUkuran);
+                updateCatatanInput();
+            }
+        });
+    });
 
     suhuChips.forEach(function (chip) {
         chip.addEventListener('click', function () {
@@ -441,33 +494,51 @@ $daftar_kasir  = Kasir::semua('nama');
         });
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', function () {
-            var keyword = searchInput.value.trim().toLowerCase();
-            var visibleCount = 0;
+    function applyMenuFilter() {
+        var keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        var visibleCount = 0;
 
-            menuCols.forEach(function (col) {
-                var namaMenu = col.getAttribute('data-nama-search') || '';
-                if (keyword === '' || namaMenu.indexOf(keyword) !== -1) {
-                    col.classList.remove('d-none');
-                    visibleCount++;
-                } else {
-                    col.classList.add('d-none');
-                }
-            });
+        menuCols.forEach(function (col) {
+            var namaMenu = col.getAttribute('data-nama-search') || '';
+            var katMenu  = col.getAttribute('data-kategori') || 'Minuman';
+            var matchKat = (activeFilterKat === 'Semua' || katMenu === activeFilterKat);
+            var matchKey = (keyword === '' || namaMenu.indexOf(keyword) !== -1);
 
-            if (menuCountEl) {
-                menuCountEl.textContent = visibleCount + ' menu tersedia';
-            }
-
-            if (searchEmptyEl) {
-                if (visibleCount === 0 && menuCols.length > 0) {
-                    searchEmptyEl.classList.remove('d-none');
-                } else {
-                    searchEmptyEl.classList.add('d-none');
-                }
+            if (matchKat && matchKey) {
+                col.classList.remove('d-none');
+                visibleCount++;
+            } else {
+                col.classList.add('d-none');
             }
         });
+
+        if (menuCountEl) {
+            menuCountEl.textContent = visibleCount + ' menu tersedia';
+        }
+
+        if (searchEmptyEl) {
+            if (visibleCount === 0 && menuCols.length > 0) {
+                searchEmptyEl.classList.remove('d-none');
+            } else {
+                searchEmptyEl.classList.add('d-none');
+            }
+        }
+    }
+
+    filterMenuChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            activeFilterKat = chip.getAttribute('data-filter-menu') || 'Semua';
+            filterMenuChips.forEach(function (c) {
+                var isMatch = (c === chip);
+                c.classList.toggle('is-active', isMatch);
+                c.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+            });
+            applyMenuFilter();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyMenuFilter);
     }
 
     hitungTotal();

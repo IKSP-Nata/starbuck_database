@@ -105,6 +105,15 @@ $items = $trx['items'] ?? [];
             text-align: center;
             margin-bottom: 14px;
         }
+        .receipt-logo {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 1px solid var(--border-soft);
+            display: block;
+            margin: 0 auto 8px;
+        }
         .brand {
             font-size: 18px;
             font-weight: 700;
@@ -235,14 +244,15 @@ $items = $trx['items'] ?? [];
             </div>
         <?php else: ?>
             <div class="receipt-header">
-                <div class="brand">Starbuck</div>
+                <img src="../../assets/img/logo-starbuck.png" alt="Starbuck" class="receipt-logo" onerror="this.style.display='none';">
+                <div class="brand">Starbuck POS</div>
                 <div class="sub-brand">Struk Pembayaran Resmi</div>
             </div>
 
             <hr class="divider">
 
             <div class="meta-row">
-                <span class="meta-label">No. Transaksi</span>
+                <span class="meta-label">No. Nota</span>
                 <span class="meta-value">#<?php echo str_pad(htmlspecialchars((string)$trx['id_transaksi'], ENT_QUOTES, 'UTF-8'), 4, '0', STR_PAD_LEFT); ?></span>
             </div>
             <div class="meta-row">
@@ -306,6 +316,14 @@ $items = $trx['items'] ?? [];
             </div>
         <?php endif; ?>
     </div>
+
+    <?php if ($trx && isset($_GET['autoprint'])): ?>
+    <script>
+        window.addEventListener('load', function () {
+            window.print();
+        });
+    </script>
+    <?php endif; ?>
 
 </body>
 </html>

@@ -35,7 +35,7 @@ $total_produk     = $statistik['total_produk'];
 $total_transaksi  = $statistik['total_transaksi'];
 $total_pendapatan = $statistik['total_pendapatan'];
 
-// 2. Pendapatan 7 Hari Terakhir (WITA)
+// Pendapatan 7 Hari Terakhir (WITA)
 $grafik_7d         = Transaksi::pendapatan7Hari($hari_singkat);
 $pendapatan_7_hari = $grafik_7d['days'];
 $max_harian        = $grafik_7d['max_harian'];
@@ -137,7 +137,6 @@ $transaksi_terbaru = Transaksi::terbaru(5);
                 <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
                     <div>
                         <h2 class="h5 fw-semibold mb-1 card-title">Pendapatan 7 Hari Terakhir</h2>
-                        <p class="page-subtitle mb-0">Akumulasi penjualan harian zona waktu WITA</p>
                     </div>
                     <span class="badge-category">7 Hari</span>
                 </div>
