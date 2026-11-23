@@ -76,103 +76,116 @@ $daftar_transaksi = $riwayat['rows'];
         </form>
     </div>
 
-    <div class="card-soft card-soft-flush">
-        <div class="table-wrap">
-            <table class="table-soft">
-                <thead>
-                    <tr>
-                        <th scope="col" class="col-index">No</th>
-                        <th scope="col">Tanggal</th>
-                        <th scope="col">Waktu (WITA)</th>
-                        <th scope="col">Kasir</th>
-                        <th scope="col">Menu</th>
-                        <th scope="col" class="col-num">Jumlah</th>
-                        <th scope="col" class="col-money">Subtotal</th>
-                        <th scope="col" class="col-money">Pajak (11%)</th>
-                        <th scope="col" class="col-money">Total</th>
-                        <th scope="col" class="text-end">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($daftar_transaksi)): ?>
-                    <tr>
-                        <td colspan="10" class="empty-state">
-                            Tidak ada transaksi pada periode ini.
-                        </td>
-                    </tr>
-                    <?php else: ?>
-                    <?php $no = 1; foreach ($daftar_transaksi as $row):
-                        $id_trx_str = (string)$row['id_transaksi'];
-                        $no_nota    = !empty($row['id_nota']) ? $row['id_nota'] : ('#' . str_pad($id_trx_str, 4, '0', STR_PAD_LEFT));
-                        $tgl_indo   = formatTanggalIndo($row['tanggal']);
-                        $tgl_dmy    = date('d/m/Y', strtotime($row['tanggal']));
-                        $search_parts = [$row['nama_kasir'], $no_nota, $tgl_indo];
-                        foreach ($row['items'] as $it_s) {
-                            $search_parts[] = $it_s['nama_produk'] ?? '';
-                            $search_parts[] = $it_s['catatan'] ?? '';
-                        }
-                        $trx_search_key = strtolower(trim(implode(' ', $search_parts)));
-                        $receipt_payload = [
-                            'id_transaksi' => (int)$row['id_transaksi'],
-                            'no_nota'      => $no_nota,
-                            'nama_kasir'   => $row['nama_kasir'],
-                            'tanggal'      => $tgl_dmy,
-                            'waktu'        => $row['waktu'] . ' WITA',
-                            'subtotal'     => (float)$row['subtotal'],
-                            'pajak'        => (float)$row['pajak'],
-                            'total'        => (float)$row['total'],
-                            'items'        => $row['items'],
-                            'print_url'    => 'print_receipt.php?id_transaksi=' . urlencode($id_trx_str) . '&autoprint=1',
-                        ];
-                    ?>
-                    <tr class="transaksi-item-row" data-trx-search="<?php echo htmlspecialchars($trx_search_key, ENT_QUOTES, 'UTF-8'); ?>">
-                        <td class="col-index"><?php echo $no++; ?></td>
-                        <td class="tabular-nums"><?php echo htmlspecialchars($tgl_indo, ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td class="tabular-nums"><?php echo htmlspecialchars($row['waktu'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td><?php echo htmlspecialchars($row['nama_kasir'], ENT_QUOTES, 'UTF-8'); ?></td>
-                        <td>
-                            <?php if (empty($row['items'])): ?>
-                                -
-                            <?php else: ?>
-                                <?php foreach ($row['items'] as $idx_item => $item): ?>
-                                    <div class="<?php echo $idx_item > 0 ? 'mt-2' : ''; ?>">
-                                        <div class="fw-medium">
-                                            <?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?>
-                                            <span class="text-muted tabular-nums">(<?php echo (int)$item['kuantitas']; ?>x)</span>
-                                        </div>
+    <?php if (empty($daftar_transaksi)): ?>
+        <div class="card-soft empty-state">
+            Tidak ada transaksi pada periode ini.
+        </div>
+    <?php else: ?>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" id="transaksi-grid">
+            <?php $no = 1; foreach ($daftar_transaksi as $row):
+                $nomor_urut    = $no++;
+                $id_trx_str    = (string)$row['id_transaksi'];
+                $no_nota       = !empty($row['id_nota']) ? $row['id_nota'] : ('#' . str_pad($id_trx_str, 4, '0', STR_PAD_LEFT));
+                $tgl_indo      = formatTanggalIndo($row['tanggal']);
+                $tgl_dmy       = date('d/m/Y', strtotime($row['tanggal']));
+                $all_items     = is_array($row['items']) ? $row['items'] : [];
+                $preview_items = array_slice($all_items, 0, 3);
+                $sisa_item     = max(0, count($all_items) - count($preview_items));
+                $total_qty     = $row['total_kuantitas'] !== null ? (int)$row['total_kuantitas'] : 0;
+
+                $search_parts = [$row['nama_kasir'], $no_nota, $tgl_indo, '#' . $nomor_urut];
+                foreach ($all_items as $it_s) {
+                    $search_parts[] = $it_s['nama_produk'] ?? '';
+                    $search_parts[] = $it_s['catatan'] ?? '';
+                }
+                $trx_search_key = strtolower(trim(implode(' ', $search_parts)));
+
+                $receipt_payload = [
+                    'id_transaksi' => (int)$row['id_transaksi'],
+                    'no_nota'      => $no_nota,
+                    'nama_kasir'   => $row['nama_kasir'],
+                    'tanggal'      => $tgl_dmy,
+                    'waktu'        => $row['waktu'] . ' WITA',
+                    'subtotal'     => (float)$row['subtotal'],
+                    'pajak'        => (float)$row['pajak'],
+                    'total'        => (float)$row['total'],
+                    'items'        => $all_items,
+                    'print_url'    => 'print_receipt.php?id_transaksi=' . urlencode($id_trx_str) . '&autoprint=1',
+                ];
+            ?>
+            <div class="col transaksi-item-col" data-trx-search="<?php echo htmlspecialchars($trx_search_key, ENT_QUOTES, 'UTF-8'); ?>">
+                <article class="card trx-order-card h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <span class="trx-order-badge tabular-nums">#<?php echo $nomor_urut; ?></span>
+                            <div class="min-w-0">
+                                <div class="trx-order-cashier text-truncate"><?php echo htmlspecialchars($row['nama_kasir'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                <div class="trx-order-nota tabular-nums"><?php echo htmlspecialchars($no_nota, ENT_QUOTES, 'UTF-8'); ?></div>
+                            </div>
+                        </div>
+                        <span class="badge-category tabular-nums flex-shrink-0"><?php echo $total_qty; ?> Item</span>
+                    </div>
+
+                    <div class="trx-order-meta tabular-nums">
+                        <span><?php echo htmlspecialchars($tgl_indo, ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span><?php echo htmlspecialchars($row['waktu'], ENT_QUOTES, 'UTF-8'); ?> WITA</span>
+                    </div>
+
+                    <div class="trx-items-wrap">
+                        <div class="trx-items-head">
+                            <span>Menu</span>
+                            <span class="text-center">Qty</span>
+                            <span class="text-end">Harga</span>
+                        </div>
+
+                        <?php if (empty($preview_items)): ?>
+                            <div class="trx-items-empty">Rincian item tidak tersedia</div>
+                        <?php else: ?>
+                            <div class="trx-items-list">
+                                <?php foreach ($preview_items as $item):
+                                    $qty_it   = (int)($item['kuantitas'] ?? 0);
+                                    $line_rp  = round((float)($item['harga_satuan'] ?? 0) * $qty_it);
+                                ?>
+                                <div class="trx-item-row">
+                                    <div class="min-w-0">
+                                        <div class="trx-item-name text-truncate"><?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?></div>
                                         <?php if ($item['catatan'] !== ''): ?>
-                                            <div class="mt-1">
-                                                <span class="badge-category"><?php echo htmlspecialchars($item['catatan'], ENT_QUOTES, 'UTF-8'); ?></span>
-                                            </div>
+                                            <div class="trx-item-note text-truncate"><?php echo htmlspecialchars($item['catatan'], ENT_QUOTES, 'UTF-8'); ?></div>
                                         <?php endif; ?>
                                     </div>
+                                    <div class="trx-item-qty tabular-nums"><?php echo $qty_it; ?></div>
+                                    <div class="trx-item-price tabular-nums">Rp <?php echo number_format($line_rp, 0, ',', '.'); ?></div>
+                                </div>
                                 <?php endforeach; ?>
+                            </div>
+
+                            <?php if ($sisa_item > 0): ?>
+                                <div class="trx-more-items tabular-nums">+<?php echo $sisa_item; ?> menu lainnya</div>
                             <?php endif; ?>
-                        </td>
-                        <td class="col-num">
-                            <?php echo $row['total_kuantitas'] !== null ? (int)$row['total_kuantitas'] : '-'; ?>
-                        </td>
-                        <td class="col-money">Rp <?php echo number_format((float)$row['subtotal'], 0, ',', '.'); ?></td>
-                        <td class="col-money">Rp <?php echo number_format((float)$row['pajak'], 0, ',', '.'); ?></td>
-                        <td class="col-money fw-bold">Rp <?php echo number_format((float)$row['total'], 0, ',', '.'); ?></td>
-                        <td class="text-end">
-                            <a href="print_receipt.php?id_transaksi=<?php echo urlencode($id_trx_str); ?>"
-                                target="_blank"
-                                class="btn-coffee-outline btn-sm-soft btn-preview-receipt"
-                                data-receipt="<?php echo htmlspecialchars(json_encode($receipt_payload, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>">Cetak Struk</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <tr class="d-none" id="transaksi-search-empty">
-                        <td colspan="10" class="empty-state">
-                            Tidak ada transaksi yang cocok dengan pencarian nama menu atau kasir.
-                        </td>
-                    </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="trx-order-footer mt-auto">
+                        <div class="d-flex align-items-baseline justify-content-between gap-2 mb-3">
+                            <span class="trx-total-label">Total</span>
+                            <span class="trx-total-value tabular-nums">Rp <?php echo number_format((float)$row['total'], 0, ',', '.'); ?></span>
+                        </div>
+                        <a href="print_receipt.php?id_transaksi=<?php echo urlencode($id_trx_str); ?>"
+                           target="_blank"
+                           class="btn-coffee-outline btn-sm-soft btn-block btn-preview-receipt"
+                           data-receipt="<?php echo htmlspecialchars(json_encode($receipt_payload, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>">
+                            Pratinjau &amp; Cetak Struk
+                        </a>
+                    </div>
+                </article>
+            </div>
+            <?php endforeach; ?>
         </div>
-    </div>
+
+        <div class="card-soft empty-state d-none mt-3" id="transaksi-search-empty">
+            Tidak ada transaksi yang cocok dengan pencarian nama menu atau kasir.
+        </div>
+    <?php endif; ?>
 
 </div>
 
@@ -273,29 +286,29 @@ $daftar_transaksi = $riwayat['rows'];
     }
 
     var searchInput = document.getElementById('search-transaksi');
-    var trxRows     = document.querySelectorAll('.transaksi-item-row');
-    var emptyRow    = document.getElementById('transaksi-search-empty');
+    var trxCols     = document.querySelectorAll('.transaksi-item-col');
+    var emptyState  = document.getElementById('transaksi-search-empty');
 
-    if (searchInput && trxRows.length > 0) {
+    if (searchInput && trxCols.length > 0) {
         searchInput.addEventListener('input', function () {
             var keyword = searchInput.value.trim().toLowerCase();
             var visibleCount = 0;
 
-            trxRows.forEach(function (row) {
-                var key = row.getAttribute('data-trx-search') || '';
+            trxCols.forEach(function (col) {
+                var key = col.getAttribute('data-trx-search') || '';
                 if (keyword === '' || key.indexOf(keyword) !== -1) {
-                    row.classList.remove('d-none');
+                    col.classList.remove('d-none');
                     visibleCount++;
                 } else {
-                    row.classList.add('d-none');
+                    col.classList.add('d-none');
                 }
             });
 
-            if (emptyRow) {
+            if (emptyState) {
                 if (visibleCount === 0) {
-                    emptyRow.classList.remove('d-none');
+                    emptyState.classList.remove('d-none');
                 } else {
-                    emptyRow.classList.add('d-none');
+                    emptyState.classList.add('d-none');
                 }
             }
         });
