@@ -4,9 +4,6 @@ class HitungTransaksi
 {
     public const PAJAK = 0.11;
 
-    /**
-     * Hitung subtotal, pajak (11%), dan total dari harga satuan serta kuantitas.
-     */
     public static function hitung($harga, int $qty): array
     {
         $hargaSatuan    = max(0.0, (float)$harga);

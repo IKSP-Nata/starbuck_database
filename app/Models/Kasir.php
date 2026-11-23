@@ -2,18 +2,12 @@
 
 class Kasir
 {
-    /**
-     * Ambil seluruh daftar kasir.
-     */
     public static function semua(string $orderBy = 'id'): array
     {
         $orderClause = $orderBy === 'nama' ? 'ORDER BY nama_kasir ASC' : 'ORDER BY id_kasir ASC';
         return Database::ambilSemua("SELECT id_kasir, nama_kasir, no_telp, alamat, email FROM kasir $orderClause");
     }
 
-    /**
-     * Cari satu kasir berdasarkan ID.
-     */
     public static function cari(int $id): ?array
     {
         if ($id <= 0) {
@@ -26,9 +20,6 @@ class Kasir
         );
     }
 
-    /**
-     * Cek apakah kasir belum pernah tercatat di detail_transaksi.
-     */
     public static function bisaDihapus(int $id): bool
     {
         if ($id <= 0) {
@@ -38,9 +29,6 @@ class Kasir
         return ((int)($row['jml'] ?? 0)) === 0;
     }
 
-    /**
-     * Tambah kasir baru (id_kasir menggunakan AUTO_INCREMENT MySQL).
-     */
     public static function tambah(string $nama, string $noTelp, string $alamat, string $email): array
     {
         $conn = Database::ambilKoneksi();
@@ -66,9 +54,6 @@ class Kasir
         }
     }
 
-    /**
-     * Ubah data kasir berdasarkan ID.
-     */
     public static function ubah(int $id, string $nama, string $noTelp, string $alamat, string $email): array
     {
         $conn = Database::ambilKoneksi();
@@ -94,9 +79,6 @@ class Kasir
         }
     }
 
-    /**
-     * Hapus kasir dengan proteksi foreign key constraint.
-     */
     public static function hapus(int $id): array
     {
         if ($id <= 0) {

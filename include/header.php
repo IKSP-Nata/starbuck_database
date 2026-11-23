@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
-// Menu navigasi utama (4 tautan operasional POS)
 $sb_current_path = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 $sb_base_url = (strpos($sb_current_path, '/starbuck/') === 0) ? '/starbuck' : '';
 $sb_nav_items = [
@@ -32,16 +31,15 @@ $sb_nav_items = [
 <body>
     <a class="skip-link" href="#main-content">Lewati ke konten</a>
 
-    <!-- Sidebar kiri (desktop, >= 992px) -->
     <aside class="sb-sidebar sidebar" aria-label="Navigasi utama">
-        <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
-            <img src="<?php echo $sb_base_url; ?>/assets/img/logo-starbuck.png" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
-            <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
-        </a>
+        <div class="sb-sidebar-header">
+            <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
+                <img src="<?php echo $sb_base_url; ?>/assets/img/logo-starbuck.png" alt="Starbuck" class="sidebar-brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span class="sidebar-brand-fallback" style="display:none;">Starbuck</span>
+            </a>
+        </div>
         <ul class="sb-nav sidebar-nav">
-            <li class="nav-curve-indicator" aria-hidden="true">
-                <span class="nav-curve-core"></span>
-            </li>
+            <li class="nav-curve-indicator" aria-hidden="true"></li>
             <?php foreach ($sb_nav_items as $sb_index => $sb_item): ?>
                 <?php $sb_is_active = strpos($sb_current_path, $sb_item['match']) !== false; ?>
                 <li>
@@ -59,7 +57,6 @@ $sb_nav_items = [
         </ul>
     </aside>
 
-    <!-- Navbar atas (layar < 992px) -->
     <header class="sb-topbar">
         <div class="sb-topbar-row">
             <a class="sb-brand" href="<?php echo $sb_base_url; ?>/pages/dashboard.php" title="Starbuck Dashboard">
@@ -88,4 +85,4 @@ $sb_nav_items = [
         </nav>
     </header>
 
-    <main class="sb-content" id="main-content">
+    <main class="sb-content main-content" id="main-content">

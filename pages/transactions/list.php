@@ -25,7 +25,6 @@ $daftar_transaksi = $riwayat['rows'];
         </div>
     </div>
 
-    <!-- Bar Filter Periode Tanggal & Bulan (GET, label di atas input) -->
     <div class="card-soft mb-4">
         <form action="list.php" method="GET" id="form-filter-transaksi">
             <div class="row g-3 align-items-end">
@@ -98,13 +97,13 @@ $daftar_transaksi = $riwayat['rows'];
                     <?php if (empty($daftar_transaksi)): ?>
                     <tr>
                         <td colspan="10" class="empty-state">
-                            Tidak ada transaksi pada periode ini. Ubah filter di atas atau klik "+ Transaksi Baru".
+                            Tidak ada transaksi pada periode ini.
                         </td>
                     </tr>
                     <?php else: ?>
                     <?php $no = 1; foreach ($daftar_transaksi as $row):
                         $id_trx_str = (string)$row['id_transaksi'];
-                        $no_nota    = '#' . str_pad($id_trx_str, 4, '0', STR_PAD_LEFT);
+                        $no_nota    = !empty($row['id_nota']) ? $row['id_nota'] : ('#' . str_pad($id_trx_str, 4, '0', STR_PAD_LEFT));
                         $tgl_indo   = formatTanggalIndo($row['tanggal']);
                         $tgl_dmy    = date('d/m/Y', strtotime($row['tanggal']));
                         $search_parts = [$row['nama_kasir'], $no_nota, $tgl_indo];
@@ -135,14 +134,11 @@ $daftar_transaksi = $riwayat['rows'];
                             <?php if (empty($row['items'])): ?>
                                 -
                             <?php else: ?>
-                                <?php $is_multi = count($row['items']) > 1; ?>
                                 <?php foreach ($row['items'] as $idx_item => $item): ?>
                                     <div class="<?php echo $idx_item > 0 ? 'mt-2' : ''; ?>">
                                         <div class="fw-medium">
                                             <?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?>
-                                            <?php if ($is_multi): ?>
-                                                <span class="text-muted tabular-nums">(x<?php echo (int)$item['kuantitas']; ?>)</span>
-                                            <?php endif; ?>
+                                            <span class="text-muted tabular-nums">(<?php echo (int)$item['kuantitas']; ?>x)</span>
                                         </div>
                                         <?php if ($item['catatan'] !== ''): ?>
                                             <div class="mt-1">
@@ -180,7 +176,6 @@ $daftar_transaksi = $riwayat['rows'];
 
 </div>
 
-<!-- Modal Pratinjau Struk 80mm (max-width: 360px) -->
 <div class="modal fade sb-modal receipt-preview-modal" id="sbReceiptModal" tabindex="-1" aria-labelledby="sbReceiptModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -277,7 +272,6 @@ $daftar_transaksi = $riwayat['rows'];
         });
     }
 
-    // Live filter pencarian nama menu atau kasir
     var searchInput = document.getElementById('search-transaksi');
     var trxRows     = document.querySelectorAll('.transaksi-item-row');
     var emptyRow    = document.getElementById('transaksi-search-empty');
@@ -307,7 +301,6 @@ $daftar_transaksi = $riwayat['rows'];
         });
     }
 
-    // Modal Pratinjau Struk 80mm
     function formatRp(num) {
         return 'Rp ' + Math.round(Number(num) || 0).toLocaleString('id-ID');
     }

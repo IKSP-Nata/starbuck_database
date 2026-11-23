@@ -253,7 +253,12 @@ $items = $trx['items'] ?? [];
 
             <div class="meta-row">
                 <span class="meta-label">No. Nota</span>
-                <span class="meta-value">#<?php echo str_pad(htmlspecialchars((string)$trx['id_transaksi'], ENT_QUOTES, 'UTF-8'), 4, '0', STR_PAD_LEFT); ?></span>
+                <span class="meta-value"><?php
+                    $label_nota = !empty($trx['id_nota'])
+                        ? $trx['id_nota']
+                        : ('#' . str_pad((string)$trx['id_transaksi'], 4, '0', STR_PAD_LEFT));
+                    echo htmlspecialchars($label_nota, ENT_QUOTES, 'UTF-8');
+                ?></span>
             </div>
             <div class="meta-row">
                 <span class="meta-label">Kasir</span>

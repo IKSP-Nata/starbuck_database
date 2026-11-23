@@ -5,7 +5,6 @@ if (!defined('ROOTPATH')) {
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';
 
-// Tanggal hari ini dalam format Indonesia (WITA)
 $hari_indo = [
     'Sunday'    => 'Minggu',
     'Monday'    => 'Senin',
@@ -28,30 +27,25 @@ $today_ymd   = date('Y-m-d');
 $today_name  = $hari_indo[date('l')] ?? date('l');
 $today_label = $today_name . ', ' . Format::tanggalIndo($today_ymd) . ' WITA';
 
-// 1. Statistik Utama
 $statistik        = Transaksi::statistik();
 $total_kasir      = $statistik['total_kasir'];
 $total_produk     = $statistik['total_produk'];
 $total_transaksi  = $statistik['total_transaksi'];
 $total_pendapatan = $statistik['total_pendapatan'];
 
-// Pendapatan 7 Hari Terakhir (WITA)
 $grafik_7d         = Transaksi::pendapatan7Hari($hari_singkat);
 $pendapatan_7_hari = $grafik_7d['days'];
 $max_harian        = $grafik_7d['max_harian'];
 
-// 3. Menu Terlaris (Top 5 berdasarkan SUM(kuantitas))
 $top_menu      = Transaksi::menuTerlaris(5);
 $menu_terlaris = $top_menu['items'];
 $max_terjual   = $top_menu['max_terjual'];
 
-// 4. Transaksi Terbaru (5 Transaksi Terakhir beserta rincian menu & kasir)
 $transaksi_terbaru = Transaksi::terbaru(5);
 ?>
 
 <div class="container-fluid px-0">
 
-    <!-- 1. Header Dashboard -->
     <div class="page-header">
         <div>
             <h1 class="page-title">Dashboard</h1>
@@ -65,7 +59,6 @@ $transaksi_terbaru = Transaksi::terbaru(5);
         </div>
     </div>
 
-    <!-- 2. 4 Kartu Statistik Sejajar (row g-4, col-sm-6 col-xl-3) -->
     <div class="row g-4 mb-4">
 
         <div class="col-sm-6 col-xl-3">
@@ -128,10 +121,8 @@ $transaksi_terbaru = Transaksi::terbaru(5);
 
     </div>
 
-    <!-- 3. Baris Tengah: Grafik Pendapatan 7 Hari Terakhir & Menu Terlaris -->
     <div class="row g-4 mt-1 mb-4">
 
-        <!-- Kolom Kiri (col-lg-7): Pendapatan 7 Hari Terakhir (WITA) -->
         <div class="col-lg-7">
             <div class="card-soft h-100 d-flex flex-column justify-content-between">
                 <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
@@ -167,7 +158,6 @@ $transaksi_terbaru = Transaksi::terbaru(5);
             </div>
         </div>
 
-        <!-- Kolom Kanan (col-lg-5): Menu Terlaris (Top 5) -->
         <div class="col-lg-5">
             <div class="card-soft h-100 d-flex flex-column justify-content-between">
                 <div>
@@ -227,7 +217,6 @@ $transaksi_terbaru = Transaksi::terbaru(5);
 
     </div>
 
-    <!-- 4. Baris Bawah: Transaksi Terbaru (5 Transaksi Terakhir) -->
     <div class="card-soft card-soft-flush">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 p-4">
             <div>
@@ -270,13 +259,10 @@ $transaksi_terbaru = Transaksi::terbaru(5);
                             <?php if (empty($trx['items'])): ?>
                                 -
                             <?php else: ?>
-                                <?php $is_multi = count($trx['items']) > 1; ?>
                                 <?php foreach ($trx['items'] as $idx_item => $item): ?>
                                     <div class="<?php echo $idx_item > 0 ? 'mt-1' : ''; ?>">
                                         <span class="fw-medium"><?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?></span>
-                                        <?php if ($is_multi): ?>
-                                            <span class="text-muted tabular-nums">(x<?php echo (int)$item['kuantitas']; ?>)</span>
-                                        <?php endif; ?>
+                                        <span class="text-muted tabular-nums">(<?php echo (int)$item['kuantitas']; ?>x)</span>
                                         <?php if ($item['catatan'] !== ''): ?>
                                             <span class="badge-category ms-1"><?php echo htmlspecialchars($item['catatan'], ENT_QUOTES, 'UTF-8'); ?></span>
                                         <?php endif; ?>
@@ -305,7 +291,6 @@ $transaksi_terbaru = Transaksi::terbaru(5);
 (function () {
     var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // 1. Trigger animasi tumbuh batang grafik 7 hari & bar menu terlaris
     var chartGrid = document.getElementById('chart-7d-grid');
     var topList   = document.getElementById('top-menu-list');
 
@@ -319,7 +304,6 @@ $transaksi_terbaru = Transaksi::terbaru(5);
         });
     }
 
-    // 2. Animasi Count-Up 650ms pada 4 kartu statistik
     if (reducedMotion) {
         return;
     }

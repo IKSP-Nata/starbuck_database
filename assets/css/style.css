@@ -1,13 +1,4 @@
-/* ==========================================================================
-   Starbuck POS - Sistem Desain Resmi Starbucks
-   Dimuat SETELAH CSS Bootstrap di include/header.php.
-   Catatan: CSS Bootstrap lokal memakai @layer, sehingga aturan tanpa layer
-   di file ini selalu menang tanpa perlu !important.
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   1. Palet Warna & Variabel Desain Resmi Starbucks
-   -------------------------------------------------------------------------- */
+/* Dimuat setelah Bootstrap (@layer), sehingga aturan tanpa @layer di sini menang tanpa !important. */
 :root {
     --bg-canvas: #F7F5F0;
     --bg-surface: #FFFFFF;
@@ -25,7 +16,6 @@
     --radius-card: 16px;
     --radius-control: 12px;
 
-    /* Alias kompatibilitas & sistem tipografi duet */
     --bg-main: var(--bg-canvas);
     --primary-brand-hover: var(--primary-hover);
     --text-primary: var(--text-main);
@@ -36,19 +26,15 @@
     --primary-coffee: var(--primary-brand);
     --danger-soft-text: var(--danger-terracotta);
     --shadow-soft: none;
-    --sidebar-width: 110px;
+    --sidebar-width: 220px;
     --focus-ring: 0 0 0 3px rgba(0, 117, 74, 0.18);
     --transition-fast: 180ms ease;
     --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     --font-sans: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
 
-    /* Paksa tema terang agar tidak ikut dark mode sistem operasi */
     color-scheme: light;
 }
 
-/* --------------------------------------------------------------------------
-   2. Dasar & Duet Tipografi (Plus Jakarta Sans + Inter)
-   -------------------------------------------------------------------------- */
 html,
 body {
     background-color: var(--bg-canvas);
@@ -127,7 +113,6 @@ a {
     color: var(--text-muted) !important;
 }
 
-/* Angka metrik & nominal: digit sejajar */
 .num,
 .tabular-nums,
 .metric-value,
@@ -158,9 +143,6 @@ a {
     color: var(--text-muted);
 }
 
-/* --------------------------------------------------------------------------
-   3. Layout: sidebar kiri + area konten (PRD 4.1)
-   -------------------------------------------------------------------------- */
 .skip-link {
     position: absolute;
     top: -100px;
@@ -188,31 +170,40 @@ a {
     z-index: 1030;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     width: var(--sidebar-width);
-    padding: 28px 0 24px;
-    background: var(--bg-surface);
-    border-right: 1px solid var(--border-soft);
-    border-radius: 0;
+    padding: 24px 0;
+    background: linear-gradient(180deg, #006241 0%, #1E3932 65%, #12241F 100%);
+    border-right: none;
+    border-radius: 0 28px 28px 0;
     box-shadow: none;
 }
 
-.sb-brand {
+.sb-sidebar-header {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0 22px;
+    margin-bottom: 34px;
+}
+
+.sb-brand {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    margin-bottom: 32px;
+    margin-bottom: 0;
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--primary-brand);
+    color: #FFFFFF;
     text-decoration: none;
     text-align: center;
 }
 
 .sb-brand:hover {
-    color: var(--accent-active);
+    color: var(--accent-soft);
 }
 
 .sidebar-brand-logo {
@@ -221,9 +212,10 @@ a {
     object-fit: cover;
     border-radius: 50%;
     display: block;
-    margin: 0 auto;
+    margin: 0;
+    background-color: #FFFFFF;
     box-shadow: none;
-    border: 1px solid var(--border-soft);
+    border: 2px solid rgba(255, 255, 255, 0.24);
     transition: transform var(--transition-fast);
 }
 
@@ -236,14 +228,14 @@ a {
     font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--primary-brand);
+    color: #FFFFFF;
 }
 
 .sb-nav,
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
     margin: 0;
     padding: 0 12px;
@@ -257,10 +249,10 @@ a {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    min-height: 68px;
-    padding: 12px 4px;
+    min-height: 60px;
+    padding: 10px 8px;
     font-family: var(--font-display);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     line-height: 1.2;
     text-align: center;
@@ -297,170 +289,157 @@ a {
 @media (min-width: 992px) {
     .sb-sidebar,
     .sidebar {
+        width: 220px;
         overflow: visible;
-        border-right: 1px solid var(--border-soft);
     }
 
     .sb-sidebar .sidebar-nav {
         position: relative;
-        gap: 6px;
+        gap: 10px;
         padding: 0;
+    }
+
+    .sb-sidebar .sidebar-nav > li {
+        width: 100%;
     }
 
     .sb-sidebar .sidebar-nav .nav-link {
         position: relative;
         z-index: 2;
-        width: 100%;
-        height: 78px;
-        min-height: 78px;
-        padding: 8px 0;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 14px;
+        height: 58px;
+        min-height: 58px;
+        margin: 0 12px 0 16px;
+        padding: 0 14px 0 10px;
+        font-size: 15.5px;
+        font-weight: 500;
+        text-align: left;
+        color: rgba(255, 255, 255, 0.86);
         background-color: transparent;
-        border-radius: 0;
-        transition: color var(--transition-fast);
+        border-radius: 999px;
+        transition: background-color var(--transition-fast), color var(--transition-fast);
     }
 
     .sb-sidebar .sidebar-nav .nav-link:hover {
-        color: var(--primary-brand);
-        background-color: transparent;
+        color: #FFFFFF;
+        background-color: rgba(255, 255, 255, 0.08);
     }
 
     .sb-sidebar .sidebar-nav .nav-icon-wrap {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
-        transform: translate(0, 0);
-        transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1), color var(--transition-fast);
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.92);
+        transition: background-color 250ms ease, color 250ms ease;
+    }
+
+    .sb-sidebar .sidebar-nav .nav-link:hover .nav-icon-wrap {
+        background-color: rgba(255, 255, 255, 0.14);
+        color: #FFFFFF;
     }
 
     .sb-sidebar .sidebar-nav .nav-link .bi {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        font-size: 19px;
         transition: color var(--transition-fast);
     }
 
     .sb-sidebar .sidebar-nav .nav-label {
         display: block;
-        width: 100%;
-        padding: 0 6px;
-        line-height: 16px;
         white-space: nowrap;
-        transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1), padding 300ms cubic-bezier(0.22, 1, 0.36, 1), color var(--transition-fast);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.25;
+        transition: color var(--transition-fast);
     }
 
     .sb-sidebar .sidebar-nav .nav-link.active,
     .sb-sidebar .sidebar-nav .nav-link.active:hover {
-        color: var(--accent-active);
+        color: var(--primary-brand);
         background-color: transparent;
+        font-weight: 600;
     }
 
-    /* Ikon berpindah tepat ke tengah lingkaran indikator aktif */
-    .sb-sidebar .sidebar-nav .nav-link.active .nav-icon-wrap {
-        color: #FFFFFF;
-        transform: translate(51.5px, 11px);
+    .sb-sidebar .sidebar-nav .nav-link.active .nav-icon-wrap,
+    .sb-sidebar .sidebar-nav .nav-link.active:hover .nav-icon-wrap {
+        background-color: rgba(0, 117, 74, 0.14);
+        color: var(--primary-brand);
     }
 
     .sb-sidebar .sidebar-nav .nav-link.active .bi {
-        color: #FFFFFF;
+        color: var(--primary-brand);
     }
 
-    /* Teks label tampil di sisi kiri sidebar dengan padding-right memadai */
     .sb-sidebar .sidebar-nav .nav-link.active .nav-label {
-        color: var(--accent-active);
+        color: var(--primary-brand);
         font-weight: 600;
-        padding-left: 6px;
-        padding-right: 36px;
-        transform: translateY(-15px);
     }
 
-    /* Curved Protruding Circle Indicator menonjol di tepi kanan sidebar */
+    /* Inverted-curve active tab: box-shadow pada ::before dan ::after mengisi sudut cekung ke kanvas #F7F5F0. */
     .nav-curve-indicator {
         display: block;
         position: absolute;
         top: 0;
-        right: -25px;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
+        left: 16px;
+        right: 0;
+        width: auto !important;
+        height: 58px;
         background-color: var(--bg-canvas);
-        border: 6px solid var(--bg-canvas);
+        border-radius: 999px 0 0 999px;
+        border: none;
+        box-shadow: 4px 0 0 0 var(--bg-canvas);
         z-index: 1;
         pointer-events: none;
         opacity: 0;
-        transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1), opacity 150ms ease;
+        transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1), opacity 150ms ease;
     }
 
-    .nav-curve-core {
-        display: block;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background-color: var(--accent-active);
-        transform-origin: center center;
-    }
-
-    /* Lekukan halus (curved cutout) atas dan bawah menyatu dengan latar #F7F5F0 */
     .nav-curve-indicator::before,
     .nav-curve-indicator::after {
         content: "";
         position: absolute;
-        right: 19px;
-        width: 18px;
-        height: 18px;
+        right: 0;
+        width: 20px;
+        height: 20px;
         background: transparent;
         pointer-events: none;
     }
 
     .nav-curve-indicator::before {
-        top: -22px;
-        border-bottom-right-radius: 18px;
-        box-shadow: 6px 6px 0 0 var(--bg-canvas);
+        top: -20px;
+        border-bottom-right-radius: 20px;
+        box-shadow: 6px 6px 0 6px var(--bg-canvas);
     }
 
     .nav-curve-indicator::after {
-        bottom: -22px;
-        border-top-right-radius: 18px;
-        box-shadow: 6px -6px 0 0 var(--bg-canvas);
-    }
-
-    /* Idle animation halus pada lingkaran aktif dan ikon di dalamnya */
-    @keyframes sbNavBubbleIdle {
-        0%, 100% {
-            transform: translateY(0) scale(1);
-        }
-        50% {
-            transform: translateY(-2px) scale(1.06);
-        }
-    }
-
-    @keyframes sbNavIconIdle {
-        0%, 100% {
-            transform: translateY(0) scale(1);
-        }
-        50% {
-            transform: translateY(-2px) scale(1.06);
-        }
-    }
-
-    .nav-curve-indicator.is-idle .nav-curve-core {
-        animation: sbNavBubbleIdle 3s ease-in-out infinite;
-    }
-
-    .sb-sidebar .sidebar-nav .nav-link.active.is-idle .nav-icon-wrap .bi {
-        animation: sbNavIconIdle 3s ease-in-out infinite;
+        bottom: -20px;
+        border-top-right-radius: 20px;
+        box-shadow: 6px -6px 0 6px var(--bg-canvas);
     }
 }
 
-/* Navbar atas untuk layar kecil (disembunyikan di desktop) */
 .sb-topbar {
     display: none;
 }
 
-.sb-content {
+.sb-content,
+.main-content {
     min-height: 100vh;
-    margin-left: var(--sidebar-width);
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    max-width: calc(100vw - 220px);
+    min-width: 0;
     padding: 32px;
     background-color: var(--bg-main);
 }
@@ -537,8 +516,12 @@ a {
         padding: 10px 4px;
     }
 
-    .sb-content {
+    .sb-content,
+    .main-content {
         margin-left: 0;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
         padding: 24px 20px;
     }
 
@@ -552,7 +535,8 @@ a {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .sb-content {
+    .sb-content,
+    .main-content {
         padding: 20px 16px;
     }
 
@@ -585,11 +569,6 @@ a {
     }
 }
 
-/* --------------------------------------------------------------------------
-   4. Komponen dasar (Gaya Flat & Pill Resmi Starbucks)
-   -------------------------------------------------------------------------- */
-
-/* Kartu & Panel */
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border-soft);
@@ -610,7 +589,6 @@ a {
     overflow: hidden;
 }
 
-/* Kartu sorotan editorial utama (#1E3932) */
 .card-soft.card-forest {
     background-color: var(--primary-brand);
     border-color: var(--primary-brand);
@@ -638,7 +616,6 @@ a {
     margin-inline: auto;
 }
 
-/* Tombol Pil Starbucks */
 .btn-coffee,
 .btn-coffee-outline,
 .btn-neutral-outline,
@@ -760,7 +737,6 @@ a {
     pointer-events: none;
 }
 
-/* Tautan teks, contoh: "Lihat Data →" */
 .link-arrow {
     display: inline-flex;
     align-items: center;
@@ -778,7 +754,6 @@ a {
     text-underline-offset: 3px;
 }
 
-/* Form: label di atas input, tanpa form-floating */
 .form-label {
     display: block;
     margin-bottom: 8px;
@@ -832,7 +807,6 @@ a {
     background-color: var(--bg-subtle);
 }
 
-/* Tabel (pengganti tabel Bootstrap default) */
 .table-wrap {
     width: 100%;
     overflow-x: auto;
@@ -893,7 +867,6 @@ a {
     font-variant-numeric: tabular-nums;
 }
 
-/* Avatar inisial pengganti foto produk (lingkaran lembut & house green) */
 .avatar-initial {
     display: inline-flex;
     flex-shrink: 0;
@@ -909,7 +882,6 @@ a {
     border-radius: 50%;
 }
 
-/* Bingkai lingkaran halus & foto produk pada kartu menu / daftar produk */
 .product-thumb-frame {
     display: inline-flex;
     align-items: center;
@@ -936,7 +908,6 @@ a {
     border: 1px solid var(--border-soft);
 }
 
-/* Garis putus-putus sebelum Total */
 .dashed-divider {
     height: 0;
     margin: 16px 0;
@@ -945,7 +916,6 @@ a {
     opacity: 1;
 }
 
-/* Status kosong yang berkarakter */
 .empty-state {
     padding: 24px 16px;
     font-size: 14px;
@@ -953,7 +923,6 @@ a {
     color: var(--text-muted);
 }
 
-/* Search box dengan ikon kaca pembesar (PRD 2.4 & 4.5) */
 .search-box {
     position: relative;
     width: 100%;
@@ -974,7 +943,6 @@ a {
     background-color: var(--bg-surface);
 }
 
-/* Kartu menu POS yang dapat diklik (PRD 4.5) */
 .menu-card {
     position: relative;
     display: flex;
@@ -1055,7 +1023,6 @@ a {
     color: var(--accent-active);
 }
 
-/* Panel Bills & kontrol kuantitas (PRD 4.5) */
 .bills-panel {
     position: sticky;
     top: 24px;
@@ -1065,6 +1032,75 @@ a {
     padding: 16px;
     background-color: var(--bg-subtle);
     border-radius: var(--radius-control);
+}
+
+.btn-close-config {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: transparent;
+    color: var(--text-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-close-config:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+    color: var(--text-main);
+}
+
+.cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cart-item-row {
+    padding: 14px 16px;
+    background-color: var(--bg-subtle);
+    border-radius: var(--radius-control);
+}
+
+.btn-cart-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--danger-soft-bg);
+    color: var(--danger-terracotta);
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-cart-remove:hover {
+    background-color: var(--danger-terracotta);
+    color: #FFFFFF;
+}
+
+.qty-btn-sm {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+}
+
+.qty-input-sm {
+    width: 54px;
+    min-height: 30px;
+    padding: 2px 6px;
+    font-size: 14px;
 }
 
 .qty-control {
@@ -1135,7 +1171,6 @@ a {
     color: var(--text-primary);
 }
 
-/* Kustomisasi Minuman (Collapse Halus & Chip Pilihan Suhu/Gula) */
 .drink-custom-collapse {
     display: grid;
     grid-template-rows: 0fr;
@@ -1204,7 +1239,6 @@ a {
     box-shadow: var(--focus-ring);
 }
 
-/* Badge kategori produk & indikator lembut */
 .badge-mint,
 .badge-category {
     display: inline-flex;
@@ -1242,7 +1276,6 @@ a {
     border-radius: 50px;
 }
 
-/* Toast notifikasi di pojok kanan atas */
 .sb-toast-container {
     position: fixed;
     top: 20px;
@@ -1304,7 +1337,6 @@ a {
     color: var(--text-main);
 }
 
-/* Grafik Batang 7 Hari Terakhir & Daftar Menu Terlaris (Dashboard) */
 .chart-7d-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1456,7 +1488,6 @@ a {
     }
 }
 
-/* Modal konfirmasi hapus & pratinjau struk 80mm Bootstrap */
 .sb-modal .modal-content {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-soft);
@@ -1578,9 +1609,6 @@ a {
     color: var(--text-muted);
 }
 
-/* --------------------------------------------------------------------------
-   5. Aksesibilitas & gerak
-   -------------------------------------------------------------------------- */
 :focus-visible {
     outline: 2px solid var(--accent-active);
     outline-offset: 2px;
@@ -1608,9 +1636,6 @@ a {
     }
 }
 
-/* --------------------------------------------------------------------------
-   6. Cetak: sembunyikan navigasi & toast
-   -------------------------------------------------------------------------- */
 @media print {
     .sb-sidebar,
     .sb-topbar,

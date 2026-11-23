@@ -13,9 +13,7 @@ class PilihanPesanan
     }
 
     /**
-     * Susun dan validasi catatan kustomisasi (Penyajian, Ukuran, Gula) khusus kategori Minuman.
-     * Mendukung format 3 bagian ("Ice, Medium, Less sugar") maupun 2 bagian lama ("Ice, Less sugar").
-     * Untuk kategori Tambahan atau Makanan, selalu mengembalikan null.
+     * Kustomisasi suhu/ukuran/gula hanya berlaku untuk Minuman; mendukung format 3 dan 2 bagian.
      */
     public static function susunCatatan(
         ?string $kategori,

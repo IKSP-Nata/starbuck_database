@@ -2,17 +2,11 @@
 
 class Format
 {
-    /**
-     * Format angka menjadi "Rp 45.000".
-     */
     public static function rupiah($nominal): string
     {
         return 'Rp ' . number_format((float)$nominal, 0, ',', '.');
     }
 
-    /**
-     * Format angka menjadi nominal ringkas untuk grafik ("Rp 125rb", "Rp 1,2jt", "Rp 0").
-     */
     public static function rupiahRingkas($nominal): string
     {
         $angka = (float)$nominal;
@@ -29,9 +23,6 @@ class Format
         return self::rupiah($angka);
     }
 
-    /**
-     * Format tanggal YYYY-MM-DD menjadi "18 Nov 2026".
-     */
     public static function tanggalIndo(?string $ymd): string
     {
         $ymd = trim((string)$ymd);
@@ -50,17 +41,11 @@ class Format
         return $ymd;
     }
 
-    /**
-     * Alias untuk tanggalIndo().
-     */
     public static function tanggal(?string $ymd): string
     {
         return self::tanggalIndo($ymd);
     }
 
-    /**
-     * Format bulan YYYY-MM menjadi "November 2026".
-     */
     public static function bulanIndo(?string $ym): string
     {
         $ym = trim((string)$ym);
@@ -76,17 +61,11 @@ class Format
         return $ym;
     }
 
-    /**
-     * Format waktu WITA.
-     */
     public static function waktuWita(?string $waktu): string
     {
         return trim((string)$waktu);
     }
 
-    /**
-     * Alias untuk waktuWita().
-     */
     public static function waktu(?string $waktu): string
     {
         return self::waktuWita($waktu);

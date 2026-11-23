@@ -4,12 +4,8 @@ class Upload
 {
     public const ALLOWED_EXT  = ['jpg', 'jpeg', 'png', 'webp'];
     public const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
-    public const MAX_SIZE     = 2097152; // 2 MB
+    public const MAX_SIZE     = 2097152;
 
-    /**
-     * Validasi dan simpan file foto produk yang diunggah.
-     * Mengembalikan ['ok' => bool, 'filename' => ?string, 'error' => ?string].
-     */
     public static function unggahGambar(?array $file, string $uploadDir): array
     {
         if (!isset($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
@@ -57,9 +53,6 @@ class Upload
         return ['ok' => true, 'filename' => $newFilename, 'error' => null];
     }
 
-    /**
-     * Hapus file foto produk dari direktori penyimpanan jika ada.
-     */
     public static function hapusGambar(?string $filename, string $uploadDir): void
     {
         $clean = trim((string)$filename);

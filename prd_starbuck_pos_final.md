@@ -66,10 +66,11 @@ Setiap transaksi baru wajib mengisi kolom berikut secara utuh (tanpa merusak dat
 
 ## 3. Aturan Keras (Hard Rules)
 
-1. **Logika Perhitungan Transaksi:**
-   - 1 transaksi = 1 jenis menu dengan jumlah beli (`kuantitas >= 1`).
-   - Rumus: `subtotal = harga * kuantitas`, `pajak = round(subtotal * 0.11)` (pajak dikunci 11%), dan `total = subtotal + pajak`.
-   - Dihitung secara *real-time* di JavaScript untuk pratinjau kasir, dan **wajib dihitung ulang di server (PHP)** saat penyimpanan. Pilihan ukuran gelas (`Small`, `Medium`, `Large`), suhu, dan gula tidak mengubah harga produk.
+1. **Logika Perhitungan Transaksi Multi-Item (Keranjang Pesanan):**
+   - 1 transaksi (nota) dapat memuat **banyak item menu** (*Multi-Item Cart*), masing-masing dengan jumlah beli (`kuantitas >= 1`) dan `catatan` kustomisasi tersendiri di tabel `detail_transaksi` yang terhubung ke 1 baris `transaksi` dan `id_nota` yang sama (contoh: `Chk 2651`).
+   - Rumus per item: `kuantitas_harga = harga * kuantitas`.
+   - Rumus nota: `subtotal = SUM(kuantitas_harga)`, `pajak = round(subtotal * 0.11)` (pajak dikunci 11%), dan `total = subtotal + pajak`.
+   - Dihitung secara *real-time* di JavaScript untuk pratinjau keranjang kasir, dan **wajib dihitung ulang di server (PHP)** berdasarkan harga asli dari tabel `produk` saat penyimpanan. Pilihan ukuran gelas (`Small`, `Medium`, `Large`), suhu, dan gula tidak mengubah harga produk.
 2. **Larangan Fitur Dummy:**
    - Dilarang menampilkan stok produk, metode pembayaran (*Payment Method*), diskon/promo, maupun **kalkulator uang tunai/kembalian** di panel *Bills*.
 3. **Riwayat Transaksi Bersifat Read-Only & Berfilter Periode:**
@@ -137,13 +138,13 @@ Hanya menganimasikan properti `transform` dan `opacity`, serta wajib mematikan a
 ## 5. Spesifikasi Detail Per Halaman
 
 ### 5.1 Layout & Navigasi Sidebar (`include/header.php`, `include/footer.php`)
-- **Sidebar Desktop (`>= 992px`):** Posisi `fixed` di kiri, lebar `110px`, latar `#FFFFFF`, `border-right: 1px solid var(--border-soft)`.
-- **Logo Brand:** Bagian paling atas sidebar menampilkan logo Starbucks (`assets/img/logo-starbuck.png`, ukuran `48x48px`, `border-radius: 50%`) yang mengarah ke `dashboard.php`, dengan fallback teks `Starbuck` jika gambar gagal dimuat.
-- **Item Navigasi & Indikator Aktif (Curved Protruding Circle Indicator + Idle Animation):**
-  - 4 menu vertikal: **Dashboard**, **Kasir**, **Produk**, **Transaksi**. Untuk item non-aktif, ikon outline (`20px`) tampil tepat di atas label teks (`12px`) secara rata tengah.
-  - **Indikator Aktif Menonjol dengan Lekukan Halus:** Menggunakan elemen `.nav-curve-indicator` berbentuk lingkaran (`56px`, warna `var(--accent-active)` `#00754A`, bingkai `#F7F5F0`) yang menonjol keluar di tepi kanan sidebar dengan lekukan halus (*curved cutout*) atas dan bawah menyatu dengan latar `#F7F5F0`.
-  - Saat menu berstatus `.active`, ikon menu berpindah masuk ke tengah lingkaran `.nav-curve-indicator` berwarna putih `#FFFFFF`, sementara teks label menu tampil di sisi kiri dalam sidebar dengan `padding-right` yang cukup agar tidak bertabrakan dengan lingkaran.
-  - Menggunakan JavaScript (`sessionStorage`) agar indikator meluncur vertikal halus (`transform 400ms cubic-bezier(0.22, 1, 0.36, 1)`), diikuti *idle animation* bernapas/mengambang lembut (`@keyframes` `3s ease-in-out infinite`) pada lingkaran aktif dan ikon di dalamnya setelah transisi selesai (nonaktif otomatis pada `prefers-reduced-motion: reduce`).
+- **Sidebar Desktop (`>= 992px`):** Posisi `fixed` di kiri, lebar permanen `220px` (*Fixed Expanded Sidebar*, tanpa tombol collapse), latar hijau gelap Starbucks (`linear-gradient(180deg, #006241 0%, #1E3932 65%, #12241F 100%)`) dengan sudut luar kanan membulat (`border-radius: 0 28px 28px 0`).
+- **Header Sidebar:** Bagian atas sidebar memuat logo Starbucks (`assets/img/logo-starbuck.png`, ukuran `48x48px`, `border-radius: 50%`) yang mengarah ke `dashboard.php`.
+- **Item Navigasi & Inverted-Curve Active Tab:**
+  - 4 menu vertikal: **Dashboard**, **Kasir**, **Produk**, **Transaksi** yang selalu menampilkan ikon di kiri (`38x38px`) dan teks label di kanan.
+  - Untuk menu tidak aktif, ikon dan teks berwarna putih transparan halus (`rgba(255, 255, 255, 0.86)`) dengan efek hover tipis (`background: rgba(255, 255, 255, 0.08)`).
+  - **Active Tab Inverted-Curve (`.nav-curve-indicator`):** Saat item berstatus `.active`, latar tab berubah menjadi krem kanvas utama (`var(--bg-canvas)` `#F7F5F0`) berbentuk kapsul (`border-radius: 999px 0 0 999px`) yang menempel presisi ke sisi kanan sidebar (`right: 0`), dilengkapi lengkungan sudut cekung (*inverted border-radius* dengan `top: -20px`, `bottom: -20px`, dan `box-shadow` berwarna `--bg-canvas` pada `::before` dan `::after`) sehingga menyatu tanpa celah dengan area konten utama `#F7F5F0` (`margin-left: 220px; width: calc(100% - 220px); max-width: calc(100vw - 220px); min-width: 0;`). Teks dan ikon menu aktif berwarna hijau gelap tebal (`var(--primary-brand)` `#1E3932`).
+  - Menggunakan JavaScript (`sessionStorage`) agar tab aktif meluncur vertikal halus (`transform 350ms cubic-bezier(0.22, 1, 0.36, 1)`).
 - **Layar Mobile (`< 992px`):** Sidebar berubah menjadi navbar atas yang rapi dengan tombol *collapse* Bootstrap.
 
 ### 5.2 Dashboard Operasional (`pages/dashboard.php`)
@@ -181,23 +182,24 @@ Menggunakan tata letak *split-screen* kasir: `col-lg-7` (Katalog Pilih Menu di k
 - Kartu menu yang sedang dipilih memiliki border hijau `2px solid var(--accent-active)` dan lencana ikon centang kecil (`.menu-card-check`) di pojok kanan atas.
 - Mendukung prapilih otomatis apabila halaman dibuka dengan parameter URL `?id_produk=ID`.
 
-**B. Kolom Kanan — Panel Bills (Sticky):**
+**B. Kolom Kanan — Panel Bills & Keranjang Multi-Item (Sticky):**
 1. **Header Bills:** Judul `Bills` dan subjudul `Ringkasan Transaksi`.
 2. **Kasir Bertugas (Wajib):** `<label class="form-label fw-medium">Kasir Bertugas</label>` diikuti `<select name="id_kasir" id="id_kasir" class="form-select" required>` yang memuat seluruh daftar kasir dari tabel `kasir`. Simpan pilihan kasir terakhir di `localStorage` (di dalam `try/catch`) agar kasir tidak perlu memilih ulang setiap transaksi.
-3. **Item Terpilih & Kuantitas:** Menampilkan foto thumbnail/inisial, nama produk, harga satuan, serta tombol pengatur kuantitas (`-` / angka / `+`, minimal 1, tanpa tombol pintas 1x/2x/5x). Jika belum ada produk dipilih, tampilkan pesan status kosong yang rapi.
-4. **Pilihan Kustomisasi Minuman (Kondisional — Hanya untuk `kategori === 'Minuman'`):**
-   - Bagian ini **hanya tampil** (membuka halus) apabila produk yang dipilih memiliki `data-kategori="Minuman"`.
-   - **Ukuran Gelas:** Tombol chip `<button type="button">` dengan opsi **`Small`**, **`Medium`**, dan **`Large`** (tanpa mengubah harga produk).
-   - **Penyajian (Suhu):** Tombol chip `<button type="button">` dengan opsi **`Ice`** dan **`Hot`** (default: **`Ice`**).
-   - **Tingkat Gula (Sugar Level):** Tombol chip `<button type="button">` dengan opsi **`No sugar`**, **`Less sugar`**, **`Normal`**, dan **`High sugar`**.
-   - **Penyesuaian Default Cerdas Berdasarkan Nama Minuman:**
-     - **Ukuran Gelas:** Jika nama minuman mengandung `Tall` $\rightarrow$ pilih **`Small`**; jika mengandung `Grande` $\rightarrow$ pilih **`Medium`**; jika mengandung `Venti` $\rightarrow$ pilih **`Large`**; selain itu default **`Medium`**.
-     - **Tingkat Gula:** Jika nama minuman mengandung kata **`Americano`**, **`Pike Place`**, atau **`Espresso`** (kopi hitam tanpa susu), otomatis atur pilihan default gula ke **`No sugar`**; untuk minuman lainnya default **`Normal`**.
-     - **Penyajian:** Default **`Ice`**.
-   - Ketiga nilai digabungkan ke dalam `<input type="hidden" name="catatan">` dengan format `Penyajian, Ukuran, Gula` (contoh: `Ice, Medium, Less sugar` atau `Hot, Large, No sugar`).
-   - **Untuk Kategori `Tambahan` (`Oat Milk`, `Extra Shot`) atau `Makanan`:** Sembunyikan bagian kustomisasi secara otomatis dan pastikan input `catatan` bernilai kosong (`NULL`).
-5. **Rincian Pembayaran:** Menampilkan `Subtotal`, `Pajak (11%)`, garis pemisah putus-putus `1px dashed var(--border-soft)`, dan **`Total`** (`24px`, `Inter` bold `tabular-nums`).
-6. **Tombol Aksi:** Tombol penuh **Simpan & Cetak Struk** (nonaktif sampai produk dan kasir dipilih) dan tombol outline **Kembali ke Riwayat**. Tanpa input uang bayar/kembalian.
+3. **Kotak Atur Item Terpilih:**
+   - Muncul saat kartu menu di katalog kiri diklik (atau otomatis terbuka apabila URL memiliki `?id_produk=ID`).
+   - Menampilkan foto thumbnail/inisial, nama produk, harga satuan, serta pengatur jumlah item (`-` / angka / `+`, minimal 1).
+   - **Pilihan Kustomisasi Minuman (Kondisional — Hanya untuk `kategori === 'Minuman'`):**
+     - **Ukuran Gelas:** Tombol chip `<button type="button">` dengan opsi **`Small`**, **`Medium`**, dan **`Large`** (tanpa mengubah harga produk; default cerdas: `Tall` $\rightarrow$ `Small`, `Grande` $\rightarrow$ `Medium`, `Venti` $\rightarrow$ `Large`, selain itu `Medium`).
+     - **Penyajian (Suhu):** Tombol chip `<button type="button">` dengan opsi **`Ice`** dan **`Hot`** (default: **`Ice`**).
+     - **Tingkat Gula (Sugar Level):** Tombol chip `<button type="button">` dengan opsi **`No sugar`**, **`Less sugar`**, **`Normal`**, dan **`High sugar`** (default cerdas: `Americano`, `Pike Place`, atau `Espresso` $\rightarrow$ `No sugar`; minuman lainnya $\rightarrow$ `Normal`).
+     - Untuk kategori `Tambahan` atau `Makanan`, bagian kustomisasi otomatis disembunyikan dan `catatan` dikosongkan (`NULL`).
+   - Menyediakan tombol penuh **`+ Tambah ke Keranjang`**.
+4. **Bagian Daftar Pesanan (Cart Multi-Item):**
+   - Mengelola array keranjang di JavaScript. Jika kasir menambahkan `id_produk` dan `catatan` yang sama persis, kuantitas item tersebut ditambah; jika berbeda `catatan` atau produk, ditambahkan sebagai baris baru.
+   - Setiap baris keranjang menampilkan nama menu, badge kecil `catatan` (bila ada), harga satuan, kontrol kuantitas (`-` / angka / `+`), subtotal item (`harga * qty`), dan tombol hapus item.
+   - Menghasilkan input tersembunyi `items[index][id_produk]`, `items[index][kuantitas]`, dan `items[index][catatan]` untuk dikirim saat form disubmit.
+5. **Rincian Pembayaran:** Menampilkan `Subtotal` (akumulasi seluruh item keranjang), `Pajak (11%)`, garis pemisah putus-putus `1px dashed var(--border-soft)`, dan **`Total`** (`24px`, `Inter` bold `tabular-nums`).
+6. **Tombol Aksi:** Tombol penuh **Simpan & Cetak Struk** (aktif apabila minimal ada 1 item di keranjang dan kasir bertugas sudah dipilih) dan tombol outline **Kembali ke Riwayat**. Tanpa input uang bayar/kembalian.
 
 ### 5.6 Riwayat Transaksi, Modal Pratinjau Struk 80mm, & Laporan (`pages/transactions/`)
 - **`list.php` (Filter Periode Wajib WITA, Pencarian Cepat, & Modal Pratinjau Struk):**
@@ -263,7 +265,6 @@ app/
 
 ## 9. Hal yang Dikecualikan (Out of Scope)
 - Tidak ada banner *hero* interaktif ala *landing page*, animasi GSAP, atau partikel biji kopi.
-- Tidak ada keranjang multi-item dalam satu transaksi (tetap 1 jenis menu per transaksi sesuai struktur form tugas).
 - Tidak ada kolom stok produk maupun kalkulator uang bayar/kembalian.
 
 ---

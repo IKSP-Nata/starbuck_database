@@ -11,9 +11,6 @@ class Flash
         }
     }
 
-    /**
-     * Simpan pesan notifikasi Toast ke session.
-     */
     public static function set(string $type, string $message): void
     {
         self::pastikanSession();
@@ -23,9 +20,6 @@ class Flash
         ];
     }
 
-    /**
-     * Ambil lalu hapus pesan notifikasi Toast dari session.
-     */
     public static function get(): ?array
     {
         self::pastikanSession();

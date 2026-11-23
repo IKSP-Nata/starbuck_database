@@ -8,9 +8,6 @@ class Database
     {
     }
 
-    /**
-     * Ambil instance singleton koneksi MySQLi dengan zona waktu WITA (+08:00).
-     */
     public static function ambilKoneksi(): mysqli
     {
         date_default_timezone_set('Asia/Makassar');
@@ -29,9 +26,6 @@ class Database
         return self::$koneksi;
     }
 
-    /**
-     * Jalankan prepared statement dan kembalikan objek mysqli_stmt.
-     */
     public static function siapkan(string $sql, string $types = '', array $params = [])
     {
         $conn = self::ambilKoneksi();
@@ -45,9 +39,6 @@ class Database
         return $stmt;
     }
 
-    /**
-     * Ambil seluruh baris hasil query sebagai array asosiatif.
-     */
     public static function ambilSemua(string $sql, string $types = '', array $params = []): array
     {
         $conn = self::ambilKoneksi();
@@ -79,9 +70,6 @@ class Database
         return $rows;
     }
 
-    /**
-     * Ambil satu baris pertama hasil query.
-     */
     public static function ambilSatu(string $sql, string $types = '', array $params = []): ?array
     {
         $rows = self::ambilSemua($sql, $types, $params);

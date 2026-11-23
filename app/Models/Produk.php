@@ -15,9 +15,6 @@ class Produk
         return self::$kolomIdCache;
     }
 
-    /**
-     * Ambil seluruh daftar produk.
-     */
     public static function semua(string $orderBy = ''): array
     {
         $colId = self::kolomId();
@@ -25,9 +22,6 @@ class Produk
         return Database::ambilSemua("SELECT * FROM produk $orderClause");
     }
 
-    /**
-     * Cari satu produk berdasarkan ID.
-     */
     public static function cari(int $id): ?array
     {
         if ($id <= 0) {
@@ -37,9 +31,6 @@ class Produk
         return Database::ambilSatu("SELECT * FROM produk WHERE $colId = ? LIMIT 1", 'i', [$id]);
     }
 
-    /**
-     * Cek apakah produk belum pernah dipakai di detail_transaksi.
-     */
     public static function bisaDihapus(int $id): bool
     {
         if ($id <= 0) {
@@ -49,9 +40,6 @@ class Produk
         return ((int)($row['jml'] ?? 0)) === 0;
     }
 
-    /**
-     * Tambah produk baru ke database.
-     */
     public static function tambah(string $nama, float $harga, string $kategori, ?string $gambar): array
     {
         $conn = Database::ambilKoneksi();
@@ -70,9 +58,6 @@ class Produk
         return ['ok' => (bool)$ok, 'error' => $ok ? null : $err];
     }
 
-    /**
-     * Ubah data produk berdasarkan ID.
-     */
     public static function ubah(int $id, string $nama, float $harga, string $kategori, ?string $gambar): array
     {
         $conn = Database::ambilKoneksi();
@@ -92,9 +77,6 @@ class Produk
         return ['ok' => (bool)$ok, 'error' => $ok ? null : $err];
     }
 
-    /**
-     * Hapus produk jika tidak terikat pada riwayat transaksi.
-     */
     public static function hapus(int $id): array
     {
         if ($id <= 0) {

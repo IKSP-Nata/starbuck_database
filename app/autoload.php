@@ -1,6 +1,5 @@
 <?php
 spl_autoload_register(function ($class) {
-    // Hilangkan namespace prefix "App\" jika ada
     $relative = preg_replace('/^App\\\\/', '', ltrim($class, '\\'));
     $relativePath = str_replace('\\', '/', $relative);
 

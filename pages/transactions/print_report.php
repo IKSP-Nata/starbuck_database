@@ -243,14 +243,11 @@ $total_pendapatan = $riwayat['total_pendapatan'];
                             <?php if (empty($row['items'])): ?>
                                 -
                             <?php else: ?>
-                                <?php $is_multi = count($row['items']) > 1; ?>
                                 <?php foreach ($row['items'] as $idx_item => $item): ?>
                                     <div style="<?php echo $idx_item > 0 ? 'margin-top: 6px;' : ''; ?>">
                                         <div>
                                             <?php echo htmlspecialchars($item['nama_produk'], ENT_QUOTES, 'UTF-8'); ?>
-                                            <?php if ($is_multi): ?>
-                                                <span class="tabular-nums" style="color: var(--text-muted);">(x<?php echo (int)$item['kuantitas']; ?>)</span>
-                                            <?php endif; ?>
+                                            <span class="tabular-nums" style="color: var(--text-muted);">(<?php echo (int)$item['kuantitas']; ?>x)</span>
                                         </div>
                                         <?php if ($item['catatan'] !== ''): ?>
                                             <div><span class="note-badge"><?php echo htmlspecialchars($item['catatan'], ENT_QUOTES, 'UTF-8'); ?></span></div>

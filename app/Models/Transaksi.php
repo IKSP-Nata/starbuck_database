@@ -2,9 +2,6 @@
 
 class Transaksi
 {
-    /**
-     * Buat klausa filter periode transaksi (WITA) dari parameter GET.
-     */
     public static function buatFilter(array $params): array
     {
         $conn = Database::ambilKoneksi();
@@ -84,7 +81,7 @@ class Transaksi
     }
 
     /**
-     * Lengkapi array transaksi dengan rincian item, nama kasir, dan catatan dari detail_transaksi.
+     * Ambil rincian item dalam satu batch terpisah agar transaksi multi-item tidak menggandakan baris utama.
      */
     private static function lengkapiDetail(array $transaksiMap): array
     {
@@ -93,7 +90,7 @@ class Transaksi
         }
         $idsSql = implode(',', array_map('intval', array_keys($transaksiMap)));
         $detailRows = Database::ambilSemua(
-            "SELECT dt.id_transaksi, dt.kuantitas, dt.catatan,
+            "SELECT dt.id_transaksi, dt.id_nota, dt.kuantitas, dt.catatan,
                     CASE
                         WHEN dt.harga IS NOT NULL AND dt.harga > 0 THEN dt.harga
                         ELSE p.harga
@@ -114,6 +111,9 @@ class Transaksi
             if ($transaksiMap[$idTrx]['nama_kasir'] === '-' && !empty($det['nama_kasir'])) {
                 $transaksiMap[$idTrx]['nama_kasir'] = $det['nama_kasir'];
             }
+            if (empty($transaksiMap[$idTrx]['id_nota']) && !empty($det['id_nota'])) {
+                $transaksiMap[$idTrx]['id_nota'] = trim((string)$det['id_nota']);
+            }
             if (!empty($det['nama_produk'])) {
                 $qtyItem = ($det['kuantitas'] !== null) ? (int)$det['kuantitas'] : 0;
                 $transaksiMap[$idTrx]['items'][] = [
@@ -132,9 +132,6 @@ class Transaksi
         return $transaksiMap;
     }
 
-    /**
-     * Ambil daftar riwayat transaksi sesuai filter periode beserta total pendapatan.
-     */
     public static function ambilRiwayat(array $filter): array
     {
         $whereSql = $filter['where_sql'] ?? '';
@@ -162,9 +159,6 @@ class Transaksi
         ];
     }
 
-    /**
-     * Ambil N transaksi terbaru untuk ditampilkan di Dashboard.
-     */
     public static function terbaru(int $limit = 5): array
     {
         $limit = max(1, $limit);
@@ -187,9 +181,6 @@ class Transaksi
         return self::lengkapiDetail($map);
     }
 
-    /**
-     * Cari satu transaksi beserta daftar item lengkap untuk cetak struk 80mm.
-     */
     public static function cariDetail(int $idTransaksi): ?array
     {
         if ($idTransaksi <= 0) {
@@ -199,7 +190,7 @@ class Transaksi
         $rows = Database::ambilSemua(
             "SELECT t.id_transaksi, t.subtotal, t.pajak, t.total, t.tanggal, t.waktu,
                     COALESCE(k.nama_kasir, '-') AS nama_kasir,
-                    dt.kuantitas, dt.catatan,
+                    dt.id_nota, dt.kuantitas, dt.catatan,
                     CASE
                         WHEN dt.harga IS NOT NULL AND dt.harga > 0 THEN dt.harga
                         ELSE p.harga
@@ -225,6 +216,7 @@ class Transaksi
             if ($header === null) {
                 $header = [
                     'id_transaksi' => $row['id_transaksi'],
+                    'id_nota'      => !empty($row['id_nota']) ? trim((string)$row['id_nota']) : '',
                     'nama_kasir'   => $row['nama_kasir'],
                     'subtotal'     => (float)$row['subtotal'],
                     'pajak'        => (float)$row['pajak'],
@@ -232,8 +224,13 @@ class Transaksi
                     'tanggal'      => $row['tanggal'],
                     'waktu'        => $row['waktu'],
                 ];
-            } elseif ($header['nama_kasir'] === '-' && $row['nama_kasir'] !== '-') {
-                $header['nama_kasir'] = $row['nama_kasir'];
+            } else {
+                if ($header['nama_kasir'] === '-' && $row['nama_kasir'] !== '-') {
+                    $header['nama_kasir'] = $row['nama_kasir'];
+                }
+                if ($header['id_nota'] === '' && !empty($row['id_nota'])) {
+                    $header['id_nota'] = trim((string)$row['id_nota']);
+                }
             }
 
             if (!empty($row['nama_produk'])) {
@@ -250,9 +247,6 @@ class Transaksi
         return $header;
     }
 
-    /**
-     * Ambil ringkasan 4 metrik statistik utama Dashboard.
-     */
     public static function statistik(): array
     {
         $kasirRow  = Database::ambilSatu("SELECT COUNT(*) AS total FROM kasir");
@@ -267,9 +261,6 @@ class Transaksi
         ];
     }
 
-    /**
-     * Ambil data grafik pendapatan 7 hari terakhir (WITA).
-     */
     public static function pendapatan7Hari(array $hariSingkat): array
     {
         $todayYmd = date('Y-m-d');
@@ -318,9 +309,6 @@ class Transaksi
         ];
     }
 
-    /**
-     * Ambil Top N menu terlaris berdasarkan SUM(kuantitas).
-     */
     public static function menuTerlaris(int $limit = 5): array
     {
         $limit = max(1, $limit);
@@ -348,13 +336,10 @@ class Transaksi
         ];
     }
 
-    /**
-     * Simpan transaksi baru ke tabel transaksi & detail_transaksi menggunakan database transaction.
-     */
-    public static function buat(int $idProduk, int $idKasir, int $kuantitas, ?string $catatanRaw): array
+    public static function buatMulti(int $idKasir, array $rawItems): array
     {
-        if ($idProduk <= 0 || $idKasir <= 0 || $kuantitas < 1) {
-            return ['ok' => false, 'error' => 'Pilih menu, kasir bertugas, dan jumlah beli yang valid.'];
+        if ($idKasir <= 0 || empty($rawItems)) {
+            return ['ok' => false, 'error' => 'Pilih kasir bertugas dan tambahkan minimal 1 item ke keranjang.'];
         }
 
         $kasir = Kasir::cari($idKasir);
@@ -362,33 +347,71 @@ class Transaksi
             return ['ok' => false, 'error' => 'Data kasir bertugas tidak ditemukan.'];
         }
 
-        $produk = Produk::cari($idProduk);
-        if (!$produk) {
-            return ['ok' => false, 'error' => 'Data produk tidak ditemukan.'];
+        $validatedItems = [];
+        $subtotal = 0.0;
+
+        foreach ($rawItems as $raw) {
+            if (!is_array($raw)) {
+                continue;
+            }
+            $idProduk   = isset($raw['id_produk']) ? (int)$raw['id_produk'] : 0;
+            $kuantitas  = isset($raw['kuantitas']) ? (int)$raw['kuantitas'] : 0;
+            $catatanRaw = isset($raw['catatan']) ? trim((string)$raw['catatan']) : '';
+
+            if ($idProduk <= 0 || $kuantitas < 1) {
+                return ['ok' => false, 'error' => 'Terdapat item keranjang dengan produk atau jumlah beli tidak valid.'];
+            }
+
+            $produk = Produk::cari($idProduk);
+            if (!$produk) {
+                return ['ok' => false, 'error' => 'Produk dengan ID #' . $idProduk . ' tidak ditemukan di database.'];
+            }
+
+            $harga    = (float)($produk['harga'] ?? 0);
+            $kategori = trim((string)($produk['kategori'] ?? 'Minuman'));
+            if (!PilihanPesanan::kategoriValid($kategori)) {
+                $kategori = 'Minuman';
+            }
+
+            $catatan        = PilihanPesanan::susunCatatan($kategori, null, null, $catatanRaw);
+            $kuantitasHarga = round($harga * $kuantitas);
+            $subtotal      += $kuantitasHarga;
+
+            $validatedItems[] = [
+                'id_produk'       => $idProduk,
+                'kategori'        => $kategori,
+                'kuantitas'       => $kuantitas,
+                'kuantitas_harga' => $kuantitasHarga,
+                'catatan'         => $catatan,
+                'harga'           => $harga,
+            ];
         }
 
-        $harga    = (float)($produk['harga'] ?? 0);
-        $kategori = trim((string)($produk['kategori'] ?? 'Minuman'));
-        if (!PilihanPesanan::kategoriValid($kategori)) {
-            $kategori = 'Minuman';
+        if (empty($validatedItems)) {
+            return ['ok' => false, 'error' => 'Keranjang pesanan masih kosong.'];
         }
 
-        $catatan  = PilihanPesanan::susunCatatan($kategori, null, null, $catatanRaw);
-        $hitungan = HitungTransaksi::hitung($harga, $kuantitas);
-
-        $subtotal       = $hitungan['subtotal'];
-        $pajak          = $hitungan['pajak'];
-        $total          = $hitungan['total'];
-        $kuantitasHarga = $hitungan['kuantitas_harga'];
-        $tanggal        = date('Y-m-d');
-        $waktu          = date('H:i:s');
+        $subtotal = round($subtotal);
+        $pajak    = round($subtotal * HitungTransaksi::PAJAK);
+        $total    = $subtotal + $pajak;
+        $tanggal  = date('Y-m-d');
+        $waktu    = date('H:i:s');
 
         $conn = Database::ambilKoneksi();
         mysqli_begin_transaction($conn);
 
         try {
+            // Tabel transaksi dan detail_transaksi tidak menggunakan AUTO_INCREMENT, sehingga ID dihitung atomik di dalam transaksi.
             $maxTrxRow   = Database::ambilSatu("SELECT IFNULL(MAX(id_transaksi), 0) + 1 AS next_id FROM transaksi");
             $idTransaksi = (int)($maxTrxRow['next_id'] ?? 1);
+
+            $chkRow     = Database::ambilSatu(
+                "SELECT MAX(CAST(SUBSTRING(id_nota, 5) AS UNSIGNED)) AS max_chk
+                 FROM detail_transaksi
+                 WHERE id_nota LIKE 'Chk %'"
+            );
+            $maxChk     = (int)($chkRow['max_chk'] ?? 2638);
+            $idNota     = 'Chk ' . max(2638 + $idTransaksi, $maxChk + 1);
 
             $stmtTrx = Database::siapkan(
                 "INSERT INTO transaksi (id_transaksi, subtotal, pajak, total, tanggal, waktu) VALUES (?, ?, ?, ?, ?, ?)",
@@ -408,27 +431,53 @@ class Transaksi
             $maxDetRow = Database::ambilSatu("SELECT IFNULL(MAX(id_detail_transaksi), 0) + 1 AS next_id FROM detail_transaksi");
             $idDetail  = (int)($maxDetRow['next_id'] ?? 1);
 
-            $stmtDet = Database::siapkan(
-                "INSERT INTO detail_transaksi (id_detail_transaksi, id_kasir, id_produk, id_transaksi, kategori, kuantitas, kuantitas_harga, catatan, harga)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                'iiiisidsd',
-                [$idDetail, $idKasir, $idProduk, $idTransaksi, $kategori, $kuantitas, $kuantitasHarga, $catatan, $harga]
-            );
-            if (!$stmtDet) {
-                throw new Exception(mysqli_error($conn));
-            }
-            if (!mysqli_stmt_execute($stmtDet)) {
-                $err = mysqli_stmt_error($stmtDet);
+            foreach ($validatedItems as $vItem) {
+                $stmtDet = Database::siapkan(
+                    "INSERT INTO detail_transaksi (id_detail_transaksi, id_kasir, id_produk, id_nota, id_transaksi, kategori, kuantitas, kuantitas_harga, catatan, harga)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    'iiisisidsd',
+                    [
+                        $idDetail,
+                        $idKasir,
+                        $vItem['id_produk'],
+                        $idNota,
+                        $idTransaksi,
+                        $vItem['kategori'],
+                        $vItem['kuantitas'],
+                        $vItem['kuantitas_harga'],
+                        $vItem['catatan'],
+                        $vItem['harga'],
+                    ]
+                );
+                if (!$stmtDet) {
+                    throw new Exception(mysqli_error($conn));
+                }
+                if (!mysqli_stmt_execute($stmtDet)) {
+                    $err = mysqli_stmt_error($stmtDet);
+                    mysqli_stmt_close($stmtDet);
+                    throw new Exception($err);
+                }
                 mysqli_stmt_close($stmtDet);
-                throw new Exception($err);
+                $idDetail++;
             }
-            mysqli_stmt_close($stmtDet);
 
             mysqli_commit($conn);
-            return ['ok' => true, 'id_transaksi' => $idTransaksi, 'error' => null];
+            return ['ok' => true, 'id_transaksi' => $idTransaksi, 'id_nota' => $idNota, 'error' => null];
         } catch (Throwable $e) {
             mysqli_rollback($conn);
             return ['ok' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Kompatibilitas pemanggilan 1 item atau multi-item.
+     */
+    public static function buat(int $idProduk, int $idKasir, int $kuantitas, ?string $catatanRaw): array
+    {
+        return self::buatMulti($idKasir, [[
+            'id_produk' => $idProduk,
+            'kuantitas' => $kuantitas,
+            'catatan'   => $catatanRaw,
+        ]]);
     }
 }

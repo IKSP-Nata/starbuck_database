@@ -1,5 +1,4 @@
 <?php
-// Mendefinisikan ROOTPATH sebagai path ke direktori root proyek
 define('ROOTPATH', $_SERVER['DOCUMENT_ROOT'] . '/starbuck');
 include ROOTPATH . '/include/header.php';
 include ROOTPATH . '/config/config.php';

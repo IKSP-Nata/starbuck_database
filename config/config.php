@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
-// Koneksi singleton MySQLi (tetap disediakan pada variabel $koneksi untuk kompatibilitas)
+// Variabel global $koneksi dipertahankan untuk kompatibilitas modul lama.
 $koneksi = Database::ambilKoneksi();
 
 if (!function_exists('setFlashToast')) {

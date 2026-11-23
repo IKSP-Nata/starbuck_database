@@ -1,6 +1,5 @@
     </main>
 
-    <!-- Modal Konfirmasi Hapus Bootstrap 5.3 -->
     <div class="modal fade sb-modal" id="sbConfirmModal" tabindex="-1" aria-labelledby="sbConfirmModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -34,7 +33,6 @@
         window.SB_FLASH_TOAST = <?php echo json_encode($sb_flash_toast, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     </script>
 
-    <!-- Bootstrap 5.3 JS Bundle via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?php echo $sb_footer_base; ?>/assets/js/app.js"></script>
 </body>

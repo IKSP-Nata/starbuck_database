@@ -11,12 +11,10 @@ $daftar_kasir  = Kasir::semua('nama');
 <div class="container-fluid px-0">
     <form action="../../process/process_transactions.php" method="post" id="form-transaksi">
         <input type="hidden" name="action" value="add">
-        <input type="hidden" name="id_produk" id="id_produk" value="" required>
-        <input type="hidden" name="catatan" id="input_catatan" value="">
+        <div id="cart-hidden-inputs"></div>
 
         <div class="row g-4 align-items-start">
 
-            <!-- Kolom Kiri: Katalog Pilih Menu (col-lg-7) -->
             <div class="col-lg-7">
                 <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
                     <div>
@@ -111,7 +109,6 @@ $daftar_kasir  = Kasir::semua('nama');
                 <?php endif; ?>
             </div>
 
-            <!-- Kolom Kanan: Panel Sticky Bills (col-lg-5) -->
             <div class="col-lg-5">
                 <div class="card-soft bills-panel">
                     <div class="mb-3">
@@ -119,7 +116,6 @@ $daftar_kasir  = Kasir::semua('nama');
                         <p class="page-subtitle mb-0">Ringkasan Transaksi</p>
                     </div>
 
-                    <!-- Pilihan Kasir Bertugas (Wajib, disimpan di localStorage) -->
                     <div class="mb-3">
                         <label for="id_kasir" class="form-label fw-medium">Kasir Bertugas</label>
                         <select name="id_kasir" id="id_kasir" class="form-select" required>
@@ -132,13 +128,12 @@ $daftar_kasir  = Kasir::semua('nama');
                         </select>
                     </div>
 
-                    <!-- Status kosong saat belum ada menu dipilih -->
-                    <div class="empty-state bills-selected-item mb-3" id="bills-empty">
-                        Pilih menu di sebelah kiri untuk memulai transaksi.
-                    </div>
-
-                    <!-- Detail item terpilih + kontrol jumlah -->
                     <div class="bills-selected-item mb-3 d-none" id="bills-item">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="label-caps">Atur Item Terpilih</span>
+                            <button type="button" class="btn-close-config" id="btn-close-config" aria-label="Tutup pengaturan item">&times;</button>
+                        </div>
+
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <span class="avatar-initial" id="selected-avatar" aria-hidden="true">--</span>
                             <img src="" alt="" class="product-avatar-img d-none" id="selected-avatar-img">
@@ -149,51 +144,68 @@ $daftar_kasir  = Kasir::semua('nama');
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between pt-2 border-top" style="border-color: var(--border-soft) !important;">
-                            <label for="jumlah" class="form-label mb-0">Jumlah Beli</label>
+                            <label for="jumlah_item" class="form-label mb-0">Jumlah Item</label>
                             <div class="qty-control">
                                 <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Kurangi jumlah">&minus;</button>
-                                <input type="number" name="jumlah" id="jumlah" class="form-control qty-input"
-                                    min="1" value="1" required>
+                                <input type="number" id="jumlah_item" class="form-control qty-input"
+                                    min="1" value="1">
                                 <button type="button" class="qty-btn" id="btn-qty-plus" aria-label="Tambah jumlah">+</button>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Bagian Kustomisasi Pesanan (Hanya untuk kategori Minuman) -->
-                    <div class="drink-custom-collapse" id="drink-custom-wrap" aria-hidden="true">
-                        <div class="drink-custom-inner">
-                            <div class="drink-custom-section">
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium mb-2">Ukuran Gelas</label>
-                                    <div class="option-chip-group" role="group" aria-label="Pilihan ukuran gelas">
-                                        <button type="button" class="option-chip" data-ukuran="Small" aria-pressed="false" tabindex="-1">Small</button>
-                                        <button type="button" class="option-chip is-active" data-ukuran="Medium" aria-pressed="true" tabindex="-1">Medium</button>
-                                        <button type="button" class="option-chip" data-ukuran="Large" aria-pressed="false" tabindex="-1">Large</button>
+                        <div class="drink-custom-collapse" id="drink-custom-wrap" aria-hidden="true">
+                            <div class="drink-custom-inner">
+                                <div class="drink-custom-section mb-0 pb-0">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium mb-2">Ukuran Gelas</label>
+                                        <div class="option-chip-group" role="group" aria-label="Pilihan ukuran gelas">
+                                            <button type="button" class="option-chip" data-ukuran="Small" aria-pressed="false" tabindex="-1">Small</button>
+                                            <button type="button" class="option-chip is-active" data-ukuran="Medium" aria-pressed="true" tabindex="-1">Medium</button>
+                                            <button type="button" class="option-chip" data-ukuran="Large" aria-pressed="false" tabindex="-1">Large</button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium mb-2">Penyajian</label>
-                                    <div class="option-chip-group" role="group" aria-label="Pilihan penyajian suhu">
-                                        <button type="button" class="option-chip is-active" data-suhu="Ice" aria-pressed="true" tabindex="-1">Ice</button>
-                                        <button type="button" class="option-chip" data-suhu="Hot" aria-pressed="false" tabindex="-1">Hot</button>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium mb-2">Penyajian</label>
+                                        <div class="option-chip-group" role="group" aria-label="Pilihan penyajian suhu">
+                                            <button type="button" class="option-chip is-active" data-suhu="Ice" aria-pressed="true" tabindex="-1">Ice</button>
+                                            <button type="button" class="option-chip" data-suhu="Hot" aria-pressed="false" tabindex="-1">Hot</button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div>
-                                    <label class="form-label fw-medium mb-2">Tingkat Gula</label>
-                                    <div class="option-chip-group" role="group" aria-label="Pilihan tingkat gula">
-                                        <button type="button" class="option-chip" data-gula="No sugar" aria-pressed="false" tabindex="-1">No sugar</button>
-                                        <button type="button" class="option-chip" data-gula="Less sugar" aria-pressed="false" tabindex="-1">Less sugar</button>
-                                        <button type="button" class="option-chip is-active" data-gula="Normal" aria-pressed="true" tabindex="-1">Normal</button>
-                                        <button type="button" class="option-chip" data-gula="High sugar" aria-pressed="false" tabindex="-1">High sugar</button>
+                                    <div>
+                                        <label class="form-label fw-medium mb-2">Tingkat Gula</label>
+                                        <div class="option-chip-group" role="group" aria-label="Pilihan tingkat gula">
+                                            <button type="button" class="option-chip" data-gula="No sugar" aria-pressed="false" tabindex="-1">No sugar</button>
+                                            <button type="button" class="option-chip" data-gula="Less sugar" aria-pressed="false" tabindex="-1">Less sugar</button>
+                                            <button type="button" class="option-chip is-active" data-gula="Normal" aria-pressed="true" tabindex="-1">Normal</button>
+                                            <button type="button" class="option-chip" data-gula="High sugar" aria-pressed="false" tabindex="-1">High sugar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="mt-3 pt-2">
+                            <button type="button" id="btn-add-cart" class="btn-coffee btn-block">
+                                + Tambah ke Keranjang
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Rincian Subtotal, Pajak 11%, dan Total -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="form-label fw-semibold mb-0">Daftar Pesanan</span>
+                            <span class="badge-category tabular-nums" id="cart-count-badge">0 item</span>
+                        </div>
+
+                        <div class="empty-state bills-selected-item" id="cart-empty">
+                            Keranjang masih kosong. Klik menu di sebelah kiri lalu tekan "+ Tambah ke Keranjang".
+                        </div>
+
+                        <div class="cart-list d-none" id="cart-list"></div>
+                    </div>
+
                     <div class="pt-1" aria-live="polite" aria-atomic="true">
                         <div class="bills-row">
                             <span class="text-muted">Subtotal</span>
@@ -229,27 +241,31 @@ $daftar_kasir  = Kasir::semua('nama');
 (function () {
     var KASIR_STORAGE_KEY = 'starbuck_active_kasir';
 
-    var selectedHarga    = 0;
-    var selectedKategori = '';
+    var currentProduct   = null;
     var currentUkuran    = 'Medium';
     var currentSuhu      = 'Ice';
     var currentGula      = 'Normal';
     var activeFilterKat  = 'Semua';
+    var cartItems        = [];
 
-    var inputIdProduk     = document.getElementById('id_produk');
-    var inputCatatan      = document.getElementById('input_catatan');
     var selectKasir       = document.getElementById('id_kasir');
-    var inputJumlah       = document.getElementById('jumlah');
+    var inputJumlah       = document.getElementById('jumlah_item');
     var btnMinus          = document.getElementById('btn-qty-minus');
     var btnPlus           = document.getElementById('btn-qty-plus');
+    var btnAddCart        = document.getElementById('btn-add-cart');
+    var btnCloseConfig    = document.getElementById('btn-close-config');
     var btnSubmit         = document.getElementById('btn-submit');
 
-    var billsEmpty        = document.getElementById('bills-empty');
     var billsItem         = document.getElementById('bills-item');
     var selectedAvatar    = document.getElementById('selected-avatar');
     var selectedAvatarImg = document.getElementById('selected-avatar-img');
     var selectedNama      = document.getElementById('selected-nama');
     var selectedHargaEl   = document.getElementById('selected-harga');
+
+    var cartEmptyEl       = document.getElementById('cart-empty');
+    var cartListEl        = document.getElementById('cart-list');
+    var cartCountBadge    = document.getElementById('cart-count-badge');
+    var cartHiddenInputs  = document.getElementById('cart-hidden-inputs');
 
     var drinkCustomWrap   = document.getElementById('drink-custom-wrap');
     var ukuranChips       = document.querySelectorAll('.option-chip[data-ukuran]');
@@ -271,7 +287,6 @@ $daftar_kasir  = Kasir::semua('nama');
         return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
     }
 
-    // Pulihkan pilihan kasir terakhir dari localStorage
     if (selectKasir) {
         try {
             var savedKasir = localStorage.getItem(KASIR_STORAGE_KEY);
@@ -295,15 +310,11 @@ $daftar_kasir  = Kasir::semua('nama');
         });
     }
 
-    function updateCatatanInput() {
-        if (!inputCatatan) {
-            return;
+    function getActiveCatatan() {
+        if (currentProduct && currentProduct.kategori === 'Minuman') {
+            return currentSuhu + ', ' + currentUkuran + ', ' + currentGula;
         }
-        if (selectedKategori === 'Minuman') {
-            inputCatatan.value = currentSuhu + ', ' + currentUkuran + ', ' + currentGula;
-        } else {
-            inputCatatan.value = '';
-        }
+        return '';
     }
 
     function setActiveChip(chips, attrName, targetValue) {
@@ -337,7 +348,6 @@ $daftar_kasir  = Kasir::semua('nama');
         if (isMinuman) {
             currentUkuran = getDefaultUkuran(namaMenu);
             currentSuhu   = 'Ice';
-            // Default cerdas: Americano, Espresso, atau Pike Place -> No sugar; lainnya -> Normal
             var isBlackCoffee = /americano|espresso|pike\s*place/i.test(namaMenu || '');
             currentGula = isBlackCoffee ? 'No sugar' : 'Normal';
 
@@ -357,8 +367,6 @@ $daftar_kasir  = Kasir::semua('nama');
                 chip.setAttribute('tabindex', '-1');
             });
         }
-
-        updateCatatanInput();
     }
 
     ukuranChips.forEach(function (chip) {
@@ -367,7 +375,6 @@ $daftar_kasir  = Kasir::semua('nama');
             if (val) {
                 currentUkuran = val;
                 setActiveChip(ukuranChips, 'data-ukuran', currentUkuran);
-                updateCatatanInput();
             }
         });
     });
@@ -378,7 +385,6 @@ $daftar_kasir  = Kasir::semua('nama');
             if (val) {
                 currentSuhu = val;
                 setActiveChip(suhuChips, 'data-suhu', currentSuhu);
-                updateCatatanInput();
             }
         });
     });
@@ -389,40 +395,193 @@ $daftar_kasir  = Kasir::semua('nama');
             if (val) {
                 currentGula = val;
                 setActiveChip(gulaChips, 'data-gula', currentGula);
-                updateCatatanInput();
             }
         });
     });
 
-    function hitungTotal() {
-        var hasProduct = inputIdProduk.value.trim() !== '';
-        var hasKasir   = selectKasir && selectKasir.value.trim() !== '';
-        var jumlah     = parseInt(inputJumlah.value, 10);
+    function syncMenuCardChecks() {
+        var inCartIds = {};
+        cartItems.forEach(function (it) {
+            inCartIds[String(it.id_produk)] = true;
+        });
 
-        if (isNaN(jumlah) || jumlah < 1) {
-            jumlah = 0;
+        menuCards.forEach(function (c) {
+            var cid = String(c.getAttribute('data-id') || '');
+            var isCurrent = currentProduct && String(currentProduct.id) === cid;
+            var isInCart  = Boolean(inCartIds[cid]);
+            c.classList.toggle('is-selected', Boolean(isCurrent || isInCart));
+            c.setAttribute('aria-pressed', (isCurrent || isInCart) ? 'true' : 'false');
+        });
+    }
+
+    function renderCart() {
+        if (!cartListEl || !cartHiddenInputs) {
+            return;
         }
 
-        var subtotal = hasProduct ? Math.round(selectedHarga * jumlah) : 0;
-        var pajak    = Math.round(subtotal * 0.11);
-        var total    = subtotal + pajak;
+        cartListEl.innerHTML = '';
+        cartHiddenInputs.innerHTML = '';
+
+        var totalQty = 0;
+
+        if (cartItems.length === 0) {
+            cartListEl.classList.add('d-none');
+            if (cartEmptyEl) cartEmptyEl.classList.remove('d-none');
+        } else {
+            if (cartEmptyEl) cartEmptyEl.classList.add('d-none');
+            cartListEl.classList.remove('d-none');
+
+            cartItems.forEach(function (item, idx) {
+                totalQty += item.kuantitas;
+                var lineSubtotal = Math.round(item.harga * item.kuantitas);
+
+                var inId = document.createElement('input');
+                inId.type = 'hidden';
+                inId.name = 'items[' + idx + '][id_produk]';
+                inId.value = item.id_produk;
+                cartHiddenInputs.appendChild(inId);
+
+                var inQty = document.createElement('input');
+                inQty.type = 'hidden';
+                inQty.name = 'items[' + idx + '][kuantitas]';
+                inQty.value = item.kuantitas;
+                cartHiddenInputs.appendChild(inQty);
+
+                var inNote = document.createElement('input');
+                inNote.type = 'hidden';
+                inNote.name = 'items[' + idx + '][catatan]';
+                inNote.value = item.catatan;
+                cartHiddenInputs.appendChild(inNote);
+
+                var row = document.createElement('div');
+                row.className = 'cart-item-row';
+
+                var topLine = document.createElement('div');
+                topLine.className = 'd-flex align-items-start justify-content-between gap-2';
+
+                var infoWrap = document.createElement('div');
+                infoWrap.className = 'min-w-0 flex-grow-1';
+
+                var titleEl = document.createElement('div');
+                titleEl.className = 'fw-semibold product-card-title text-truncate';
+                titleEl.textContent = item.nama;
+                infoWrap.appendChild(titleEl);
+
+                if (item.catatan !== '') {
+                    var badgeWrap = document.createElement('div');
+                    badgeWrap.className = 'mt-1';
+                    var badgeEl = document.createElement('span');
+                    badgeEl.className = 'badge-category';
+                    badgeEl.textContent = item.catatan;
+                    badgeWrap.appendChild(badgeEl);
+                    infoWrap.appendChild(badgeWrap);
+                }
+
+                var priceEachEl = document.createElement('div');
+                priceEachEl.className = 'page-subtitle tabular-nums mt-1';
+                priceEachEl.textContent = formatRupiah(item.harga) + ' / item';
+                infoWrap.appendChild(priceEachEl);
+
+                var delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'btn-cart-remove';
+                delBtn.setAttribute('aria-label', 'Hapus ' + item.nama + ' dari keranjang');
+                delBtn.innerHTML = '<i class="bi bi-trash3" aria-hidden="true"></i>';
+                delBtn.addEventListener('click', function () {
+                    cartItems.splice(idx, 1);
+                    renderCart();
+                    syncMenuCardChecks();
+                    hitungTotal();
+                });
+
+                topLine.appendChild(infoWrap);
+                topLine.appendChild(delBtn);
+
+                var bottomLine = document.createElement('div');
+                bottomLine.className = 'd-flex align-items-center justify-content-between gap-2 mt-2 pt-2 border-top';
+                bottomLine.style.borderColor = 'var(--border-soft)';
+
+                var qtyCtrl = document.createElement('div');
+                qtyCtrl.className = 'qty-control';
+
+                var minusB = document.createElement('button');
+                minusB.type = 'button';
+                minusB.className = 'qty-btn qty-btn-sm';
+                minusB.setAttribute('aria-label', 'Kurangi jumlah ' + item.nama);
+                minusB.innerHTML = '&minus;';
+                minusB.addEventListener('click', function () {
+                    if (item.kuantitas > 1) {
+                        item.kuantitas--;
+                        renderCart();
+                        hitungTotal();
+                    }
+                });
+
+                var qtyIn = document.createElement('input');
+                qtyIn.type = 'number';
+                qtyIn.className = 'form-control qty-input qty-input-sm';
+                qtyIn.min = '1';
+                qtyIn.value = String(item.kuantitas);
+                qtyIn.setAttribute('aria-label', 'Jumlah ' + item.nama);
+                qtyIn.addEventListener('change', function () {
+                    var v = parseInt(qtyIn.value, 10);
+                    item.kuantitas = (isNaN(v) || v < 1) ? 1 : v;
+                    renderCart();
+                    hitungTotal();
+                });
+
+                var plusB = document.createElement('button');
+                plusB.type = 'button';
+                plusB.className = 'qty-btn qty-btn-sm';
+                plusB.setAttribute('aria-label', 'Tambah jumlah ' + item.nama);
+                plusB.textContent = '+';
+                plusB.addEventListener('click', function () {
+                    item.kuantitas++;
+                    renderCart();
+                    hitungTotal();
+                });
+
+                qtyCtrl.appendChild(minusB);
+                qtyCtrl.appendChild(qtyIn);
+                qtyCtrl.appendChild(plusB);
+
+                var subEl = document.createElement('div');
+                subEl.className = 'fw-bold tabular-nums';
+                subEl.textContent = formatRupiah(lineSubtotal);
+
+                bottomLine.appendChild(qtyCtrl);
+                bottomLine.appendChild(subEl);
+
+                row.appendChild(topLine);
+                row.appendChild(bottomLine);
+                cartListEl.appendChild(row);
+            });
+        }
+
+        if (cartCountBadge) {
+            cartCountBadge.textContent = totalQty + ' item';
+        }
+    }
+
+    function hitungTotal() {
+        var hasKasir = selectKasir && selectKasir.value.trim() !== '';
+        var subtotal = 0;
+
+        cartItems.forEach(function (it) {
+            subtotal += Math.round(it.harga * it.kuantitas);
+        });
+
+        var pajak = Math.round(subtotal * 0.11);
+        var total = subtotal + pajak;
 
         elSubtotal.textContent = formatRupiah(subtotal);
         elPajak.textContent    = formatRupiah(pajak);
         elTotal.textContent    = formatRupiah(total);
 
-        btnSubmit.disabled = !(hasProduct && hasKasir && jumlah >= 1);
+        btnSubmit.disabled = !(cartItems.length >= 1 && hasKasir);
     }
 
     function pilihMenu(card) {
-        menuCards.forEach(function (c) {
-            c.classList.remove('is-selected');
-            c.setAttribute('aria-pressed', 'false');
-        });
-
-        card.classList.add('is-selected');
-        card.setAttribute('aria-pressed', 'true');
-
         var id       = card.getAttribute('data-id') || '';
         var nama     = card.getAttribute('data-nama') || '';
         var harga    = parseFloat(card.getAttribute('data-harga')) || 0;
@@ -430,13 +589,16 @@ $daftar_kasir  = Kasir::semua('nama');
         var inisial  = card.getAttribute('data-inisial') || 'MN';
         var gambar   = card.getAttribute('data-gambar') || '';
 
-        selectedHarga    = harga;
-        selectedKategori = kategori;
-        inputIdProduk.value = id;
+        currentProduct = {
+            id: id,
+            nama: nama,
+            harga: harga,
+            kategori: kategori,
+            inisial: inisial,
+            gambar: gambar
+        };
 
-        if (!inputJumlah.value || parseInt(inputJumlah.value, 10) < 1) {
-            inputJumlah.value = 1;
-        }
+        inputJumlah.value = 1;
 
         if (gambar !== '') {
             selectedAvatarImg.src = gambar;
@@ -452,11 +614,58 @@ $daftar_kasir  = Kasir::semua('nama');
         selectedNama.textContent    = nama;
         selectedHargaEl.textContent = formatRupiah(harga) + ' / item';
 
-        billsEmpty.classList.add('d-none');
         billsItem.classList.remove('d-none');
 
         toggleDrinkCustomization(kategori === 'Minuman', nama);
-        hitungTotal();
+        syncMenuCardChecks();
+    }
+
+    if (btnCloseConfig) {
+        btnCloseConfig.addEventListener('click', function () {
+            currentProduct = null;
+            billsItem.classList.add('d-none');
+            syncMenuCardChecks();
+        });
+    }
+
+    if (btnAddCart) {
+        btnAddCart.addEventListener('click', function () {
+            if (!currentProduct) {
+                return;
+            }
+            var qtyToAdd = parseInt(inputJumlah.value, 10);
+            if (isNaN(qtyToAdd) || qtyToAdd < 1) {
+                qtyToAdd = 1;
+            }
+            var catatan = getActiveCatatan();
+            var pid = String(currentProduct.id);
+
+            var existing = null;
+            for (var i = 0; i < cartItems.length; i++) {
+                if (String(cartItems[i].id_produk) === pid && cartItems[i].catatan === catatan) {
+                    existing = cartItems[i];
+                    break;
+                }
+            }
+
+            if (existing) {
+                existing.kuantitas += qtyToAdd;
+            } else {
+                cartItems.push({
+                    id_produk: currentProduct.id,
+                    nama: currentProduct.nama,
+                    harga: currentProduct.harga,
+                    kategori: currentProduct.kategori,
+                    kuantitas: qtyToAdd,
+                    catatan: catatan
+                });
+            }
+
+            inputJumlah.value = 1;
+            renderCart();
+            syncMenuCardChecks();
+            hitungTotal();
+        });
     }
 
     menuCards.forEach(function (card) {
@@ -470,7 +679,6 @@ $daftar_kasir  = Kasir::semua('nama');
             var current = parseInt(inputJumlah.value, 10) || 1;
             if (current > 1) {
                 inputJumlah.value = current - 1;
-                hitungTotal();
             }
         });
     }
@@ -479,18 +687,15 @@ $daftar_kasir  = Kasir::semua('nama');
         btnPlus.addEventListener('click', function () {
             var current = parseInt(inputJumlah.value, 10) || 0;
             inputJumlah.value = current + 1;
-            hitungTotal();
         });
     }
 
     if (inputJumlah) {
-        inputJumlah.addEventListener('input', hitungTotal);
         inputJumlah.addEventListener('change', function () {
             var val = parseInt(inputJumlah.value, 10);
             if (isNaN(val) || val < 1) {
                 inputJumlah.value = 1;
             }
-            hitungTotal();
         });
     }
 
@@ -541,9 +746,9 @@ $daftar_kasir  = Kasir::semua('nama');
         searchInput.addEventListener('input', applyMenuFilter);
     }
 
+    renderCart();
     hitungTotal();
 
-    // Otomatis pilih menu dari parameter URL (?id_produk=...)
     try {
         var pid = new URLSearchParams(window.location.search).get('id_produk');
         if (pid) {
